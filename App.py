@@ -274,14 +274,7 @@ def upload():
 # MAIN (PROD READY)
 # ─────────────────────────────────────────
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    os.makedirs('static/uploads', exist_ok=True)
     port = int(os.environ.get("PORT", 5000))
-
-    print("🚀 Running on port", port)
-
-    socketio.run(
-        app,
-        host="0.0.0.0",
-        port=port,
-        debug=False
-    )
+    socketio.run(app, debug=False, host='0.0.0.0', port=port)
