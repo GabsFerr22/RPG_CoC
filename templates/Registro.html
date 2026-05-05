@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trieste 1919 — Criar Investigador</title>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C8A84A;--dark:#0A0806;--ink:#1A1208;
+  --parchment:#E8D8A8;--border:#3A2A14;--dim:#6A5A30;
+}
+body{
+  background:#0A0806;
+  font-family:'IM Fell English',serif;
+  min-height:100vh;padding:40px 20px 60px;
+  background-image:radial-gradient(ellipse at 50% 0%, rgba(30,20,10,0.8) 0%, transparent 60%);
+}
+.fog-layer{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 30% 60%, rgba(30,40,35,0.4) 0%, transparent 55%);
+  animation:fogDrift 25s ease-in-out infinite alternate;
+}
+@keyframes fogDrift{0%{transform:translateX(-2%)}100%{transform:translateX(2%)}}
+
+.page-wrap{position:relative;z-index:10;max-width:860px;margin:0 auto}
+
+.page-title{
+  text-align:center;margin-bottom:36px;
+}
+.title-main{
+  font-family:'UnifrakturMaguntia',cursive;
+  font-size:36px;color:#C8A84A;
+  text-shadow:0 0 30px rgba(200,168,74,0.3);
+}
+.title-sub{
+  font-family:'Cinzel',serif;font-size:10px;
+  letter-spacing:5px;color:#5A4A20;
+  text-transform:uppercase;margin-top:6px;
+}
+
+.panel{
+  background:linear-gradient(160deg,#151008 0%,#0E0A04 100%);
+  border:1px solid #3A2A14;
+  box-shadow:0 0 40px rgba(0,0,0,0.8),inset 0 0 30px rgba(0,0,0,0.3);
+  padding:36px 40px;margin-bottom:24px;
+  position:relative;
+}
+.panel::before,.panel::after{
+  content:'';position:absolute;width:30px;height:30px;border-color:#5A4A1A;border-style:solid;
+}
+.panel::before{top:10px;left:10px;border-width:1px 0 0 1px}
+.panel::after{bottom:10px;right:10px;border-width:0 1px 1px 0}
+
+.section-title{
+  font-family:'Cinzel',serif;font-size:11px;
+  letter-spacing:4px;text-transform:uppercase;
+  color:#8A6A30;border-bottom:1px solid #2A1E0A;
+  padding-bottom:10px;margin-bottom:24px;
+  display:flex;align-items:center;gap:10px;
+}
+.section-title::before{content:'✦';font-size:10px;color:#6A4A20}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+.form-group{margin-bottom:20px}
+label{
+  display:block;font-family:'Cinzel',serif;
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:#7A6028;margin-bottom:7px;
+}
+input[type=text],input[type=password],input[type=number],select,textarea{
+  width:100%;background:rgba(8,6,3,0.9);
+  border:1px solid #2A1E0A;border-top-color:#3A2A12;
+  color:#D4C090;font-family:'IM Fell English',serif;font-size:14px;
+  padding:10px 12px;outline:none;transition:all 0.3s;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,0.5);
+}
+input:focus,select:focus,textarea:focus{
+  border-color:#7A5A20;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,0.5),0 0 10px rgba(120,90,30,0.2);
+}
+input::placeholder,textarea::placeholder{color:#3A2A10;font-style:italic}
+select option{background:#0E0A04;color:#D4C090}
+textarea{resize:vertical;min-height:80px}
+
+/* Upload de imagem */
+.image-upload-area{
+  border:1px dashed #3A2A12;
+  background:rgba(8,6,3,0.6);
+  padding:28px;text-align:center;cursor:pointer;
+  transition:all 0.3s;position:relative;overflow:hidden;
+}
+.image-upload-area:hover{border-color:#6A4A1A;background:rgba(15,10,5,0.7)}
+.image-upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:32px;color:#4A3A18;display:block;margin-bottom:8px}
+.upload-text{font-family:'Cinzel',serif;font-size:10px;color:#5A4A20;letter-spacing:2px}
+.preview-img{
+  width:120px;height:160px;object-fit:cover;
+  border:1px solid #4A3A1A;display:none;margin:0 auto;
+}
+
+/* Atributos */
+.attr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.attr-box{
+  background:rgba(5,4,2,0.8);border:1px solid #2A1E0A;
+  padding:12px;text-align:center;position:relative;
+}
+.attr-name{
+  font-family:'Cinzel',serif;font-size:9px;
+  letter-spacing:2px;color:#6A5020;
+  text-transform:uppercase;margin-bottom:8px;display:block;
+}
+.attr-input{
+  width:100%;background:transparent;border:none;
+  border-bottom:1px solid #3A2A10;
+  color:#C8A840;font-family:'Cinzel',serif;
+  font-size:22px;font-weight:600;text-align:center;
+  padding:4px 0;outline:none;
+}
+.attr-input:focus{border-bottom-color:#8A6A30;color:#E8C840}
+.attr-percent{
+  font-size:10px;color:#4A3A18;margin-top:4px;
+  font-family:'Cinzel',serif;
+}
+
+/* Status */
+.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:8px}
+.status-item{position:relative}
+.status-item label{display:flex;align-items:center;gap:6px}
+.status-icon{font-size:14px}
+.status-input{
+  width:100%;background:rgba(8,6,3,0.9);
+  border:1px solid #2A1E0A;border-top-color:#3A2A12;
+  color:#D4C090;font-family:'Cinzel',serif;font-size:18px;font-weight:600;
+  padding:10px;text-align:center;outline:none;transition:all 0.3s;
+}
+.status-input.sanity{border-top-color:#8B3A3A;color:#C85050}
+.status-input.hp{border-top-color:#3A6A3A;color:#50A850}
+.status-input.mp{border-top-color:#3A3A8B;color:#5050C8}
+
+/* Perícias */
+.skills-container{margin-top:8px}
+.skill-row{
+  display:grid;grid-template-columns:1fr 80px 80px auto;
+  gap:10px;align-items:center;margin-bottom:10px;
+  padding:8px 12px;background:rgba(5,4,2,0.5);
+  border-left:2px solid #2A1E0A;
+}
+.skill-row:hover{border-left-color:#4A3A1A}
+.skill-name-input{background:transparent;border:none;border-bottom:1px solid #2A1E0A;color:#C4B080;font-family:'IM Fell English',serif;font-size:13px;padding:4px 0;outline:none;width:100%}
+.skill-name-input:focus{border-bottom-color:#6A5020}
+.skill-val-input{background:transparent;border:none;border-bottom:1px solid #2A1E0A;color:#A8A060;font-family:'Cinzel',serif;font-size:14px;font-weight:600;text-align:center;padding:4px;outline:none;width:100%}
+.skill-val-input:focus{border-bottom-color:#6A5020}
+.skill-cat-select{background:rgba(8,6,3,0.9);border:1px solid #2A1E0A;color:#7A6A38;font-family:'Cinzel',serif;font-size:10px;padding:4px 6px;outline:none}
+.btn-remove{background:none;border:1px solid #3A1A1A;color:#6A2A2A;cursor:pointer;padding:4px 8px;font-size:12px;transition:all 0.2s}
+.btn-remove:hover{background:rgba(139,0,0,0.2);color:#C84A4A;border-color:#5A2A2A}
+
+.btn-add-skill{
+  background:transparent;border:1px dashed #2A2010;
+  color:#5A4A20;font-family:'Cinzel',serif;font-size:10px;
+  letter-spacing:3px;padding:10px;width:100%;cursor:pointer;
+  transition:all 0.3s;text-transform:uppercase;margin-top:4px;
+}
+.btn-add-skill:hover{border-color:#4A3A1A;color:#8A6A30}
+
+/* Perícias pré-definidas */
+.preset-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.preset-btn{
+  background:rgba(8,6,3,0.7);border:1px solid #2A1E0A;
+  color:#6A5020;font-family:'Cinzel',serif;font-size:9px;
+  letter-spacing:1px;padding:5px 10px;cursor:pointer;
+  transition:all 0.2s;text-transform:uppercase;
+}
+.preset-btn:hover{border-color:#4A3A1A;color:#A8801A;background:rgba(20,14,6,0.8)}
+
+/* Botão submit */
+.btn-submit{
+  width:100%;padding:16px;
+  background:linear-gradient(180deg,#2A1E0A 0%,#1A1206 100%);
+  border:1px solid #6A4A1A;
+  color:#C8A84A;font-family:'Cinzel',serif;font-size:13px;
+  font-weight:600;letter-spacing:5px;text-transform:uppercase;
+  cursor:pointer;transition:all 0.3s;
+}
+.btn-submit:hover{border-color:#C8A84A;box-shadow:0 0 25px rgba(200,168,74,0.25)}
+
+.error-msg{
+  background:rgba(139,0,0,0.2);border:1px solid rgba(139,0,0,0.4);
+  color:#C84A4A;padding:12px;font-size:12px;
+  letter-spacing:1px;margin-bottom:16px;display:none;
+  font-family:'Cinzel',serif;
+}
+
+.loading{
+  position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999;
+  display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+}
+.loading.active{display:flex}
+.loading-eye{width:50px;height:50px;border:2px solid #3A2A10;border-top-color:#C8A84A;border-radius:50%;animation:spin 1.5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:'Cinzel',serif;color:#8A6A30;letter-spacing:4px;font-size:11px;animation:loadPulse 1.5s ease-in-out infinite}
+@keyframes loadPulse{0%,100%{opacity:0.4}50%{opacity:1}}
+
+.back-link{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;
+  color:#5A4A20;text-decoration:none;margin-bottom:24px;
+  transition:color 0.2s;
+}
+.back-link:hover{color:#8A6A30}
+
+/* Divisor de seção */
+.sec-divider{
+  display:flex;align-items:center;gap:12px;margin:8px 0 20px;
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;
+  color:#4A3A18;text-transform:uppercase;
+}
+.sec-divider::before,.sec-divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,#2A1E0A,transparent)}
+</style>
+</head>
+<body>
+<div class="fog-layer"></div>
+<div class="page-wrap">
+  <a href="/login" class="back-link">← Voltar ao Acesso</a>
+
+  <div class="page-title">
+    <div class="title-main">Criar Investigador</div>
+    <div class="title-sub">Trieste · Novembro 1919 · Call of Cthulhu</div>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <form id="registerForm" enctype="multipart/form-data">
+
+    <!-- CREDENCIAIS -->
+    <div class="panel">
+      <div class="section-title">Credenciais de Acesso</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Nome de Usuário</label>
+          <input type="text" name="username" placeholder="como vai se identificar" required autocomplete="off"/>
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" name="password" placeholder="•••••••••••" required/>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERSONAGEM -->
+    <div class="panel">
+      <div class="section-title">Identidade do Personagem</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Nome do Personagem</label>
+          <input type="text" name="char_name" placeholder="quem você é nesse mundo" required/>
+        </div>
+        <div class="form-group">
+          <label>Ocupação</label>
+          <input type="text" name="occupation" placeholder="médico, jornalista, detetive..."/>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:8px">
+        <label>Retrato do Investigador (PNG sem fundo recomendado)</label>
+        <div class="image-upload-area" id="uploadArea">
+          <input type="file" name="char_image" accept="image/*" onchange="previewImage(this)"/>
+          <img class="preview-img" id="previewImg" src="" alt="preview"/>
+          <span class="upload-icon" id="uploadIcon">🎭</span>
+          <div class="upload-text" id="uploadText">Clique para selecionar imagem do personagem</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATRIBUTOS -->
+    <div class="panel">
+      <div class="section-title">Atributos Base (valor em pontos, ex: 60 = 60%)</div>
+      <div class="attr-grid">
+        <div class="attr-box">
+          <span class="attr-name">Força (STR)</span>
+          <input class="attr-input" type="number" name="strength" value="50" min="1" max="99" oninput="updatePercent(this,'str-pct')"/>
+          <div class="attr-percent" id="str-pct">Regular: 25 | Difícil: 12</div>
+        </div>
+        <div class="attr-box">
+          <span class="attr-name">Constituição (CON)</span>
+          <input class="attr-input" type="number" name="constitution" value="50" min="1" max="99" oninput="updatePercent(this,'con-pct')"/>
+          <div class="attr-percent" id="con-pct">Regular: 25 | Difícil: 12</div>
+        </div>
+        <div class="attr-box">
+          <span class="attr-name">Tamanho (SIZ)</span>
+          <input class="attr-input" type="number" name="size" value="50" min="1" max="99" oninput="updatePercent(this,'siz-pct')"/>
+          <div class="attr-percent" id="siz-pct">Regular: 25 | Difícil: 12</div>
+        </div>
+        <div class="attr-box">
+          <span class="attr-name">Destreza (DEX)</span>
+          <input class="attr-input" type="number" name="dexterity" value="50" min="1" max="99" oninput="updatePercent(this,'dex-pct')"/>
+          <div class="attr-percent" id="dex-pct">Regular: 25 | Difícil: 12</div>
+        </div>
+        <div class="attr-box">
+          <span class="attr-name">Aparência (APP)</span>
+          <input class="attr-input" type="number" name="appearance" value="50" min="1" max="99" oninput="updatePercent(this,'app-pct')"/>
+          <div class="attr-percent" id="app-pct">Regular: 25 | Difícil: 12</div>
+        </div>
+        <div class="attr-box">
+          <span class="attr-name">Inteligência (INT)</span>
+          <input class="attr-input" type="number" name="intelligence" value="50" min="1" max="99" oninput="updatePercent(this,'int-pct')"/>
+          <div class="attr-percent" id="int-pct">Regular: 25 | Difícil: 12</div>
+        </div>
+        <div class="attr-box">
+          <span class="attr-name">Poder (POW)</span>
+          <input class="attr-input" type="number" name="power" value="50" min="1" max="99" oninput="updatePercent(this,'pow-pct')"/>
+          <div class="attr-percent" id="pow-pct">Regular: 25 | Difícil: 12</div>
+        </div>
+        <div class="attr-box">
+          <span class="attr-name">Educação (EDU)</span>
+          <input class="attr-input" type="number" name="education" value="50" min="1" max="99" oninput="updatePercent(this,'edu-pct')"/>
+          <div class="attr-percent" id="edu-pct">Regular: 25 | Difícil: 12</div>
+        </div>
+        <div class="attr-box">
+          <span class="attr-name">Sorte (LUCK)</span>
+          <input class="attr-input" type="number" name="luck" value="50" min="1" max="99" oninput="updatePercent(this,'luck-pct')"/>
+          <div class="attr-percent" id="luck-pct">Regular: 25 | Difícil: 12</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="panel">
+      <div class="section-title">Status Vitais</div>
+      <div class="status-grid">
+        <div class="status-item">
+          <label><span class="status-icon">🧠</span> Sanidade (SAN)</label>
+          <input class="status-input sanity" type="number" name="sanity" value="50" min="0" max="99"/>
+        </div>
+        <div class="status-item">
+          <label><span class="status-icon">❤️</span> Pontos de Vida (HP)</label>
+          <input class="status-input hp" type="number" name="hp" value="10" min="1" max="20"/>
+        </div>
+        <div class="status-item">
+          <label><span class="status-icon">📖</span> Pontos de Magia (MP)</label>
+          <input class="status-input mp" type="number" name="mp" value="10" min="0" max="20"/>
+        </div>
+        <div class="status-item">
+          <label><span class="status-icon">💰</span> Nível de Crédito</label>
+          <input class="status-input" type="number" name="credit_rating" value="20" min="0" max="99"/>
+        </div>
+        <div class="status-item">
+          <label><span class="status-icon">🦶</span> Movimento (MOV)</label>
+          <input class="status-input" type="number" name="movement" value="8" min="1" max="10"/>
+        </div>
+        <div class="status-item">
+          <label><span class="status-icon">⚔️</span> Bônus de Dano</label>
+          <input class="status-input" type="text" name="damage_bonus" value="0" placeholder="+1d4"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERÍCIAS -->
+    <div class="panel">
+      <div class="section-title">Perícias</div>
+      <div class="sec-divider">Perícias comuns da época</div>
+      <div class="preset-skills">
+        <button type="button" class="preset-btn" onclick="addPreset('Biblioteconomia',20,'intelectual')">Biblioteconomia 20%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Charme',15,'social')">Charme 15%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Escalar',20,'físico')">Escalar 20%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Escutar',20,'percepção')">Escutar 20%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Furtividade',20,'físico')">Furtividade 20%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('História',05,'intelectual')">História 5%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Medicina',01,'intelectual')">Medicina 1%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Natação',20,'físico')">Natação 20%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Ocultismo',05,'especial')">Ocultismo 5%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Percepção',25,'percepção')">Percepção 25%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Persuasão',10,'social')">Persuasão 10%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Primeiros Socorros',30,'geral')">Primeiros Socorros 30%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Psicologia',10,'social')">Psicologia 10%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Armas de Fogo',20,'combate')">Armas de Fogo 20%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Armas Brancas',25,'combate')">Armas Brancas 25%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Esquivar',DEX=>Math.floor(DEX/2),'combate')">Esquivar (DEX/2)</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Idiomas (Alemão)',01,'idioma')">Alemão 1%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Idiomas (Italiano)',01,'idioma')">Italiano 1%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Mecânica',10,'técnico')">Mecânica 10%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Navegação',10,'técnico')">Navegação 10%</button>
+      </div>
+
+      <div class="sec-divider">Suas perícias</div>
+      <div class="skills-container" id="skillsContainer"></div>
+      <button type="button" class="btn-add-skill" onclick="addSkillRow()">+ Adicionar Perícia Personalizada</button>
+      <input type="hidden" name="skills_json" id="skills_json"/>
+    </div>
+
+    <!-- SUBMIT -->
+    <button type="button" class="btn-submit" onclick="submitForm()">
+      ✦ Despertar o Investigador ✦
+    </button>
+  </form>
+</div>
+
+<div class="loading" id="loading">
+  <div class="loading-eye"></div>
+  <div class="loading-text">Inscrevendo no Grande Livro...</div>
+</div>
+
+<script>
+let skills=[];
+let skillId=0;
+
+function updatePercent(input,targetId){
+  const v=parseInt(input.value)||0;
+  const half=Math.floor(v/2);
+  const fifth=Math.floor(v/5);
+  document.getElementById(targetId).textContent=`Regular: ${half} | Difícil: ${fifth}`;
+}
+
+// inicializa percents
+document.querySelectorAll('.attr-input').forEach(inp=>{
+  const id=inp.closest('.attr-box').querySelector('.attr-percent').id;
+  updatePercent(inp,id);
+});
+
+function previewImage(input){
+  if(input.files&&input.files[0]){
+    const r=new FileReader();
+    r.onload=e=>{
+      const img=document.getElementById('previewImg');
+      img.src=e.target.result;img.style.display='block';
+      document.getElementById('uploadIcon').style.display='none';
+      document.getElementById('uploadText').style.display='none';
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+
+function addPreset(name,value,cat){
+  const v=typeof value==='function'?
+    value(parseInt(document.querySelector('[name=dexterity]').value)||50):value;
+  addSkillRow(name,v,cat);
+}
+
+function addSkillRow(name='',value=0,cat='geral'){
+  const id='skill_'+skillId++;
+  const div=document.createElement('div');
+  div.className='skill-row';div.id=id;
+  div.innerHTML=`
+    <input class="skill-name-input" type="text" placeholder="Nome da perícia" value="${name}" oninput="syncSkills()"/>
+    <input class="skill-val-input" type="number" placeholder="%" value="${value}" min="0" max="99" oninput="syncSkills()"/>
+    <select class="skill-cat-select" onchange="syncSkills()">
+      ${['geral','intelectual','físico','social','combate','percepção','especial','técnico','idioma'].map(c=>`<option value="${c}"${c===cat?' selected':''}>${c}</option>`).join('')}
+    </select>
+    <button type="button" class="btn-remove" onclick="removeSkill('${id}')">✕</button>
+  `;
+  document.getElementById('skillsContainer').appendChild(div);
+  syncSkills();
+}
+
+function removeSkill(id){
+  document.getElementById(id)?.remove();
+  syncSkills();
+}
+
+function syncSkills(){
+  const rows=document.querySelectorAll('.skill-row');
+  const data=[];
+  rows.forEach(row=>{
+    const inputs=row.querySelectorAll('input,select');
+    const name=inputs[0].value.trim();
+    if(name){
+      data.push({
+        name,
+        value:parseInt(inputs[1].value)||0,
+        base:parseInt(inputs[1].value)||0,
+        category:inputs[2].value
+      });
+    }
+  });
+  document.getElementById('skills_json').value=JSON.stringify(data);
+}
+
+async function submitForm(){
+  syncSkills();
+  const form=document.getElementById('registerForm');
+  const fd=new FormData(form);
+  const err=document.getElementById('errorMsg');
+  err.style.display='none';
+
+  const u=fd.get('username')?.trim();
+  const p=fd.get('password');
+  const cn=fd.get('char_name')?.trim();
+  if(!u||!p||!cn){showError('Nome de usuário, senha e nome do personagem são obrigatórios');return}
+  if(p.length<4){showError('Senha deve ter ao menos 4 caracteres');return}
+
+  document.getElementById('loading').classList.add('active');
+  try{
+    const r=await fetch('/register',{method:'POST',body:fd,credentials:'include'});
+    const d=await r.json();
+    if(d.success){window.location.href=d.redirect||'/login'}
+    else{document.getElementById('loading').classList.remove('active');showError(d.error||'Erro ao criar personagem')}
+  }catch(e){document.getElementById('loading').classList.remove('active');showError('Erro de conexão')}
+}
+
+function showError(msg){
+  const e=document.getElementById('errorMsg');e.textContent=msg;e.style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Adiciona algumas perícias padrão ao carregar
+addPreset('Percepção',25,'percepção');
+addPreset('Primeiros Socorros',30,'geral');
+addPreset('Furtividade',20,'físico');
+</script>
+</body>
+</html>
