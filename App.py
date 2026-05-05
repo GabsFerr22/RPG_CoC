@@ -118,6 +118,94 @@ def logout():
     session.clear()
     return redirect('/login')
 
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'GET':
+        return render_template('Registro.html')
+
+    data = request.form
+    username = data.get('username', '').strip()
+    password = data.get('password', '')
+    char_name = data.get('char_name', '').strip()
+
+    if not username or not password or not char_name:
+        return jsonify({'error': 'Campos obrigatórios faltando'}), 400
+
+    existing = supabase.table('users').select('id').eq('username', username).execute()
+    if existing.data:
+        return jsonify({'error': 'Usuário já existe'}), 400
+
+    image_url = '/static/images/default_character.png'
+    file = request.files.get('char_image')
+
+    if file and allowed_file(file.filename):
+        filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        file.save(path)
+        image_url = f'/static/uploads/{filename}'
+
+    skills_json = data.get('skills_json', '[]')
+    try:
+        skills_data = json.loads(skills_json)
+    except:
+        skills_data = []
+
+    user_res = supabase.table('users').insert({
+        'username': username,
+        'password_hash': hash_password(password),
+        'is_master': False
+    }).execute()
+
+    user_id = user_res.data[0]['id']
+
+    attributes = {
+        'sanity': int(data.get('sanity', 50)),
+        'sanity_max': int(data.get('sanity', 50)),
+        'hp': int(data.get('hp', 10)),
+        'hp_max': int(data.get('hp', 10)),
+        'mp': int(data.get('mp', 10)),
+        'mp_max': int(data.get('mp', 10)),
+        'credit_rating': int(data.get('credit_rating', 0)),
+        'movement': int(data.get('movement', 8)),
+        'strength': int(data.get('strength', 50)),
+        'constitution': int(data.get('constitution', 50)),
+        'size': int(data.get('size', 50)),
+        'dexterity': int(data.get('dexterity', 50)),
+        'appearance': int(data.get('appearance', 50)),
+        'intelligence': int(data.get('intelligence', 50)),
+        'power': int(data.get('power', 50)),
+        'education': int(data.get('education', 50)),
+        'luck': int(data.get('luck', 50)),
+    }
+
+    char_res = supabase.table('characters').insert({
+        'user_id': user_id,
+        'name': char_name,
+        'image_url': image_url,
+        **attributes
+    }).execute()
+
+    char_id = char_res.data[0]['id']
+
+    for skill in skills_data:
+        supabase.table('skills').insert({
+            'character_id': char_id,
+            'name': skill.get('name', ''),
+            'base_value': int(skill.get('base', 0)),
+            'current_value': int(skill.get('value', 0)),
+            'category': skill.get('category', 'general')
+        }).execute()
+
+    for i in range(10):
+        supabase.table('inventory').insert({
+            'character_id': char_id,
+            'slot_index': i
+        }).execute()
+
+    return jsonify({'success': True, 'redirect': '/login'})
+
 # ─────────────────────────────────────────
 # GAME
 # ─────────────────────────────────────────
