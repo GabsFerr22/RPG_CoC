@@ -85,7 +85,7 @@ def index():
 
 @app.route('/login', methods=['GET'])
 def login_page():
-    return render_template('login.html')
+    return render_template('Login.html')
 
 @app.route('/login', methods=['POST'])
 def login():
