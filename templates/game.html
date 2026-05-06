@@ -81,7 +81,17 @@
   <button class="quick-btn" onclick="openModal('notesModal')">📖 Pistas</button>
 </section>
 
-<section class="inventory" id="inventory"></section>
+<section class="inventory" id="inventory">
+  <div class="modal" id="itemModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('itemModal')">×</button>
+    <h2>Adicionar Item</h2>
+    <input id="itemName" placeholder="Nome do item">
+    <textarea id="itemDescription" placeholder="Descrição"></textarea>
+    <button onclick="saveItem()">Adicionar</button>
+  </div>
+</div>
+</section>
 
 <section class="dice">
   <!-- <div id="diceAnim" class="dice-anim">🎲</div> -->
@@ -91,6 +101,15 @@
   <button onclick="rollDice('d10')">d10</button>
   <button onclick="rollDice('d20')">d20</button>
   <button onclick="rollDice('d100')">d100</button>
+</section>
+
+<section class="live-chat resizable-box">
+  <h3>Chat</h3>
+  <div id="chatMessages"></div>
+  <div class="chat-input">
+    <input id="chatInput" placeholder="Mensagem...">
+    <button onclick="sendChat()">Enviar</button>
+  </div>
 </section>
 
 <section class="token-size-control">

@@ -147,3 +147,70 @@ button,.quick-btn{background:#1b130b;color:#d8c28a;border:1px solid #8a6a38;padd
   font-weight:bold;
   box-shadow:0 0 16px #8b0000;
 }
+
+
+.resizable-box,
+.sidebar,
+.city-panel,
+.local-panel,
+.roll-log,
+.dice,
+.live-chat,
+.inventory,
+.master-panel {
+  resize: both;
+  overflow: auto;
+}
+
+.live-chat {
+  position: fixed;
+  left: 305px;
+  bottom: 88px;
+  width: 320px;
+  height: 180px;
+  z-index: 45;
+  background: rgba(8,7,5,.92);
+  border: 1px solid #8a6a38;
+  padding: 10px;
+}
+
+#chatMessages {
+  height: 110px;
+  overflow-y: auto;
+  font-size: 13px;
+}
+
+.chat-input {
+  display: flex;
+  gap: 4px;
+}
+
+.chat-input input {
+  flex: 1;
+  background: #0b0907;
+  color: #d8c28a;
+  border: 1px solid #8a6a38;
+  padding: 6px;
+}
+
+.inv-slot {
+  position: relative;
+  overflow: auto;
+  padding: 3px;
+  font-size: 11px;
+}
+
+.inv-slot small {
+  display: block;
+  color: #a99867;
+}
+
+.inv-add {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  font-size: 12px;
+}

@@ -53,7 +53,7 @@ else:
     print("⚠️ Rodando sem Supabase")
 
 # ─────────────────────────────────────────
-# UTILS
+# UTILIDADES
 # ─────────────────────────────────────────
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
@@ -207,7 +207,7 @@ def register():
     return jsonify({'success': True, 'redirect': '/login'})
 
 # ─────────────────────────────────────────
-# GAME
+# JOGO
 # ─────────────────────────────────────────
 
 @app.route('/game')
@@ -221,7 +221,7 @@ def game():
     )
 
 # ─────────────────────────────────────────
-# CHARACTER
+# PERSONAGEM
 # ─────────────────────────────────────────
 
 @app.route('/api/character')
@@ -250,7 +250,7 @@ def get_character():
     })
 
 # ─────────────────────────────────────────
-# MOVE
+# MOV
 # ─────────────────────────────────────────
 
 @app.route('/api/character/move', methods=['POST'])
@@ -276,37 +276,69 @@ def move_character():
     return jsonify({'success': True})
 
 # ─────────────────────────────────────────
-# DICE
+# DADOS
 # ─────────────────────────────────────────
 
 @app.route('/api/dice/roll', methods=['POST'])
 def roll_dice():
-    import random
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não autenticado'}), 401
 
+    import random
     data = request.get_json()
 
+    dice_type = data.get('dice', 'd100')
+    purpose = data.get('purpose', '')
+    char_name = data.get('char_name', session.get('username'))
+    skill_value = data.get('skill_value')
+
     dice_map = {
-        'd6': 6,
-        'd10': 10,
-        'd20': 20,
-        'd100': 100
+        'd4': 4, 'd6': 6, 'd8': 8,
+        'd10': 10, 'd12': 12,
+        'd20': 20, 'd100': 100
     }
 
-    sides = dice_map.get(data['dice'], 20)
+    sides = dice_map.get(dice_type, 100)
     result = random.randint(1, sides)
 
+    success_level = None
+
+    if skill_value is not None and dice_type == 'd100':
+        skill = int(skill_value)
+
+        if result <= max(1, skill // 5):
+            success_level = 'Sucesso Extremo'
+        elif result <= max(1, skill // 2):
+            success_level = 'Sucesso Bom'
+        elif result <= skill:
+            success_level = 'Sucesso'
+        else:
+            success_level = 'Falha'
+
     payload = {
-        'char_name': session.get('username'),
-        'dice_type': data['dice'],
-        'result': result
+        'char_name': char_name,
+        'dice_type': dice_type,
+        'result': result,
+        'purpose': purpose,
+        'skill_value': skill_value,
+        'success_level': success_level
     }
+
+    if supabase:
+        supabase.table('dice_rolls').insert({
+            'character_name': char_name,
+            'dice_type': dice_type,
+            'result': result,
+            'purpose': purpose,
+            'is_success': success_level not in [None, 'Falha']
+        }).execute()
 
     socketio.emit('dice_rolled', payload, room='main')
 
     return jsonify(payload)
 
 # ─────────────────────────────────────────
-# MONSTER MOVE (FIX IMPORTANTE)
+# MOV DO MONSTRO (FIX IMPORTANTE)
 # ─────────────────────────────────────────
 
 @app.route('/api/monsters/move/<monster_id>', methods=['POST'])
@@ -326,6 +358,32 @@ def move_monster(monster_id):
         'pos_x': data['pos_x'],
         'pos_y': data['pos_y']
     }, room='main')
+
+    return jsonify({'success': True})
+
+
+# ─────────────────────────────────────────
+# CHAT AO VIVO
+# ─────────────────────────────────────────
+
+@app.route('/api/chat/send', methods=['POST'])
+def chat_send():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    data = request.get_json()
+    message = data.get('message', '').strip()
+
+    if not message:
+        return jsonify({'error': 'Mensagem vazia'}), 400
+
+    payload = {
+        'username': session.get('username'),
+        'message': message,
+        'timestamp': datetime.now().strftime('%H:%M')
+    }
+
+    socketio.emit('chat_message', payload, room='main')
 
     return jsonify({'success': True})
 

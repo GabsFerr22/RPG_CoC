@@ -7,6 +7,7 @@ let skills = [];
 let currentMap = "city";
 let currentRoom = "city";
 let tokenSize = Number(localStorage.getItem("cthulhu_token_size")) || 140;
+let selectedSlot = null;
 
 function setVttTool(tool) {
   currentTool = tool;
@@ -37,8 +38,12 @@ const LOCAL_PARTS = {
     { name: "Cais Interior", img: "/static/images/maps/cais_interior.png" }
   ],
   delegacia: [{ name: "Delegacia", img: "/static/images/maps/delegacia_central.png" }],
-  cafe: [{ name: "Café", img: "/static/images/maps/cafe_imperiale.png" }],
+  cafe: [
+    { name: "Exterior", img: "/static/images/maps/cafe_exterior.png" },
+    { name: "Interior", img: "/static/images/maps/cafe_interior.png" }
+  ],
   praca: [{ name: "Praça", img: "/static/images/maps/praca_central.png" }],
+  armazem: [{ name: "armazem", img: "/static/images/maps/armazem.png" }],
   vicolo: [{ name: "Vicolo", img: "/static/images/maps/vicolo_del_muschio.png" }],
   farmacia: [
     { name: "Exterior", img: "/static/images/maps/farmacia_weiss_exterior.png" },
@@ -55,43 +60,6 @@ const LOCAL_PARTS = {
     { name: "Sessão F", img: "/static/images/maps/cemiterio_familiar.png" }
   ]
 };
-
-async function createNPC() {
-  const name = document.getElementById("npcName").value || "NPC";
-  const file = document.getElementById("npcImage").files[0];
-
-  let imageUrl = "/static/images/default_character.png";
-
-  if (file) {
-    const fd = new FormData();
-    fd.append("file", file);
-
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    imageUrl = data.url;
-  }
-
-  await fetch("/api/monsters/spawn", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      name,
-      type: "npc",
-      current_map: currentMap,
-      current_room: currentRoom,
-      pos_x: 50,
-      pos_y: 50,
-      image_url: imageUrl,
-      hp: 1
-    })
-  });
-
-  closeModal("npcModal");
-}
-
-function openNpcModal() {
-  openModal("npcModal");
-}
 
 async function loadCharacter() {
   const res = await fetch("/api/character");
@@ -122,6 +90,8 @@ async function loadCharacter() {
   for (let i = 0; i < 10; i++) {
     const slot = document.createElement("div");
     slot.className = "inv-slot";
+    slot.dataset.slot = i;
+    slot.innerHTML = `<button class="inv-add" onclick="openItemModal(${i})">+</button>`;
     inventory.appendChild(slot);
   }
 
@@ -133,7 +103,6 @@ async function loadCharacter() {
 
 function fillSheetModal() {
   modalCharName.innerText = character.name;
-
   modalSheet.innerHTML = `
     <p><b>Sanidade:</b> ${character.sanity}/${character.sanity_max}</p>
     <p><b>Vida:</b> ${character.hp}/${character.hp_max}</p>
@@ -166,7 +135,6 @@ async function openLocalMap(mapName) {
   currentPartIndex = 0;
 
   openCurrentPart();
-
   tokensLayer.innerHTML = "";
 
   await moveMyToken(50, 70);
@@ -182,7 +150,6 @@ function openCurrentPart() {
   if (!part) return;
 
   currentRoom = `${currentMap}_${part.name}`;
-
   localMap.src = part.img;
   localMap.classList.remove("hidden");
   localTitle.innerText = `${currentMap.toUpperCase()} — ${part.name}`;
@@ -198,13 +165,12 @@ async function changeMapPart(direction) {
   if (!parts.length) return;
 
   currentPartIndex += direction;
-
   if (currentPartIndex < 0) currentPartIndex = parts.length - 1;
   if (currentPartIndex >= parts.length) currentPartIndex = 0;
 
   openCurrentPart();
-
   tokensLayer.innerHTML = "";
+
   await loadAllCharacters();
   await loadMonsters();
 
@@ -223,7 +189,7 @@ async function moveMyToken(x, y) {
 
   await fetch("/api/character/move", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       current_map: currentMap,
       current_room: currentRoom,
@@ -279,18 +245,6 @@ async function loadMonsters() {
   data.monsters.forEach(m => renderMonster(m));
 }
 
-function applyTokenSize() {
-  document.querySelectorAll(".token[data-token]").forEach(token => {
-    token.style.height = `${tokenSize}px`;
-    token.style.width = `${Math.floor(tokenSize * 0.72)}px`;
-  });
-
-  document.querySelectorAll(".token[data-monster]").forEach(token => {
-    token.style.height = `${tokenSize}px`;
-    token.style.width = `${Math.floor(tokenSize * 0.72)}px`;
-  });
-}
-
 function renderToken(id, name, image, x, y) {
   let token = document.querySelector(`[data-token="${id}"]`);
 
@@ -333,7 +287,7 @@ function renderMonster(monster) {
 
       await fetch(`/api/monsters/move/${monster.id}`, {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pos_x: x, pos_y: y })
       });
     };
@@ -343,6 +297,26 @@ function renderMonster(monster) {
   token.style.top = `${monster.pos_y}%`;
   token.style.height = `${tokenSize}px`;
   token.style.width = `${Math.floor(tokenSize * 0.72)}px`;
+}
+
+function applyTokenSize() {
+  document.querySelectorAll(".token").forEach(token => {
+    token.style.height = `${tokenSize}px`;
+    token.style.width = `${Math.floor(tokenSize * 0.72)}px`;
+  });
+}
+
+function setupTokenSizeControl() {
+  const input = document.getElementById("tokenSizeInput");
+  if (!input) return;
+
+  input.value = tokenSize;
+
+  input.oninput = () => {
+    tokenSize = Number(input.value);
+    localStorage.setItem("cthulhu_token_size", tokenSize);
+    applyTokenSize();
+  };
 }
 
 async function refreshCityMarkers() {
@@ -366,13 +340,47 @@ function renderCityLocationMarker(mapName, imageUrl, name = "") {
   marker.className = "city-char-marker-box";
   marker.style.left = hotspot.style.left;
   marker.style.top = `calc(${hotspot.style.top} + 30px)`;
-
   marker.innerHTML = `
     <img src="${imageUrl || "/static/images/default_character.png"}">
     <span>${name}</span>
   `;
-
   cityMarkersLayer.appendChild(marker);
+}
+
+function openItemModal(slot) {
+  selectedSlot = slot;
+  openModal("itemModal");
+}
+
+function saveItem() {
+  const name = itemName.value.trim();
+  const desc = itemDescription.value.trim();
+
+  if (!name || selectedSlot === null) return;
+
+  const slot = document.querySelector(`.inv-slot[data-slot="${selectedSlot}"]`);
+  slot.innerHTML = `
+    <strong>${name}</strong>
+    <small>${desc}</small>
+    <button class="inv-add" onclick="openItemModal(${selectedSlot})">+</button>
+  `;
+
+  itemName.value = "";
+  itemDescription.value = "";
+  closeModal("itemModal");
+}
+
+async function sendChat() {
+  const msg = chatInput.value.trim();
+  if (!msg) return;
+
+  chatInput.value = "";
+
+  await fetch("/api/chat/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: msg })
+  });
 }
 
 function createPing(x, y) {
@@ -403,7 +411,7 @@ async function changeStat(stat, delta) {
 
   await fetch("/api/character/update", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       [stat]: character[stat],
       char_name: character.name
@@ -414,7 +422,7 @@ async function changeStat(stat, delta) {
 async function rollDice(dice, purpose = "", skillValue = null) {
   await fetch("/api/dice/roll", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       dice,
       purpose,
@@ -429,17 +437,19 @@ function animateDice(dice) {
   if (!el) return;
 
   const faces = {
-    d6: ["⚀","⚁","⚂","⚃","⚄","⚅"],
-    d10: ["1","2","3","4","5","6","7","8","9","10"],
-    d20: Array.from({length:20},(_,i)=>i+1),
-    d100: ["10","20","30","40","50","60","70","80","90","00"]
+    d4: ["1", "2", "3", "4"],
+    d6: ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"],
+    d8: ["1", "2", "3", "4", "5", "6", "7", "8"],
+    d10: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+    d20: Array.from({ length: 20 }, (_, i) => i + 1),
+    d100: ["10", "20", "30", "40", "50", "60", "70", "80", "90", "00"]
   };
 
   const list = faces[dice] || ["🎲"];
 
   let i = 0;
   const interval = setInterval(() => {
-    el.textContent = list[Math.floor(Math.random()*list.length)];
+    el.textContent = list[Math.floor(Math.random() * list.length)];
     el.style.transform = "scale(1.3)";
     setTimeout(() => el.style.transform = "scale(1)", 100);
     i++;
@@ -449,8 +459,11 @@ function animateDice(dice) {
 
 function formatRoll(data) {
   let text = `${data.char_name}: ${data.dice_type} = ${data.result}`;
-  if (data.purpose) text += ` (${data.purpose})`;
-  if (data.is_success !== null) text += data.is_success ? " — Sucesso" : " — Falha";
+
+  if (data.purpose) text += ` | ${data.purpose}`;
+  if (data.skill_value !== null && data.skill_value !== undefined) text += ` (${data.skill_value}%)`;
+  if (data.success_level) text += ` — ${data.success_level}`;
+
   return text;
 }
 
@@ -460,12 +473,49 @@ function addRollLog(text) {
   rollLog.prepend(line);
 }
 
+async function createNPC() {
+  const name = document.getElementById("npcName").value || "NPC";
+  const file = document.getElementById("npcImage").files[0];
+
+  let imageUrl = "/static/images/default_character.png";
+
+  if (file) {
+    const fd = new FormData();
+    fd.append("file", file);
+
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const data = await res.json();
+    imageUrl = data.url;
+  }
+
+  await fetch("/api/monsters/spawn", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      type: "npc",
+      current_map: currentMap,
+      current_room: currentRoom,
+      pos_x: 50,
+      pos_y: 50,
+      image_url: imageUrl,
+      hp: 1
+    })
+  });
+
+  closeModal("npcModal");
+}
+
+function openNpcModal() {
+  openModal("npcModal");
+}
+
 async function spawnMonster() {
   const name = monsterName.value || "Cultista";
 
   await fetch("/api/monsters/spawn", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       name,
       current_map: currentMap,
@@ -481,7 +531,7 @@ async function spawnMonster() {
 async function masterEvent(effect) {
   await fetch("/api/master/broadcast", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       message: effect === "fog" ? "A névoa toma a cidade..." : "Algo observa vocês.",
       effect
@@ -504,19 +554,6 @@ function loadNotes() {
   };
 }
 
-function setupTokenSizeControl() {
-  const input = document.getElementById("tokenSizeInput");
-  if (!input) return;
-
-  input.value = tokenSize;
-
-  input.oninput = () => {
-    tokenSize = Number(input.value);
-    localStorage.setItem("cthulhu_token_size", tokenSize);
-    applyTokenSize();
-  };
-}
-
 socket.on("character_moved", async data => {
   if (data.current_map === currentMap && data.current_room === currentRoom) {
     renderToken(
@@ -527,7 +564,6 @@ socket.on("character_moved", async data => {
       data.pos_y
     );
   }
-
   await refreshCityMarkers();
 });
 
@@ -545,14 +581,16 @@ socket.on("monster_spawned", monster => {
   }
 });
 
-socket.on("monster_removed", data => {
-  const token = document.querySelector(`[data-monster="${data.id}"]`);
-  if (token) token.remove();
-});
-
 socket.on("dice_rolled", data => {
   animateDice(data.dice_type);
   addRollLog(formatRoll(data));
+});
+
+socket.on("chat_message", data => {
+  const line = document.createElement("div");
+  line.innerHTML = `<b>${data.username}</b> <small>${data.timestamp}</small>: ${data.message}`;
+  chatMessages.appendChild(line);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
 socket.on("vtt_ping", data => {
@@ -574,6 +612,19 @@ socket.on("sanity_changed", data => {
   }
 });
 
+socket.on("map_part_changed", async data => {
+  if (IS_MASTER) return;
+
+  currentMap = data.currentMap;
+  currentPartIndex = data.currentPartIndex;
+
+  openCurrentPart();
+  tokensLayer.innerHTML = "";
+
+  await loadAllCharacters();
+  await loadMonsters();
+});
+
 socket.on("master_event", data => {
   if (data.effect === "fog") {
     fogIntro.style.animation = "none";
@@ -591,19 +642,6 @@ socket.on("master_event", data => {
   }
 
   alert(data.message);
-});
-
-socket.on("map_part_changed", async data => {
-  if (IS_MASTER) return;
-
-  currentMap = data.currentMap;
-  currentPartIndex = data.currentPartIndex;
-
-  openCurrentPart();
-
-  tokensLayer.innerHTML = "";
-  await loadAllCharacters();
-  await loadMonsters();
 });
 
 loadCharacter();
