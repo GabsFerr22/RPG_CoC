@@ -146,7 +146,7 @@ def register():
 
         file_bytes = file.read()
 
-        supabase.storage.from_("rpg-assets").upload(
+        supabase.storage.from_("rpg_assets").upload(
             path=storage_path,
             file=file_bytes,
             file_options={
@@ -155,7 +155,7 @@ def register():
             }
         )
 
-        image_url = supabase.storage.from_("rpg-assets").get_public_url(storage_path)
+        image_url = supabase.storage.from_("rpg_assets").get_public_url(storage_path)
 
     skills_json = data.get('skills_json', '[]')
     try:
@@ -442,7 +442,7 @@ def upload():
 
     file_bytes = file.read()
 
-    supabase.storage.from_("rpg-assets").upload(
+    supabase.storage.from_("rpg_assets").upload(
         path=storage_path,
         file=file_bytes,
         file_options={
@@ -451,7 +451,7 @@ def upload():
         }
     )
 
-    public_url = supabase.storage.from_("rpg-assets").get_public_url(storage_path)
+    public_url = supabase.storage.from_("rpg_assets").get_public_url(storage_path)
 
     return jsonify({'url': public_url})
 

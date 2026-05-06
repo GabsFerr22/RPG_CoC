@@ -15,49 +15,74 @@ function setVttTool(tool) {
 
 const LOCAL_PARTS = {
   hotel: [
-    { name: "Térreo", img: "/static/images/maps/hotel_terreo.png" },
-    { name: "1º Andar", img: "/static/images/maps/hotel_1andar.png" },
-    { name: "2º Andar", img: "/static/images/maps/hotel_2andar.png" }
+    { name: "Térreo", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/hotel_terreo.webp" },
+    { name: "1º Andar", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/hotel_1andar.webp" },
+    { name: "2º Andar", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/hotel_2andar.webp" }
   ],
+
   mansao: [
-    { name: "Exterior", img: "/static/images/maps/mansao_valdris.png" },
-    { name: "Interior", img: "/static/images/maps/mansao_valdris_terreo.png" },
-    { name: "1º Andar", img: "/static/images/maps/mansao_valdris_1andar.png" },
-    { name: "2º Andar", img: "/static/images/maps/mansao_valdris_2andar.png" },
-    { name: "Porão", img: "/static/images/maps/mansao_valdris_porao.png" }
+    { name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mansao_valdris.webp" },
+    { name: "Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mansao_valdris_terreo.webp" },
+    { name: "1º Andar", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mansao_valdris_1andar.webp" },
+    { name: "2º Andar", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mansao_valdris_2andar.webp" },
+    { name: "Porão", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mansao_valdris_porao.webp" }
   ],
+
   igreja: [
-    { name: "Exterior", img: "/static/images/maps/igreja_exterior.png" },
-    { name: "Interior", img: "/static/images/maps/igreja_principal.png" },
-    { name: "Subsolo", img: "/static/images/maps/igreja_subsolo.png" }
+    { name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/igreja_exterior.webp" },
+    { name: "Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/igreja_principal.webp" },
+    { name: "Subsolo", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/igreja_subsolo.webp" }
   ],
-  mirante: [{ name: "Mirante", img: "/static/images/maps/mirante_esquecido.png" }],
-  esgotos: [{ name: "Esgoto", img: "/static/images/maps/esgotos_trieste.png" }],
+
+  mirante: [
+    { name: "Mirante", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mirante_esquecido.webp" }
+  ],
+
+  esgotos: [
+    { name: "Esgoto", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/esgotos_trieste.webp" }
+  ],
+
   cais: [
-    { name: "Cais Exterior", img: "/static/images/maps/cais_exterior.png" },
-    { name: "Cais Interior", img: "/static/images/maps/cais_interior.png" }
+    { name: "Cais Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cais_exterior.webp" },
+    { name: "Cais Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cais_interior.webp" }
   ],
-  delegacia: [{ name: "Delegacia", img: "/static/images/maps/delegacia_central.png" }],
+
+  delegacia: [
+    { name: "Delegacia", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/delegacia_central.webp" }
+  ],
+
   cafe: [
-    { name: "Exterior", img: "/static/images/maps/cafe_exterior.png" },
-    { name: "Interior", img: "/static/images/maps/cafe_interior.png" }
+    { name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cafe_exterior.webp" },
+    { name: "Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cafe_interior.webp" }
   ],
-  praca: [{ name: "Praça", img: "/static/images/maps/praca_central.png" }],
-  armazem: [{ name: "armazem", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/Armazem.png" }],
-  vicolo: [{ name: "Vicolo", img: "/static/images/maps/vicolo_del_muschio.png" }],
+
+  praca: [
+    { name: "Praça", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/praca_central.webp" }
+  ],
+
+  armazem: [
+    { name: "Armazem", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/Armazem.webp" }
+  ],
+
+  vicolo: [
+    { name: "Vicolo", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/vicolo_del_muschio.webp" }
+  ],
+
   farmacia: [
-    { name: "Exterior", img: "/static/images/maps/farmacia_weiss_exterior.png" },
-    { name: "Interior", img: "/static/images/maps/farmacia_weiss.png" }
+    { name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/farmacia_weiss_exterior.webp" },
+    { name: "Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/farmacia_weiss.webp" }
   ],
+
   prefeitura: [
-    { name: "Exterior", img: "/static/images/maps/prefeitura_exterior.png" },
-    { name: "Interior", img: "/static/images/maps/prefeitura_interior.png" }
+    { name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/prefeitura_exterior.webp" },
+    { name: "Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/prefeitura_interior.webp" }
   ],
+
   cemiterio: [
-    { name: "Exterior", img: "/static/images/maps/cemiterio_exterior.png" },
-    { name: "Covas", img: "/static/images/maps/cemiterio_covas.png" },
-    { name: "Coveiro", img: "/static/images/maps/cemiterio_coveiro.png" },
-    { name: "Sessão F", img: "/static/images/maps/cemiterio_familiar.png" }
+    { name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cemiterio_exterior.webp" },
+    { name: "Covas", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cemiterio_covas.webp" },
+    { name: "Coveiro", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cemiterio_coveiro.webp" },
+    { name: "Sessão F", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cemiterio_familiar.webp" }
   ]
 };
 
@@ -312,15 +337,15 @@ function setupTokenSizeControl() {
 
   input.value = tokenSize;
 
-input.oninput = () => {
-  tokenSize = Number(input.value);
+  input.oninput = () => {
+    tokenSize = Number(input.value);
+    applyTokenSize();
 
-  applyTokenSize();
-
-  socket.emit("token_size_changed", {
-    size: tokenSize
-  });
-};
+    socket.emit("token_size_changed", {
+      size: tokenSize
+    });
+  };
+}
 
 async function refreshCityMarkers() {
   const res = await fetch(`/api/all_characters`);

@@ -21,10 +21,10 @@
 </aside>
 
 <main class="game-board">
-  <aside class="sidebar" id="sidebarPanel">
-    <button class="minimize-btn" onclick="togglePanel('sidebarPanel')">—</button>
+  <section class="city-panel" id="cityPanel">
+    <button class="minimize-btn" onclick="togglePanel('cityPanel')">—</button>
     <div class="map-stage city-stage" id="cityStage">
-      <img src="/static/images/maps/trieste_principal.png" class="city-map">
+      <img src="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/trieste_principal.webp" class="city-map">
 
       <button class="hotspot" style="left:17%;top:62%;" data-map="cais">Cais Velho</button>
       <button class="hotspot" style="left:20%;top:45%;" data-map="armazem">Armazem Nº7</button>
@@ -72,13 +72,17 @@
     <button onclick="changeStat('sanity', 1)">▶</button>
     <small>SANIDADE</small>
   </div>
-  <button onclick="changeStat('hp', -1)">◀</button>
-  <div>❤️ <span id="hp">--</span></div>
-  <button onclick="changeStat('hp', 1)">▶</button>
+<div class="hud-stat">
+  <button class="stat-btn" onclick="changeStat('hp', -1)">−</button>
+  ❤️ <span id="hp">--</span>
+  <button class="stat-btn" onclick="changeStat('hp', 1)">+</button>
+</div>
   <div>🪙 <span id="credit">--</span></div>
-  <button onclick="changeStat('mp', -1)">◀</button>
-  <div>📖 <span id="mp">--</span></div>
-  <button onclick="changeStat('mp', 1)">▶</button>
+<div class="hud-stat">
+  <button class="stat-btn" onclick="changeStat('mp', -1)">−</button>
+  📖 <span id="mp">--</span>
+  <button class="stat-btn" onclick="changeStat('mp', 1)">+</button>
+</div>
   <div>🦶 <span id="mov">--</span></div>
 </section>
 

@@ -280,3 +280,19 @@ button,.quick-btn{background:#1b130b;color:#d8c28a;border:1px solid #8a6a38;padd
   font-size:13px;
   color:#d8c28a;
 }
+
+.hud-stat{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  margin:4px 0;
+}
+
+.stat-btn{
+  width:20px;
+  height:20px;
+  padding:0;
+  font-size:12px;
+  line-height:1;
+}
