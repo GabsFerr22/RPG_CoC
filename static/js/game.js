@@ -48,7 +48,9 @@ const LOCAL_PARTS = {
   ],
 
   delegacia: [
-    { name: "Delegacia", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/delegacia_central.webp" }
+    { name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/delegacia_exterior.webp" },
+    { name: "interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/delegacia_central.webp" },
+    { name: "Prisão", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/delegacia_prisao.webp" }
   ],
 
   cafe: [
@@ -58,6 +60,10 @@ const LOCAL_PARTS = {
 
   praca: [
     { name: "Praça", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/praca_central.webp" }
+  ],
+
+  Frigorifico: [
+    { name: "Frigorifico", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/frigorifico.webp" }
   ],
 
   armazem: [
