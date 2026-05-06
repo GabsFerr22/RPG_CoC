@@ -5,7 +5,7 @@ import os
 import json
 import uuid
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 from flask_socketio import SocketIO, emit, join_room
@@ -391,7 +391,7 @@ def chat_send():
     payload = {
         'username': session.get('username'),
         'message': message,
-        'timestamp': datetime.now().strftime('%H:%M')
+        'timestamp': datetime.now(timezone(timedelta(hours=-3))).strftime("%H:%M")
     }
 
     socketio.emit('chat_message', payload, room='main')

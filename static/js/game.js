@@ -388,11 +388,16 @@ function renderCityLocationMarker(mapName, imageUrl, name = "") {
   const marker = document.createElement("div");
   marker.className = "city-char-marker-box";
   marker.style.left = hotspot.style.left;
-  marker.style.top = `calc(${hotspot.style.top} + 30px)`;
+  marker.style.top = `calc(${hotspot.style.top} + 24px)`;
+
   marker.innerHTML = `
-    <img src="${imageUrl || "/static/images/default_character.png"}">
+    <img 
+      src="${imageUrl || "/static/images/default_character.png"}"
+      onerror="this.src='/static/images/default_character.png'"
+    >
     <span>${name}</span>
   `;
+
   cityMarkersLayer.appendChild(marker);
 }
 
