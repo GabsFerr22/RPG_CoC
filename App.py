@@ -422,9 +422,7 @@ def disconnect():
     
 @socketio.on('map_part_changed')
 def on_map_part_changed(data):
-    if not session.get('is_master'):
-        return
-
+    print("MAP PART CHANGED:", data)
     emit('map_part_changed', data, room='main', include_self=False)
 # ─────────────────────────────────────────
 # UPLOAD

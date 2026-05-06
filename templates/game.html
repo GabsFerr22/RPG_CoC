@@ -95,16 +95,17 @@
 <section class="inventory" id="inventoryPanel">
   <button class="minimize-btn" onclick="togglePanel('inventoryPanel')">—</button>
 <div id="inventory"></div>
-  <div class="modal" id="itemModal">
+</div>
+</section>
+
+<div class="modal" id="itemModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('itemModal')">-</button>
     <h2>Adicionar Item</h2>
     <input id="itemName" placeholder="Nome do item">
     <textarea id="itemDescription" placeholder="Descrição"></textarea>
     <button onclick="saveItem()">Adicionar</button>
-  </div>
 </div>
-</section>
 
 <section class="dice" id="dicePanel">
   <button class="minimize-btn" onclick="togglePanel('dicePanel')">—</button>

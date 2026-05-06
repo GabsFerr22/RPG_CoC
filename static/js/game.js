@@ -194,16 +194,22 @@ async function changeMapPart(direction) {
   if (!parts.length) return;
 
   currentPartIndex += direction;
+
   if (currentPartIndex < 0) currentPartIndex = parts.length - 1;
   if (currentPartIndex >= parts.length) currentPartIndex = 0;
 
   openCurrentPart();
-  tokensLayer.innerHTML = "";
 
+  tokensLayer.innerHTML = "";
   await loadAllCharacters();
   await loadMonsters();
 
-  socket.emit("map_part_changed", { currentMap, currentPartIndex });
+  socket.emit("map_part_changed", {
+    currentMap: currentMap,
+    currentPartIndex: currentPartIndex
+  });
+
+  console.log("emitindo mudança:", currentMap, currentPartIndex);
 }
 
 async function moveMyToken(x, y) {
@@ -307,7 +313,7 @@ function renderMonster(monster) {
     token.title = monster.name;
     token.innerHTML = `
       <img 
-        src="${image || "/static/images/default_monster.png"}"
+        src="${monster.image_url || "/static/images/default_monster.png"}"
         onerror="this.src='/static/images/default_monster.png'"
       >
     `;
@@ -401,14 +407,15 @@ function saveItem() {
   if (!name || selectedSlot === null) return;
 
   const slot = document.querySelector(`.inv-slot[data-slot="${selectedSlot}"]`);
+  if (!slot) return;
+
   slot.innerHTML = `
     <div class="inventory-item">
       <span>${name}</span>
 
       <div class="inventory-hover">
-        ${image ? `<img src="${image}">` : ""}
         <h4>${name}</h4>
-        <p>${desc}</p>
+        <p>${desc || "Sem descrição."}</p>
       </div>
     </div>
 
@@ -672,6 +679,7 @@ socket.on("sanity_changed", data => {
 
 
 socket.on("map_part_changed", async data => {
+  console.log("recebi mudança:", data);
 
   currentMap = data.currentMap;
   currentPartIndex = data.currentPartIndex;
@@ -679,10 +687,8 @@ socket.on("map_part_changed", async data => {
   openCurrentPart();
 
   tokensLayer.innerHTML = "";
-
   await loadAllCharacters();
   await loadMonsters();
-
 });
 
 socket.on("master_event", data => {
