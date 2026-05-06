@@ -94,7 +94,11 @@ async function loadCharacter() {
   skills = data.skills || [];
 
   charName.innerText = character.name;
-  charImage.src = character.image_url;
+  charImage.src = character.image_url || "/static/images/default_character.png";
+
+  charImage.onerror = () => {
+    charImage.src = "/static/images/default_character.png";
+  };
 
   sanity.innerText = character.sanity;
   hp.innerText = `${character.hp}/${character.hp_max}`;
@@ -278,7 +282,12 @@ function renderToken(id, name, image, x, y) {
     token.className = "token player-token";
     token.dataset.token = id;
     token.title = name;
-    token.innerHTML = `<img src="${image || "/static/images/default_character.png"}">`;
+    token.innerHTML = `
+      <img 
+        src="${image || "/static/images/default_character.png"}"
+        onerror="this.src='/static/images/default_character.png'"
+      >
+    `;
     tokensLayer.appendChild(token);
   }
 
@@ -296,7 +305,12 @@ function renderMonster(monster) {
     token.className = `token monster-token ${monster.type === "npc" ? "npc-token" : ""}`;
     token.dataset.monster = monster.id || Date.now();
     token.title = monster.name;
-    token.innerHTML = `<img src="${monster.image_url || "/static/images/default_monster.png"}">`;
+    token.innerHTML = `
+      <img 
+        src="${image || "/static/images/default_monster.png"}"
+        onerror="this.src='/static/images/default_monster.png'"
+      >
+    `;
     tokensLayer.appendChild(token);
 
     token.onclick = async (e) => {
@@ -697,5 +711,12 @@ function togglePanel(id) {
 
   panel.classList.toggle("minimized");
 }
+
+chatInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    sendChat();
+  }
+});
 
 loadCharacter();
