@@ -140,11 +140,22 @@ def register():
     file = request.files.get('char_image')
 
     if file and allowed_file(file.filename):
-        filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
-        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        file.save(path)
-        image_url = f'/static/uploads/{filename}'
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        storage_path = f"characters/{filename}"
+
+        file_bytes = file.read()
+
+        supabase.storage.from_("rpg-assets").upload(
+            path=storage_path,
+            file=file_bytes,
+            file_options={
+                "content-type": file.content_type,
+                "upsert": "false"
+            }
+        )
+
+        image_url = supabase.storage.from_("rpg-assets").get_public_url(storage_path)
 
     skills_json = data.get('skills_json', '[]')
     try:
@@ -391,6 +402,15 @@ def chat_send():
 # SOCKET
 # ─────────────────────────────────────────
 
+@socketio.on('token_size_changed')
+def token_size_changed(data):
+    emit(
+        'token_size_changed',
+        data,
+        room='main',
+        include_self=False
+    )
+
 @socketio.on('connect')
 def connect():
     join_room('main')
@@ -406,15 +426,34 @@ def disconnect():
 
 @app.route('/api/upload', methods=['POST'])
 def upload():
-    file = request.files['file']
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não autenticado'}), 401
 
-    filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
-    path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if not supabase:
+        return jsonify({'error': 'Supabase não conectado'}), 500
 
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    file.save(path)
+    file = request.files.get('file')
+    if not file or not allowed_file(file.filename):
+        return jsonify({'error': 'Arquivo inválido'}), 400
 
-    return jsonify({'url': f'/static/uploads/{filename}'})
+    ext = file.filename.rsplit('.', 1)[1].lower()
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    storage_path = f"uploads/{filename}"
+
+    file_bytes = file.read()
+
+    supabase.storage.from_("rpg-assets").upload(
+        path=storage_path,
+        file=file_bytes,
+        file_options={
+            "content-type": file.content_type,
+            "upsert": "false"
+        }
+    )
+
+    public_url = supabase.storage.from_("rpg-assets").get_public_url(storage_path)
+
+    return jsonify({'url': public_url})
 
 # ─────────────────────────────────────────
 # MAIN (PROD READY)

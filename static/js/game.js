@@ -43,7 +43,7 @@ const LOCAL_PARTS = {
     { name: "Interior", img: "/static/images/maps/cafe_interior.png" }
   ],
   praca: [{ name: "Praça", img: "/static/images/maps/praca_central.png" }],
-  armazem: [{ name: "armazem", img: "/static/images/maps/armazem.png" }],
+  armazem: [{ name: "armazem", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/Armazem.png" }],
   vicolo: [{ name: "Vicolo", img: "/static/images/maps/vicolo_del_muschio.png" }],
   farmacia: [
     { name: "Exterior", img: "/static/images/maps/farmacia_weiss_exterior.png" },
@@ -86,7 +86,7 @@ async function loadCharacter() {
     skillsList.appendChild(div);
   });
 
-  inventory.innerHTML = "";
+  document.getElementById("inventory").innerHTML = "";
   for (let i = 0; i < 10; i++) {
     const slot = document.createElement("div");
     slot.className = "inv-slot";
@@ -312,12 +312,15 @@ function setupTokenSizeControl() {
 
   input.value = tokenSize;
 
-  input.oninput = () => {
-    tokenSize = Number(input.value);
-    localStorage.setItem("cthulhu_token_size", tokenSize);
-    applyTokenSize();
-  };
-}
+input.oninput = () => {
+  tokenSize = Number(input.value);
+
+  applyTokenSize();
+
+  socket.emit("token_size_changed", {
+    size: tokenSize
+  });
+};
 
 async function refreshCityMarkers() {
   const res = await fetch(`/api/all_characters`);
@@ -360,8 +363,16 @@ function saveItem() {
 
   const slot = document.querySelector(`.inv-slot[data-slot="${selectedSlot}"]`);
   slot.innerHTML = `
-    <strong>${name}</strong>
-    <small>${desc}</small>
+    <div class="inventory-item">
+      <span>${name}</span>
+
+      <div class="inventory-hover">
+        ${image ? `<img src="${image}">` : ""}
+        <h4>${name}</h4>
+        <p>${desc}</p>
+      </div>
+    </div>
+
     <button class="inv-add" onclick="openItemModal(${selectedSlot})">+</button>
   `;
 
@@ -554,6 +565,14 @@ function loadNotes() {
   };
 }
 
+socket.on("token_size_changed", data => {
+  tokenSize = data.size;
+  applyTokenSize();
+
+  const input = document.getElementById("tokenSizeInput");
+  if (input) input.value = tokenSize;
+});
+
 socket.on("character_moved", async data => {
   if (data.current_map === currentMap && data.current_room === currentRoom) {
     renderToken(
@@ -612,17 +631,19 @@ socket.on("sanity_changed", data => {
   }
 });
 
+
 socket.on("map_part_changed", async data => {
-  if (IS_MASTER) return;
 
   currentMap = data.currentMap;
   currentPartIndex = data.currentPartIndex;
 
   openCurrentPart();
+
   tokensLayer.innerHTML = "";
 
   await loadAllCharacters();
   await loadMonsters();
+
 });
 
 socket.on("master_event", data => {
@@ -643,5 +664,13 @@ socket.on("master_event", data => {
 
   alert(data.message);
 });
+
+function togglePanel(id) {
+  const panel = document.getElementById(id);
+
+  if (!panel) return;
+
+  panel.classList.toggle("minimized");
+}
 
 loadCharacter();

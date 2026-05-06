@@ -9,7 +9,8 @@
 
 <div id="fogIntro"></div>
 
-<aside class="sidebar">
+<aside class="sidebar" id="sidebarPanel">
+<button class="minimize-btn" onclick="togglePanel('sidebarPanel')">—</button>
   <h2 id="charName">Carregando...</h2>
   <img id="charImage" src="" alt="Personagem">
 
@@ -20,7 +21,8 @@
 </aside>
 
 <main class="game-board">
-  <section class="city-panel">
+  <aside class="sidebar" id="sidebarPanel">
+    <button class="minimize-btn" onclick="togglePanel('sidebarPanel')">—</button>
     <div class="map-stage city-stage" id="cityStage">
       <img src="/static/images/maps/trieste_principal.png" class="city-map">
 
@@ -62,16 +64,21 @@
 </section>
 </main>
 
-<section class="hud">
+<section class="hud" id="hudPanel">
+  <button class="minimize-btn" onclick="togglePanel('hudPanel')">—</button>
   <div class="san">
     <button onclick="changeStat('sanity', -1)">◀</button>
     <span id="sanity">--</span>
     <button onclick="changeStat('sanity', 1)">▶</button>
     <small>SANIDADE</small>
   </div>
+  <button onclick="changeStat('hp', -1)">◀</button>
   <div>❤️ <span id="hp">--</span></div>
+  <button onclick="changeStat('hp', 1)">▶</button>
   <div>🪙 <span id="credit">--</span></div>
+  <button onclick="changeStat('mp', -1)">◀</button>
   <div>📖 <span id="mp">--</span></div>
+  <button onclick="changeStat('mp', 1)">▶</button>
   <div>🦶 <span id="mov">--</span></div>
 </section>
 
@@ -81,10 +88,12 @@
   <button class="quick-btn" onclick="openModal('notesModal')">📖 Pistas</button>
 </section>
 
-<section class="inventory" id="inventory">
+<section class="inventory" id="inventoryPanel">
+  <button class="minimize-btn" onclick="togglePanel('inventoryPanel')">—</button>
+<div id="inventory"></div>
   <div class="modal" id="itemModal">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('itemModal')">×</button>
+    <button class="modal-close" onclick="closeModal('itemModal')">-</button>
     <h2>Adicionar Item</h2>
     <input id="itemName" placeholder="Nome do item">
     <textarea id="itemDescription" placeholder="Descrição"></textarea>
@@ -93,7 +102,8 @@
 </div>
 </section>
 
-<section class="dice">
+<section class="dice" id="dicePanel">
+  <button class="minimize-btn" onclick="togglePanel('dicePanel')">—</button>
   <!-- <div id="diceAnim" class="dice-anim">🎲</div> -->
   <button onclick="rollDice('d4')">d4</button>
   <button onclick="rollDice('d6')">d6</button>
@@ -103,7 +113,8 @@
   <button onclick="rollDice('d100')">d100</button>
 </section>
 
-<section class="live-chat resizable-box">
+<section class="live-chat" id="chatPanel">
+<button class="minimize-btn" onclick="togglePanel('chatPanel')">—</button>
   <h3>Chat</h3>
   <div id="chatMessages"></div>
   <div class="chat-input">
@@ -117,13 +128,15 @@
   <input type="range" min="60" max="260" value="140" id="tokenSizeInput">
 </section>
 
-<section class="roll-log">
+<section class="roll-log" id="rollPanel">
+ <button class="minimize-btn" onclick="togglePanel('rollPanel')">—</button>
   <h3>Rolagens</h3>
   <div id="rollLog"></div>
 </section>
 
 {% if is_master %}
-<section class="master-panel">
+<section class="master-panel" id="masterPanel">
+<button class="minimize-btn" onclick="togglePanel('masterPanel')">—</button>
   <h3>Mestre</h3>
   <input id="monsterName" placeholder="Nome do monstro">
   <button onclick="spawnMonster()">Spawnar Monstro</button>
@@ -140,7 +153,7 @@
 
 <div id="npcModal" class="modal">
   <div class="modal-box">
-    <button onclick="closeModal('npcModal')">✕</button>
+    <button onclick="closeModal('npcModal')">-</button>
     <input id="npcName" placeholder="Nome do NPC">
     <input type="file" id="npcImage">
     <button onclick="createNPC()">Criar</button>
@@ -150,7 +163,7 @@
 
 <div class="modal" id="sheetModal">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('sheetModal')">×</button>
+    <button class="modal-close" onclick="closeModal('sheetModal')">-</button>
     <h2 id="modalCharName"></h2>
     <div id="modalSheet"></div>
   </div>
@@ -158,7 +171,7 @@
 
 <div class="modal" id="notesModal">
   <div class="modal-box book">
-    <button class="modal-close" onclick="closeModal('notesModal')">×</button>
+    <button class="modal-close" onclick="closeModal('notesModal')">-</button>
     <h2>Livro de Pistas</h2>
     <textarea id="playerNotes" placeholder="Escreva suas pistas aqui..."></textarea>
   </div>

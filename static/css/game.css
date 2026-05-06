@@ -149,18 +149,6 @@ button,.quick-btn{background:#1b130b;color:#d8c28a;border:1px solid #8a6a38;padd
 }
 
 
-.resizable-box,
-.sidebar,
-.city-panel,
-.local-panel,
-.roll-log,
-.dice,
-.live-chat,
-.inventory,
-.master-panel {
-  resize: both;
-  overflow: auto;
-}
 
 .live-chat {
   position: fixed;
@@ -213,4 +201,82 @@ button,.quick-btn{background:#1b130b;color:#d8c28a;border:1px solid #8a6a38;padd
   height: 18px;
   padding: 0;
   font-size: 12px;
+}
+
+.minimize-btn{
+  position:absolute;
+  top:4px;
+  right:4px;
+  width:24px;
+  height:24px;
+  padding:0;
+  font-size:14px;
+  z-index:999;
+}
+
+.sidebar,
+.city-panel,
+.local-panel,
+.roll-log,
+.dice,
+.live-chat,
+.master-panel,
+.inventory,
+.hud{
+  transition:all .25s ease;
+}
+
+.minimized{
+  width:42px !important;
+  height:42px !important;
+  min-width:42px !important;
+  min-height:42px !important;
+  overflow:hidden !important;
+}
+
+.minimized *:not(.minimize-btn){
+  display:none !important;
+}
+
+.minimized .minimize-btn{
+  display:block !important;
+}
+
+.inventory-item{
+  position:relative;
+  cursor:pointer;
+}
+
+.inventory-hover{
+  position:absolute;
+  bottom:70px;
+  left:0;
+  width:220px;
+  background:#120d08;
+  border:1px solid #8a6a38;
+  padding:10px;
+  z-index:999;
+  display:none;
+  box-shadow:0 0 20px #000;
+}
+
+.inventory-item:hover .inventory-hover{
+  display:block;
+}
+
+.inventory-hover img{
+  width:100%;
+  max-height:160px;
+  object-fit:contain;
+  margin-bottom:8px;
+}
+
+.inventory-hover h4{
+  margin:0 0 6px;
+  color:#f1d88d;
+}
+
+.inventory-hover p{
+  font-size:13px;
+  color:#d8c28a;
 }
