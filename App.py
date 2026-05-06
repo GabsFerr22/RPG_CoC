@@ -73,6 +73,36 @@ def log_event(event_type, actor_name, description):
             'description': description
         }).execute()
 
+
+# ─────────────────────────────────────────
+# TROCA DE MAPA
+# ─────────────────────────────────────────
+
+
+SESSION_STATE = {
+    "currentMap": "city",
+    "currentPartIndex": 0
+}
+
+@app.route('/api/map/state', methods=['GET'])
+def get_map_state():
+    return jsonify(SESSION_STATE)
+
+@app.route('/api/map/state', methods=['POST'])
+def set_map_state():
+    if not session.get('is_master'):
+        return jsonify({'error': 'Apenas mestre'}), 403
+
+    data = request.get_json()
+
+    SESSION_STATE["currentMap"] = data.get("currentMap", "city")
+    SESSION_STATE["currentPartIndex"] = int(data.get("currentPartIndex", 0))
+
+    socketio.emit('map_part_changed', SESSION_STATE, room='main')
+
+    return jsonify({'success': True, 'state': SESSION_STATE})
+
+
 # ─────────────────────────────────────────
 # AUTH
 # ─────────────────────────────────────────
@@ -422,8 +452,9 @@ def disconnect():
     
 @socketio.on('map_part_changed')
 def on_map_part_changed(data):
-    print("MAP PART CHANGED:", data)
-    emit('map_part_changed', data, room='main', include_self=False)
+    SESSION_STATE["currentMap"] = data.get("currentMap", "city")
+    SESSION_STATE["currentPartIndex"] = int(data.get("currentPartIndex", 0))
+    emit('map_part_changed', SESSION_STATE, room='main', include_self=False)
 # ─────────────────────────────────────────
 # UPLOAD
 # ─────────────────────────────────────────

@@ -204,12 +204,11 @@ async function changeMapPart(direction) {
   await loadAllCharacters();
   await loadMonsters();
 
-  socket.emit("map_part_changed", {
-    currentMap: currentMap,
-    currentPartIndex: currentPartIndex
+  await fetch("/api/map/state", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ currentMap, currentPartIndex })
   });
-
-  console.log("emitindo mudança:", currentMap, currentPartIndex);
 }
 
 async function moveMyToken(x, y) {
@@ -724,5 +723,28 @@ chatInput.addEventListener("keydown", e => {
     sendChat();
   }
 });
+
+async function syncMapStateFromServer() {
+  if (IS_MASTER) return;
+
+  const res = await fetch("/api/map/state");
+  const data = await res.json();
+
+  if (
+    data.currentMap !== currentMap ||
+    Number(data.currentPartIndex) !== Number(currentPartIndex)
+  ) {
+    currentMap = data.currentMap;
+    currentPartIndex = Number(data.currentPartIndex);
+
+    openCurrentPart();
+
+    tokensLayer.innerHTML = "";
+    await loadAllCharacters();
+    await loadMonsters();
+  }
+}
+
+setInterval(syncMapStateFromServer, 1200);
 
 loadCharacter();
