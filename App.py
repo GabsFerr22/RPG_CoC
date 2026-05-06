@@ -419,7 +419,13 @@ def connect():
 @socketio.on('disconnect')
 def disconnect():
     print("👤 usuário saiu")
+    
+@socketio.on('map_part_changed')
+def on_map_part_changed(data):
+    if not session.get('is_master'):
+        return
 
+    emit('map_part_changed', data, room='main', include_self=False)
 # ─────────────────────────────────────────
 # UPLOAD
 # ─────────────────────────────────────────
