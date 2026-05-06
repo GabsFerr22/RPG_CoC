@@ -188,26 +188,28 @@ function openCurrentPart() {
 }
 
 async function changeMapPart(direction) {
-  if (!IS_MASTER) return;
 
   const parts = LOCAL_PARTS[currentMap] || [];
   if (!parts.length) return;
 
   currentPartIndex += direction;
 
-  if (currentPartIndex < 0) currentPartIndex = parts.length - 1;
-  if (currentPartIndex >= parts.length) currentPartIndex = 0;
+  if (currentPartIndex < 0)
+    currentPartIndex = parts.length - 1;
+
+  if (currentPartIndex >= parts.length)
+    currentPartIndex = 0;
 
   openCurrentPart();
 
   tokensLayer.innerHTML = "";
+
   await loadAllCharacters();
   await loadMonsters();
 
-  await fetch("/api/map/state", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ currentMap, currentPartIndex })
+  socket.emit("map_part_changed", {
+    currentMap,
+    currentPartIndex
   });
 }
 
@@ -406,15 +408,13 @@ function saveItem() {
   if (!name || selectedSlot === null) return;
 
   const slot = document.querySelector(`.inv-slot[data-slot="${selectedSlot}"]`);
-  if (!slot) return;
-
   slot.innerHTML = `
     <div class="inventory-item">
       <span>${name}</span>
 
       <div class="inventory-hover">
         <h4>${name}</h4>
-        <p>${desc || "Sem descrição."}</p>
+        <p>${desc}</p>
       </div>
     </div>
 
@@ -723,28 +723,5 @@ chatInput.addEventListener("keydown", e => {
     sendChat();
   }
 });
-
-async function syncMapStateFromServer() {
-  if (IS_MASTER) return;
-
-  const res = await fetch("/api/map/state");
-  const data = await res.json();
-
-  if (
-    data.currentMap !== currentMap ||
-    Number(data.currentPartIndex) !== Number(currentPartIndex)
-  ) {
-    currentMap = data.currentMap;
-    currentPartIndex = Number(data.currentPartIndex);
-
-    openCurrentPart();
-
-    tokensLayer.innerHTML = "";
-    await loadAllCharacters();
-    await loadMonsters();
-  }
-}
-
-setInterval(syncMapStateFromServer, 1200);
 
 loadCharacter();

@@ -49,13 +49,11 @@
 <section class="local-panel">
   <div class="local-header" id="localTitle">Selecione um local</div>
 
-  {% if is_master %}
   <div class="map-part-controls">
     <button onclick="changeMapPart(-1)">◀ Parte</button>
     <span id="partName">---</span>
     <button onclick="changeMapPart(1)">Parte ▶</button>
   </div>
-  {% endif %}
 
   <div class="map-stage local-stage" id="localStage">
     <img id="localMap" src="" class="local-map hidden">
@@ -95,16 +93,23 @@
 <section class="inventory" id="inventoryPanel">
   <button class="minimize-btn" onclick="togglePanel('inventoryPanel')">—</button>
 <div id="inventory"></div>
-</div>
 </section>
 
 <div class="modal" id="itemModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('itemModal')">-</button>
+
     <h2>Adicionar Item</h2>
+
     <input id="itemName" placeholder="Nome do item">
-    <textarea id="itemDescription" placeholder="Descrição"></textarea>
+
+    <textarea
+      id="itemDescription"
+      placeholder="Descrição"
+    ></textarea>
+
     <button onclick="saveItem()">Adicionar</button>
+  </div>
 </div>
 
 <section class="dice" id="dicePanel">

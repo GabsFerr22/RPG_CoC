@@ -336,24 +336,3 @@ button,.quick-btn{background:#1b130b;color:#d8c28a;border:1px solid #8a6a38;padd
   line-height:1;
 }
 
-.dice{
-  position:fixed;
-  right:14px;
-  bottom:18px;
-  z-index:80;
-  display:block;
-}
-
-.roll-log{
-  position:fixed;
-  right:14px;
-  bottom:86px;
-  width:320px;
-  height:150px;
-  z-index:80;
-  display:block;
-}
-
-.live-chat{
-  z-index:75;
-}
