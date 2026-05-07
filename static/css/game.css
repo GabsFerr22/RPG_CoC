@@ -339,35 +339,34 @@ button,.quick-btn{background:#1b130b;color:#d8c28a;border:1px solid #8a6a38;padd
 
 .players-grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr;
   gap:8px;
 }
 
 .player-card{
+  display:flex;
+  gap:8px;
+  padding:8px;
   background:rgba(10,8,5,.85);
   border:1px solid #8a6a38;
-  padding:6px;
-  display:flex;
-  gap:6px;
-  align-items:center;
 }
 
 .player-card img{
-  width:34px;
+  width:42px;
   height:42px;
   object-fit:contain;
 }
 
-.player-card strong{
-  display:block;
-  font-size:12px;
-  color:#f1d88d;
+.master-mini-stat{
+  font-size:11px;
+  margin-top:4px;
 }
 
-.player-card small{
-  display:block;
-  font-size:10px;
-  color:#9f8a56;
+.master-mini-stat button{
+  width:18px;
+  height:18px;
+  padding:0;
+  font-size:11px;
 }
 
 .master-music select{

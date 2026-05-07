@@ -105,10 +105,13 @@ const LOCAL_PARTS = {
 async function loadMasterPlayers() {
   if (!IS_MASTER) return;
 
+  const grid = document.getElementById("masterPlayersGrid");
+  if (!grid) return;
+
   const res = await fetch("/api/all_characters");
   const data = await res.json();
 
-  masterPlayersGrid.innerHTML = "";
+  grid.innerHTML = "";
 
   data.characters.forEach(p => {
     const card = document.createElement("div");
@@ -121,11 +124,43 @@ async function loadMasterPlayers() {
       <div>
         <strong>${p.name}</strong>
         <small>${p.current_map || "cidade"}</small>
+
+        <div class="master-mini-stat">
+          ❤️ ${p.hp}/${p.hp_max}
+          <button onclick="masterChangePlayerStat('${p.id}', 'hp', ${p.hp}, -1)">−</button>
+          <button onclick="masterChangePlayerStat('${p.id}', 'hp', ${p.hp}, 1)">+</button>
+        </div>
+
+        <div class="master-mini-stat">
+          🧠 ${p.sanity}/${p.sanity_max}
+          <button onclick="masterChangePlayerStat('${p.id}', 'sanity', ${p.sanity}, -1)">−</button>
+          <button onclick="masterChangePlayerStat('${p.id}', 'sanity', ${p.sanity}, 1)">+</button>
+        </div>
+
+        <div class="master-mini-stat">
+          📖 ${p.mp}/${p.mp_max}
+          <button onclick="masterChangePlayerStat('${p.id}', 'mp', ${p.mp}, -1)">−</button>
+          <button onclick="masterChangePlayerStat('${p.id}', 'mp', ${p.mp}, 1)">+</button>
+        </div>
       </div>
     `;
 
-    masterPlayersGrid.appendChild(card);
+    grid.appendChild(card);
   });
+}
+
+async function masterChangePlayerStat(charId, stat, currentValue, delta) {
+  const newValue = Math.max(0, Number(currentValue) + delta);
+
+  await fetch(`/api/master/character/${charId}/update`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      [stat]: newValue
+    })
+  });
+
+  await loadMasterPlayers();
 }
 
 function masterPlayMusic() {
@@ -225,12 +260,12 @@ async function loadCharacter() {
   character = data.character;
   skills = data.skills || [];
 
-  if (IS_MASTER) {
-    await loadMasterPlayers();
-    setupTokenSizeControl();
-    setInterval(loadMasterPlayers, 3000);
-    return;
-  }
+  // if (IS_MASTER) {
+  //   await loadMasterPlayers();
+  //   setupTokenSizeControl();
+  //   setInterval(loadMasterPlayers, 3000);
+  //   return;
+  // }
 
   charName.innerText = character.name;
   charImage.src = character.image_url || "/static/images/default_character.png";
@@ -889,4 +924,10 @@ if (chatInputEl) {
   });
 }
 
-loadCharacter();
+if (IS_MASTER) {
+  loadMasterPlayers();
+  setupTokenSizeControl();
+  setInterval(loadMasterPlayers, 3000);
+} else {
+  loadCharacter();
+}

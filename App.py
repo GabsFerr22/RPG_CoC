@@ -309,6 +309,49 @@ def master_broadcast():
 
     return jsonify({'success': True})
 
+
+@app.route('/api/all_characters', methods=['GET'])
+def get_all_characters():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    current_map = request.args.get('map')
+    current_room = request.args.get('room')
+
+    query = supabase.table('characters').select(
+        'id, name, image_url, current_map, current_room, pos_x, pos_y, sanity, sanity_max, hp, hp_max, mp, mp_max, credit_rating, movement, is_alive'
+    ).eq('is_alive', True)
+
+    if current_map:
+        query = query.eq('current_map', current_map)
+
+    if current_room:
+        query = query.eq('current_room', current_room)
+
+    result = query.execute()
+    return jsonify({'characters': result.data})
+
+
+@app.route('/api/master/character/<char_id>/update', methods=['POST'])
+def master_update_character(char_id):
+    if not session.get('is_master'):
+        return jsonify({'error': 'Apenas mestre'}), 403
+
+    data = request.get_json()
+
+    allowed = ['sanity', 'hp', 'mp', 'credit_rating', 'movement']
+    update_data = {k: data[k] for k in allowed if k in data}
+
+    if update_data:
+        supabase.table('characters').update(update_data).eq('id', char_id).execute()
+
+    socketio.emit('character_updated', {
+        'char_id': char_id,
+        'updates': update_data
+    }, room='main')
+
+    return jsonify({'success': True})
+
 # ─────────────────────────────────────────
 # PERSONAGEM
 # ─────────────────────────────────────────
@@ -483,7 +526,7 @@ def chat_send():
 @socketio.on('music_control')
 def music_control(data):
     emit('music_control', data, room='main', include_self=False)
-    
+
 
 @socketio.on('vtt_ping')
 def on_vtt_ping(data):
