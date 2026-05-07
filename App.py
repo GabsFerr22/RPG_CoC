@@ -19,7 +19,7 @@ load_dotenv()
 # ─────────────────────────────────────────
 # CONFIG BASE
 # ─────────────────────────────────────────
-
+online_players = {}
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'cthulhu-secret')
 app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', 'static/uploads')
@@ -356,6 +356,50 @@ def master_update_character(char_id):
 # PERSONAGEM
 # ─────────────────────────────────────────
 
+
+@app.route('/api/online_players')
+def get_online_players():
+    if not session.get('is_master'):
+        return jsonify({'error': 'forbidden'}), 403
+
+    ids = [uid for uid, p in online_players.items() if not p.get('is_master')]
+
+    if not ids:
+        return jsonify({'characters': []})
+
+    chars = supabase.table('characters') \
+        .select('id,user_id,name,image_url,current_map,hp,hp_max,mp,mp_max,sanity,sanity_max') \
+        .in_('user_id', ids) \
+        .execute().data
+
+    return jsonify({'characters': chars})
+
+
+@app.route('/api/master/kick/<user_id>', methods=['POST'])
+def kick_player(user_id):
+    if not session.get('is_master'):
+        return jsonify({'error': 'forbidden'}), 403
+
+    socketio.emit('force_logout', {'user_id': user_id}, room='main')
+
+    if user_id in online_players:
+        del online_players[user_id]
+
+    socketio.emit('online_players_updated', {}, room='main')
+    return jsonify({'success': True})
+
+
+@app.route('/api/monsters/<monster_id>', methods=['DELETE'])
+def delete_monster(monster_id):
+    if not session.get('is_master'):
+        return jsonify({'error': 'forbidden'}), 403
+
+    supabase.table('monsters').delete().eq('id', monster_id).execute()
+
+    socketio.emit('monster_removed', {'id': monster_id}, room='main')
+    return jsonify({'success': True})
+
+
 @app.route('/api/character')
 def get_character():
     if 'user_id' not in session:
@@ -550,11 +594,24 @@ def token_size_changed(data):
 @socketio.on('connect')
 def connect():
     join_room('main')
-    print("👤 usuário conectado")
+
+    if 'user_id' in session:
+        online_players[session['user_id']] = {
+            'user_id': session['user_id'],
+            'username': session.get('username'),
+            'is_master': session.get('is_master', False)
+        }
+
+    emit('online_players_updated', {}, room='main')
+
 
 @socketio.on('disconnect')
 def disconnect():
-    print("👤 usuário saiu")
+    uid = session.get('user_id')
+    if uid in online_players:
+        del online_players[uid]
+
+    emit('online_players_updated', {}, room='main')
     
 @socketio.on('map_part_changed')
 def on_map_part_changed(data):

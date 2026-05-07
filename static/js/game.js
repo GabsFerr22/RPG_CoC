@@ -108,10 +108,15 @@ async function loadMasterPlayers() {
   const grid = document.getElementById("masterPlayersGrid");
   if (!grid) return;
 
-  const res = await fetch("/api/all_characters");
+  const res = await fetch("/api/online_players");
   const data = await res.json();
 
   grid.innerHTML = "";
+
+  if (!data.characters || !data.characters.length) {
+    grid.innerHTML = `<small>Nenhum investigador online.</small>`;
+    return;
+  }
 
   data.characters.forEach(p => {
     const card = document.createElement("div");
@@ -124,29 +129,24 @@ async function loadMasterPlayers() {
       <div>
         <strong>${p.name}</strong>
         <small>${p.current_map || "cidade"}</small>
+        <small>❤️ ${p.hp}/${p.hp_max}</small>
+        <small>🧠 ${p.sanity}/${p.sanity_max}</small>
+        <small>📖 ${p.mp}/${p.mp_max}</small>
 
-        <div class="master-mini-stat">
-          ❤️ ${p.hp}/${p.hp_max}
-          <button onclick="masterChangePlayerStat('${p.id}', 'hp', ${p.hp}, -1)">−</button>
-          <button onclick="masterChangePlayerStat('${p.id}', 'hp', ${p.hp}, 1)">+</button>
-        </div>
-
-        <div class="master-mini-stat">
-          🧠 ${p.sanity}/${p.sanity_max}
-          <button onclick="masterChangePlayerStat('${p.id}', 'sanity', ${p.sanity}, -1)">−</button>
-          <button onclick="masterChangePlayerStat('${p.id}', 'sanity', ${p.sanity}, 1)">+</button>
-        </div>
-
-        <div class="master-mini-stat">
-          📖 ${p.mp}/${p.mp_max}
-          <button onclick="masterChangePlayerStat('${p.id}', 'mp', ${p.mp}, -1)">−</button>
-          <button onclick="masterChangePlayerStat('${p.id}', 'mp', ${p.mp}, 1)">+</button>
-        </div>
+        <button onclick="kickPlayer('${p.user_id}')">Expulsar</button>
       </div>
     `;
 
     grid.appendChild(card);
   });
+}
+
+async function kickPlayer(userId) {
+  await fetch(`/api/master/kick/${userId}`, {
+    method: "POST"
+  });
+
+  await loadMasterPlayers();
 }
 
 async function masterChangePlayerStat(charId, stat, currentValue, delta) {
@@ -202,6 +202,16 @@ function masterChangeVolume() {
     volume: Number(musicVolume.value)
   });
 }
+
+socket.on("online_players_updated", () => {
+  if (IS_MASTER) loadMasterPlayers();
+});
+
+socket.on("force_logout", data => {
+  if (character && data.user_id === character.user_id) {
+    window.location.href = "/logout";
+  }
+});
 
 socket.on("music_control", data => {
   const audio = document.getElementById("bgMusic");
@@ -486,21 +496,34 @@ function renderMonster(monster) {
   if (!token) {
     token = document.createElement("div");
     token.className = `token monster-token ${monster.type === "npc" ? "npc-token" : ""}`;
-    token.dataset.monster = monster.id || Date.now();
+    token.dataset.monster = monster.id;
     token.title = monster.name;
+
     token.innerHTML = `
       <img 
         src="${monster.image_url || "/static/images/default_monster.png"}"
         onerror="this.src='/static/images/default_monster.png'"
       >
     `;
+
     tokensLayer.appendChild(token);
 
     token.onclick = async (e) => {
       e.stopPropagation();
-      if (!IS_MASTER || currentTool !== "move") return;
+
+      if (!IS_MASTER) return;
+
+      if (currentTool === "danger") {
+        if (confirm(`Remover ${monster.name}?`)) {
+          await fetch(`/api/monsters/${monster.id}`, {
+            method: "DELETE"
+          });
+        }
+        return;
+      }
 
       const rect = localStage.getBoundingClientRect();
+
       let x = ((e.clientX - rect.left) / rect.width) * 100;
       let y = ((e.clientY - rect.top) / rect.height) * 100;
 
@@ -803,6 +826,12 @@ function loadNotes() {
     localStorage.setItem("cthulhu_notes", playerNotes.value);
   };
 }
+
+socket.on("monster_removed", data => {
+  const token = document.querySelector(`[data-monster="${data.id}"]`);
+  if (token) token.remove();
+});
+
 
 socket.on("token_size_changed", data => {
   tokenSize = data.size;
