@@ -10,14 +10,46 @@
 <div id="fogIntro"></div>
 
 <aside class="sidebar" id="sidebarPanel">
-<button class="minimize-btn" onclick="togglePanel('sidebarPanel')">—</button>
-  <h2 id="charName">Carregando...</h2>
-  <img id="charImage" src="" alt="Personagem">
+  <button class="minimize-btn" onclick="togglePanel('sidebarPanel')">—</button>
 
-  <div class="section">
-    <h3>Perícias</h3>
-    <div id="skillsList"></div>
-  </div>
+  {% if is_master %}
+    <h2>Guardião</h2>
+
+    <div class="section">
+      <h3>Investigadores</h3>
+      <div id="masterPlayersGrid" class="players-grid"></div>
+    </div>
+
+    <div class="section master-music">
+      <h3>Música</h3>
+
+      <select id="musicSelect">
+        <option value="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/music/ambient1.mp3">Ambiente</option>
+        <option value="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/music/horror.mp3">Horror</option>
+        <option value="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/music/combat.mp3">Combate</option>
+      </select>
+
+      <div class="music-row">
+        <button onclick="masterPlayMusic()">▶</button>
+        <button onclick="masterStopMusic()">■</button>
+        <button onclick="masterMuteMusic()">🔇</button>
+      </div>
+
+      <label>Volume</label>
+      <input id="musicVolume" type="range" min="0" max="1" step="0.05" value="0.5" onchange="masterChangeVolume()">
+
+      <audio id="bgMusic" loop></audio>
+    </div>
+
+  {% else %}
+    <h2 id="charName">Carregando...</h2>
+    <img id="charImage" src="" alt="Personagem">
+
+    <div class="section">
+      <h3>Perícias</h3>
+      <div id="skillsList"></div>
+    </div>
+  {% endif %}
 </aside>
 
 <main class="game-board">
@@ -149,7 +181,6 @@
 <button class="minimize-btn" onclick="togglePanel('masterPanel')">—</button>
   <h3>Mestre</h3>
   <input id="monsterName" placeholder="Nome do monstro">
-  <button onclick="spawnMonster()">Spawnar Monstro</button>
   <button onclick="openNpcModal()">Criar NPC</button>
   <button onclick="masterEvent('fog')">Névoa</button>
   <button onclick="masterEvent('shake')">Terror</button>

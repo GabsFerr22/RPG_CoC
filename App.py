@@ -231,6 +231,84 @@ def game():
         is_master=session.get('is_master', False)
     )
 
+
+@app.route('/api/character/update', methods=['POST'])
+def update_character():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    data = request.get_json()
+
+    allowed = ['sanity', 'hp', 'mp', 'credit_rating', 'movement']
+    update_data = {k: data[k] for k in allowed if k in data}
+
+    if update_data:
+        supabase.table('characters').update(update_data).eq('user_id', session['user_id']).execute()
+
+    socketio.emit('character_updated', {
+        'user_id': session['user_id'],
+        'updates': update_data
+    }, room='main')
+
+    return jsonify({'success': True})
+
+
+@app.route('/api/monsters', methods=['GET'])
+def get_monsters():
+    current_map = request.args.get('map')
+    current_room = request.args.get('room')
+
+    query = supabase.table('monsters').select('*').eq('is_visible', True)
+
+    if current_map:
+        query = query.eq('current_map', current_map)
+
+    if current_room:
+        query = query.eq('current_room', current_room)
+
+    result = query.execute()
+    return jsonify({'monsters': result.data})
+
+
+@app.route('/api/monsters/spawn', methods=['POST'])
+def spawn_npc():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    data = request.get_json()
+
+    npc = {
+        'name': data.get('name', 'NPC'),
+        'type': data.get('type', 'npc'),
+        'current_map': data.get('current_map'),
+        'current_room': data.get('current_room'),
+        'pos_x': data.get('pos_x', 50),
+        'pos_y': data.get('pos_y', 50),
+        'hp': data.get('hp', 1),
+        'hp_max': data.get('hp', 1),
+        'image_url': data.get('image_url', '/static/images/default_character.png'),
+        'is_visible': True
+    }
+
+    result = supabase.table('monsters').insert(npc).execute()
+    npc['id'] = result.data[0]['id']
+
+    socketio.emit('monster_spawned', npc, room='main')
+
+    return jsonify({'success': True, 'monster': npc})
+
+
+@app.route('/api/master/broadcast', methods=['POST'])
+def master_broadcast():
+    data = request.get_json()
+
+    socketio.emit('master_event', {
+        'message': data.get('message', ''),
+        'effect': data.get('effect', 'none')
+    }, room='main')
+
+    return jsonify({'success': True})
+
 # ─────────────────────────────────────────
 # PERSONAGEM
 # ─────────────────────────────────────────
@@ -401,6 +479,21 @@ def chat_send():
 # ─────────────────────────────────────────
 # SOCKET
 # ─────────────────────────────────────────
+
+@socketio.on('music_control')
+def music_control(data):
+    emit('music_control', data, room='main', include_self=False)
+    
+
+@socketio.on('vtt_ping')
+def on_vtt_ping(data):
+    emit('vtt_ping', data, room='main', include_self=False)
+
+
+@socketio.on('vtt_danger')
+def on_vtt_danger(data):
+    emit('vtt_danger', data, room='main', include_self=False)
+
 
 @socketio.on('token_size_changed')
 def token_size_changed(data):

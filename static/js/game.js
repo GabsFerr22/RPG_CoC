@@ -11,6 +11,16 @@ let selectedSlot = null;
 
 function setVttTool(tool) {
   currentTool = tool;
+
+  if (tool === "fog") {
+    masterEvent("fog");
+    currentTool = "move";
+  }
+
+  if (tool === "shake") {
+    masterEvent("shake");
+    currentTool = "move";
+  }
 }
 
 const LOCAL_PARTS = {
@@ -91,6 +101,96 @@ const LOCAL_PARTS = {
     { name: "Sessão F", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cemiterio_familiar.webp" }
   ]
 };
+
+async function loadMasterPlayers() {
+  if (!IS_MASTER) return;
+
+  const res = await fetch("/api/all_characters");
+  const data = await res.json();
+
+  masterPlayersGrid.innerHTML = "";
+
+  data.characters.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "player-card";
+
+    card.innerHTML = `
+      <img src="${p.image_url || "/static/images/default_character.png"}"
+           onerror="this.src='/static/images/default_character.png'">
+
+      <div>
+        <strong>${p.name}</strong>
+        <small>${p.current_map || "cidade"}</small>
+      </div>
+    `;
+
+    masterPlayersGrid.appendChild(card);
+  });
+}
+
+function masterPlayMusic() {
+  const audio = document.getElementById("bgMusic");
+  audio.src = musicSelect.value;
+  audio.volume = Number(musicVolume.value);
+  audio.play();
+
+  socket.emit("music_control", {
+    action: "play",
+    src: musicSelect.value,
+    volume: Number(musicVolume.value)
+  });
+}
+
+function masterStopMusic() {
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
+
+  socket.emit("music_control", {
+    action: "stop"
+  });
+}
+
+function masterMuteMusic() {
+  bgMusic.muted = !bgMusic.muted;
+
+  socket.emit("music_control", {
+    action: "mute",
+    muted: bgMusic.muted
+  });
+}
+
+function masterChangeVolume() {
+  bgMusic.volume = Number(musicVolume.value);
+
+  socket.emit("music_control", {
+    action: "volume",
+    volume: Number(musicVolume.value)
+  });
+}
+
+socket.on("music_control", data => {
+  const audio = document.getElementById("bgMusic");
+  if (!audio) return;
+
+  if (data.action === "play") {
+    audio.src = data.src;
+    audio.volume = data.volume ?? 0.5;
+    audio.play();
+  }
+
+  if (data.action === "stop") {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+
+  if (data.action === "mute") {
+    audio.muted = data.muted;
+  }
+
+  if (data.action === "volume") {
+    audio.volume = data.volume;
+  }
+});
 
 async function loadCharacter() {
   const res = await fetch("/api/character");
@@ -471,17 +571,28 @@ function createDangerMarker(x, y) {
 async function changeStat(stat, delta) {
   if (!character) return;
 
-  character[stat] = Math.max(0, character[stat] + delta);
-  if (stat === "sanity") character[stat] = Math.min(99, character[stat]);
+  character[stat] = Math.max(0, Number(character[stat]) + delta);
 
-  sanity.innerText = character.sanity;
+  if (stat === "sanity") {
+    character[stat] = Math.min(99, character[stat]);
+    sanity.innerText = character.sanity;
+  }
+
+  if (stat === "hp") {
+    character.hp = Math.min(character.hp_max, character.hp);
+    hp.innerText = `${character.hp}/${character.hp_max}`;
+  }
+
+  if (stat === "mp") {
+    character.mp = Math.min(character.mp_max, character.mp);
+    mp.innerText = `${character.mp}/${character.mp_max}`;
+  }
 
   await fetch("/api/character/update", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      [stat]: character[stat],
-      char_name: character.name
+      [stat]: character[stat]
     })
   });
 }
@@ -600,7 +711,9 @@ async function masterEvent(effect) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      message: effect === "fog" ? "A névoa toma a cidade..." : "Algo observa vocês.",
+      message: effect === "fog"
+        ? "A névoa toma o lugar..."
+        : "Algo observa vocês.",
       effect
     })
   });
@@ -713,12 +826,13 @@ socket.on("master_event", data => {
       { transform: "translate(0,0)" },
       { transform: "translate(8px,0)" },
       { transform: "translate(-8px,0)" },
+      { transform: "translate(5px,0)" },
       { transform: "translate(0,0)" }
-    ], { duration: 450 });
+    ], { duration: 500 });
   }
+});
 
   alert(data.message);
-});
 
 function togglePanel(id) {
   const panel = document.getElementById(id);
@@ -734,5 +848,10 @@ chatInput.addEventListener("keydown", e => {
     sendChat();
   }
 });
+
+if (IS_MASTER) {
+  await loadMasterPlayers();
+  setInterval(loadMasterPlayers, 3000);
+}
 
 loadCharacter();
