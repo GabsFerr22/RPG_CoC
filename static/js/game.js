@@ -4,27 +4,31 @@ let currentTool = "move";
 let character = null;
 let currentPartIndex = 0;
 let skills = [];
+let selectedNpcId = null;
 let currentMap = "city";
 let currentRoom = "city";
-let tokenSize = Number(localStorage.getItem("cthulhu_token_size")) || 140;
 let selectedSlot = null;
 let playerTokenSize = Number(localStorage.getItem("cthulhu_player_token_size")) || 140;
 let npcTokenSize = Number(localStorage.getItem("cthulhu_npc_token_size")) || 140;
-let selectedNpcId = null;
 
 
 function setVttTool(tool) {
+  selectedNpcId = null;
   currentTool = tool;
 
   if (tool === "fog") {
     masterEvent("fog");
     currentTool = "move";
+    return;
   }
 
   if (tool === "shake") {
     masterEvent("shake");
     currentTool = "move";
+    return;
   }
+
+  console.log("Ferramenta:", currentTool);
 }
 
 const LOCAL_PARTS = {
@@ -402,7 +406,7 @@ localStage.onclick = async (e) => {
   x = Math.max(0, Math.min(100, x));
   y = Math.max(0, Math.min(100, y));
 
-  if (IS_MASTER && selectedNpcId && currentTool === "move") {
+  if (IS_MASTER && currentTool === "move" && selectedNpcId) {
     await fetch(`/api/monsters/move/${selectedNpcId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -410,6 +414,12 @@ localStage.onclick = async (e) => {
     });
 
     selectedNpcId = null;
+
+    document.querySelectorAll(".monster-token").forEach(t => {
+      t.style.outline = "none";
+      t.style.filter = "";
+    });
+
     return;
   }
 
@@ -510,21 +520,29 @@ function renderMonster(monster) {
     tokensLayer.appendChild(token);
 
     token.onclick = async (e) => {
-      e.stopPropagation();
-      if (!IS_MASTER) return;
+  e.stopPropagation();
 
-      if (currentTool === "danger") {
-        if (confirm(`Remover ${monster.name}?`)) {
-          await fetch(`/api/monsters/${monster.id}`, { method: "DELETE" });
-        }
-        return;
-      }
+  if (!IS_MASTER) return;
 
-      selectedNpcId = monster.id;
-      token.style.outline = "2px solid #f1d88d";
-      setTimeout(() => token.style.outline = "none", 900);
-    };
+  if (currentTool === "danger") {
+    if (confirm(`Remover ${monster.name}?`)) {
+      await fetch(`/api/monsters/${monster.id}`, { method: "DELETE" });
+    }
+    return;
   }
+
+  if (currentTool === "move") {
+    selectedNpcId = monster.id;
+
+    document.querySelectorAll(".monster-token").forEach(t => {
+      t.style.outline = "none";
+    });
+
+    token.style.outline = "3px solid #f1d88d";
+    token.style.filter = "drop-shadow(0 0 10px #f1d88d)";
+  }
+ };
+}
 
   token.style.left = `${monster.pos_x}%`;
   token.style.top = `${monster.pos_y}%`;
