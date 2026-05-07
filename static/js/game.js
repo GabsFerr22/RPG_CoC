@@ -105,7 +105,7 @@ const LOCAL_PARTS = {
 async function loadMasterPlayers() {
   if (!IS_MASTER) return;
 
-  const res = await fetch("/api/all_characters");
+  const res = await fetch("/api/online_players");
   const data = await res.json();
 
   const grid = document.getElementById("masterPlayersGrid");
@@ -127,12 +127,12 @@ async function loadMasterPlayers() {
 
         <div class="player-status">
           ❤️ ${p.hp ?? "--"}/${p.hp_max ?? "--"}<br>
-          🧠 ${p.sanity ?? "--"}<br>
+          🧠 ${p.sanity ?? "--"}/${p.sanity_max ?? "--"}<br>
           📖 ${p.mp ?? "--"}/${p.mp_max ?? "--"}
         </div>
 
         <button class="kick-btn" onclick="kickPlayer('${p.user_id}')">
-          Expulsar
+          Deslogar
         </button>
       </div>
     `;
@@ -234,45 +234,12 @@ socket.on("music_control", data => {
   }
 });
 
-async function loadMasterPlayers() {
-  const res = await fetch("/api/all_characters");
-  const data = await res.json();
-
-  const grid = document.getElementById("masterPlayersGrid");
-  if (!grid) return;
-
-  grid.innerHTML = "";
-
-  data.characters.forEach(p => {
-    const card = document.createElement("div");
-    card.className = "player-card";
-
-    card.innerHTML = `
-      <img src="${p.image_url || "/static/images/default_character.png"}"
-           onerror="this.src='/static/images/default_character.png'">
-      <div>
-        <strong>${p.name}</strong>
-        <small>${p.current_map || "cidade"}</small>
-      </div>
-    `;
-
-    grid.appendChild(card);
-  });
-}
-
 async function loadCharacter() {
   const res = await fetch("/api/character");
   const data = await res.json();
 
   character = data.character;
   skills = data.skills || [];
-
-  // if (IS_MASTER) {
-  //   await loadMasterPlayers();
-  //   setupTokenSizeControl();
-  //   setInterval(loadMasterPlayers, 3000);
-  //   return;
-  // }
 
   charName.innerText = character.name;
   charImage.src = character.image_url || "/static/images/default_character.png";
@@ -950,10 +917,16 @@ if (chatInputEl) {
   });
 }
 
-if (IS_MASTER) {
-  loadMasterPlayers();
+async function initGame() {
   setupTokenSizeControl();
-  setInterval(loadMasterPlayers, 3000);
-} else {
-  loadCharacter();
+  await refreshCityMarkers();
+
+  if (IS_MASTER) {
+    await loadMasterPlayers();
+    setInterval(loadMasterPlayers, 3000);
+  } else {
+    await loadCharacter();
+  }
 }
+
+initGame();

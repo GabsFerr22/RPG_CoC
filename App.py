@@ -319,8 +319,8 @@ def get_all_characters():
     current_room = request.args.get('room')
 
     query = supabase.table('characters').select(
-        'id,user_id,name,image_url,current_map,current_room,pos_x,pos_y,is_alive,hp,hp_max,mp,mp_max,sanity'
-    ).eq('is_alive', True).execute()
+        'id,user_id,name,image_url,current_map,current_room,pos_x,pos_y,is_alive,hp,hp_max,mp,mp_max,sanity,sanity_max'
+    ).eq('is_alive', True)
 
     if current_map:
         query = query.eq('current_map', current_map)
@@ -329,6 +329,7 @@ def get_all_characters():
         query = query.eq('current_room', current_room)
 
     result = query.execute()
+
     return jsonify({'characters': result.data})
 
 

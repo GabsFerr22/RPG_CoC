@@ -38,7 +38,7 @@
       <label>Volume</label>
       <input id="musicVolume" type="range" min="0" max="1" step="0.05" value="0.5" onchange="masterChangeVolume()">
 
-      <audio id="bgMusic" loop></audio>
+      
     </div>
 
   {% else %}
@@ -217,6 +217,7 @@
     <textarea id="playerNotes" placeholder="Escreva suas pistas aqui..."></textarea>
   </div>
 </div>
+<audio id="bgMusic" loop></audio>
 
 <script>
   const IS_MASTER = {{ 'true' if is_master else 'false' }};
