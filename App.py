@@ -357,6 +357,21 @@ def master_update_character(char_id):
 # PERSONAGEM
 # ─────────────────────────────────────────
 
+@app.route('/api/character/hide/<char_id>', methods=['POST'])
+def hide_character(char_id):
+    if not session.get('is_master'):
+        return jsonify({'error': 'forbidden'}), 403
+
+    supabase.table('characters').update({
+        'is_alive': False
+    }).eq('id', char_id).execute()
+
+    socketio.emit('character_hidden', {
+        'id': char_id
+    }, room='main')
+
+    return jsonify({'success': True})
+
 
 @app.route('/api/online_players')
 def get_online_players():

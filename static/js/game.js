@@ -8,6 +8,10 @@ let currentMap = "city";
 let currentRoom = "city";
 let tokenSize = Number(localStorage.getItem("cthulhu_token_size")) || 140;
 let selectedSlot = null;
+let playerTokenSize = Number(localStorage.getItem("cthulhu_player_token_size")) || 140;
+let npcTokenSize = Number(localStorage.getItem("cthulhu_npc_token_size")) || 140;
+let selectedNpcId = null;
+
 
 function setVttTool(tool) {
   currentTool = tool;
@@ -389,7 +393,7 @@ async function moveMyToken(x, y) {
 
 localStage.onclick = async (e) => {
   if (e.target.closest(".token")) return;
-  if (!character || currentMap === "city") return;
+  if (currentMap === "city") return;
 
   const rect = localStage.getBoundingClientRect();
   let x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -397,6 +401,17 @@ localStage.onclick = async (e) => {
 
   x = Math.max(0, Math.min(100, x));
   y = Math.max(0, Math.min(100, y));
+
+  if (IS_MASTER && selectedNpcId && currentTool === "move") {
+    await fetch(`/api/monsters/move/${selectedNpcId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pos_x: x, pos_y: y })
+    });
+
+    selectedNpcId = null;
+    return;
+  }
 
   if (IS_MASTER && currentTool === "ping") {
     createPing(x, y);
@@ -410,7 +425,7 @@ localStage.onclick = async (e) => {
     return;
   }
 
-  if (currentTool === "move") {
+  if (!IS_MASTER && character && currentTool === "move") {
     await moveMyToken(x, y);
   }
 };
@@ -439,19 +454,41 @@ function renderToken(id, name, image, x, y) {
     token.className = "token player-token";
     token.dataset.token = id;
     token.title = name;
+
     token.innerHTML = `
       <img 
         src="${image || "/static/images/default_character.png"}"
         onerror="this.src='/static/images/default_character.png'"
       >
     `;
+
     tokensLayer.appendChild(token);
+
+    token.onclick = async (e) => {
+      e.stopPropagation();
+
+      if (!IS_MASTER) return;
+
+      if (currentTool === "danger") {
+
+        if (confirm(`Remover token de ${name}?`)) {
+
+          await fetch(`/api/character/hide/${id}`, {
+            method: "POST"
+          });
+
+        }
+
+        return;
+      };
+    };
   }
 
   token.style.left = `${x}%`;
   token.style.top = `${y}%`;
-  token.style.height = `${tokenSize}px`;
-  token.style.width = `${Math.floor(tokenSize * 0.72)}px`;
+
+  token.style.height = `${playerTokenSize}px`;
+  token.style.width = `${Math.floor(playerTokenSize * 0.72)}px`;
 }
 
 function renderMonster(monster) {
@@ -459,7 +496,7 @@ function renderMonster(monster) {
 
   if (!token) {
     token = document.createElement("div");
-    token.className = `token monster-token ${monster.type === "npc" ? "npc-token" : ""}`;
+    token.className = "token monster-token npc-token";
     token.dataset.monster = monster.id;
     token.title = monster.name;
 
@@ -474,61 +511,63 @@ function renderMonster(monster) {
 
     token.onclick = async (e) => {
       e.stopPropagation();
-
       if (!IS_MASTER) return;
 
       if (currentTool === "danger") {
         if (confirm(`Remover ${monster.name}?`)) {
-          await fetch(`/api/monsters/${monster.id}`, {
-            method: "DELETE"
-          });
+          await fetch(`/api/monsters/${monster.id}`, { method: "DELETE" });
         }
         return;
       }
 
-      const rect = localStage.getBoundingClientRect();
-
-      let x = ((e.clientX - rect.left) / rect.width) * 100;
-      let y = ((e.clientY - rect.top) / rect.height) * 100;
-
-      x = Math.max(0, Math.min(100, x));
-      y = Math.max(0, Math.min(100, y));
-
-      await fetch(`/api/monsters/move/${monster.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pos_x: x, pos_y: y })
-      });
+      selectedNpcId = monster.id;
+      token.style.outline = "2px solid #f1d88d";
+      setTimeout(() => token.style.outline = "none", 900);
     };
   }
 
   token.style.left = `${monster.pos_x}%`;
   token.style.top = `${monster.pos_y}%`;
-  token.style.height = `${tokenSize}px`;
-  token.style.width = `${Math.floor(tokenSize * 0.72)}px`;
+  token.style.height = `${npcTokenSize}px`;
+  token.style.width = `${Math.floor(npcTokenSize * 0.72)}px`;
 }
 
 function applyTokenSize() {
-  document.querySelectorAll(".token").forEach(token => {
-    token.style.height = `${tokenSize}px`;
-    token.style.width = `${Math.floor(tokenSize * 0.72)}px`;
+  document.querySelectorAll(".player-token").forEach(token => {
+    token.style.height = `${playerTokenSize}px`;
+    token.style.width = `${Math.floor(playerTokenSize * 0.72)}px`;
+  });
+
+  document.querySelectorAll(".monster-token").forEach(token => {
+    token.style.height = `${npcTokenSize}px`;
+    token.style.width = `${Math.floor(npcTokenSize * 0.72)}px`;
   });
 }
 
 function setupTokenSizeControl() {
   const input = document.getElementById("tokenSizeInput");
+  const label = document.querySelector(".token-size-control label");
   if (!input) return;
 
-  input.value = tokenSize;
+  if (IS_MASTER) {
+    if (label) label.innerText = "Tamanho NPC";
+    input.value = npcTokenSize;
 
-  input.oninput = () => {
-    tokenSize = Number(input.value);
-    applyTokenSize();
+    input.oninput = () => {
+      npcTokenSize = Number(input.value);
+      localStorage.setItem("cthulhu_npc_token_size", npcTokenSize);
+      applyTokenSize();
+    };
+  } else {
+    if (label) label.innerText = "Meu Tamanho";
+    input.value = playerTokenSize;
 
-    socket.emit("token_size_changed", {
-      size: tokenSize
-    });
-  };
+    input.oninput = () => {
+      playerTokenSize = Number(input.value);
+      localStorage.setItem("cthulhu_player_token_size", playerTokenSize);
+      applyTokenSize();
+    };
+  }
 }
 
 async function refreshCityMarkers() {
@@ -797,13 +836,13 @@ socket.on("monster_removed", data => {
 });
 
 
-socket.on("token_size_changed", data => {
-  tokenSize = data.size;
-  applyTokenSize();
+// socket.on("token_size_changed", data => {
+//   tokenSize = data.size;
+//   applyTokenSize();
 
-  const input = document.getElementById("tokenSizeInput");
-  if (input) input.value = tokenSize;
-});
+//   const input = document.getElementById("tokenSizeInput");
+//   if (input) input.value = tokenSize;
+// });
 
 socket.on("character_moved", async data => {
   if (data.current_map === currentMap && data.current_room === currentRoom) {
