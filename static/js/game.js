@@ -865,9 +865,10 @@ socket.on("master_event", data => {
       { transform: "translate(0,0)" }
     ], { duration: 500 });
   }
+  if (data.message) alert(data.message);
 });
 
-  alert(data.message);
+ 
 
 function togglePanel(id) {
   const panel = document.getElementById(id);
@@ -877,16 +878,15 @@ function togglePanel(id) {
   panel.classList.toggle("minimized");
 }
 
-chatInput.addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    sendChat();
-  }
-});
 
-if (IS_MASTER) {
-  await loadMasterPlayers();
-  setInterval(loadMasterPlayers, 3000);
+const chatInputEl = document.getElementById("chatInput");
+if (chatInputEl) {
+  chatInputEl.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendChat();
+    }
+  });
 }
 
 loadCharacter();
