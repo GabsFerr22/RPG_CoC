@@ -387,3 +387,9 @@ button,.quick-btn{background:#1b130b;color:#d8c28a;border:1px solid #8a6a38;padd
 .master-music input{
   width:100%;
 }
+
+#tokensLayer{
+  position:absolute;
+  inset:0;
+  z-index:30;
+}

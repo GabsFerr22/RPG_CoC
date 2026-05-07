@@ -13,8 +13,13 @@ let npcTokenSize = Number(localStorage.getItem("cthulhu_npc_token_size")) || 140
 
 
 function setVttTool(tool) {
-  selectedNpcId = null;
   currentTool = tool;
+  selectedNpcId = null;
+
+  document.querySelectorAll(".monster-token").forEach(t => {
+    t.style.outline = "none";
+    t.style.filter = "";
+  });
 
   if (tool === "fog") {
     masterEvent("fog");
@@ -28,7 +33,7 @@ function setVttTool(tool) {
     return;
   }
 
-  console.log("Ferramenta:", currentTool);
+  console.log("Ferramenta atual:", currentTool);
 }
 
 const LOCAL_PARTS = {
@@ -406,27 +411,27 @@ localStage.onclick = async (e) => {
   y = Math.max(0, Math.min(100, y));
 
   if (IS_MASTER && currentTool === "move" && selectedNpcId) {
-    const res = await fetch(`/api/monsters/move/${selectedNpcId}`, {
+    const npcId = selectedNpcId;
+
+    const res = await fetch(`/api/monsters/move/${npcId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ pos_x: x, pos_y: y })
     });
 
-    console.log("move npc status:", res.status);
-
-    const token = document.querySelector(`[data-monster="${selectedNpcId}"]`);
-    if (token) {
-      token.style.left = `${x}%`;
-      token.style.top = `${y}%`;
-      token.style.outline = "none";
-    }
+    console.log("move npc:", npcId, res.status);
 
     selectedNpcId = null;
+
+    document.querySelectorAll(".monster-token").forEach(t => {
+      t.style.outline = "none";
+      t.style.filter = "";
+    });
+
     return;
   }
 
   if (e.target.closest(".token")) return;
-  }
 
   if (IS_MASTER && currentTool === "ping") {
     createPing(x, y);
@@ -442,7 +447,8 @@ localStage.onclick = async (e) => {
 
   if (!IS_MASTER && character && currentTool === "move") {
     await moveMyToken(x, y);
-  };
+  }
+};
 
 async function loadAllCharacters() {
   const res = await fetch(`/api/all_characters?map=${currentMap}&room=${currentRoom}`);
@@ -522,31 +528,34 @@ function renderMonster(monster) {
     `;
 
     tokensLayer.appendChild(token);
-
-    token.onclick = (e) => {
-      e.stopPropagation();
-
-      if (!IS_MASTER) return;
-
-      if (currentTool === "danger") {
-        if (confirm(`Remover ${monster.name}?`)) {
-          fetch(`/api/monsters/${monster.id}`, { method: "DELETE" });
-        }
-        return;
-      }
-
-      if (currentTool === "move") {
-        selectedNpcId = monster.id;
-
-        document.querySelectorAll(".monster-token").forEach(t => {
-          t.style.outline = "none";
-        });
-
-        token.style.outline = "3px solid #f1d88d";
-        console.log("NPC selecionado:", selectedNpcId);
-      }
-    };
   }
+
+  token.onclick = async (e) => {
+    e.stopPropagation();
+
+    if (!IS_MASTER) return;
+
+    if (currentTool === "danger") {
+      if (confirm(`Remover ${monster.name}?`)) {
+        await fetch(`/api/monsters/${monster.id}`, { method: "DELETE" });
+      }
+      return;
+    }
+
+    if (currentTool === "move") {
+      selectedNpcId = monster.id;
+
+      document.querySelectorAll(".monster-token").forEach(t => {
+        t.style.outline = "none";
+        t.style.filter = "";
+      });
+
+      token.style.outline = "3px solid #f1d88d";
+      token.style.filter = "drop-shadow(0 0 12px #f1d88d)";
+
+      console.log("NPC selecionado:", selectedNpcId);
+    }
+  };
 
   token.style.left = `${monster.pos_x}%`;
   token.style.top = `${monster.pos_y}%`;
