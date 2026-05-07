@@ -192,12 +192,45 @@ socket.on("music_control", data => {
   }
 });
 
+async function loadMasterPlayers() {
+  const res = await fetch("/api/all_characters");
+  const data = await res.json();
+
+  const grid = document.getElementById("masterPlayersGrid");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+
+  data.characters.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "player-card";
+
+    card.innerHTML = `
+      <img src="${p.image_url || "/static/images/default_character.png"}"
+           onerror="this.src='/static/images/default_character.png'">
+      <div>
+        <strong>${p.name}</strong>
+        <small>${p.current_map || "cidade"}</small>
+      </div>
+    `;
+
+    grid.appendChild(card);
+  });
+}
+
 async function loadCharacter() {
   const res = await fetch("/api/character");
   const data = await res.json();
 
   character = data.character;
   skills = data.skills || [];
+
+  if (IS_MASTER) {
+    await loadMasterPlayers();
+    setupTokenSizeControl();
+    setInterval(loadMasterPlayers, 3000);
+    return;
+  }
 
   charName.innerText = character.name;
   charImage.src = character.image_url || "/static/images/default_character.png";
@@ -213,6 +246,7 @@ async function loadCharacter() {
   mov.innerText = character.movement;
 
   skillsList.innerHTML = "";
+
   skills.forEach(skill => {
     const div = document.createElement("div");
     div.className = "skill";
@@ -222,6 +256,7 @@ async function loadCharacter() {
   });
 
   document.getElementById("inventory").innerHTML = "";
+
   for (let i = 0; i < 10; i++) {
     const slot = document.createElement("div");
     slot.className = "inv-slot";
