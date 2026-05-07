@@ -105,18 +105,13 @@ const LOCAL_PARTS = {
 async function loadMasterPlayers() {
   if (!IS_MASTER) return;
 
+  const res = await fetch("/api/all_characters");
+  const data = await res.json();
+
   const grid = document.getElementById("masterPlayersGrid");
   if (!grid) return;
 
-  const res = await fetch("/api/online_players");
-  const data = await res.json();
-
   grid.innerHTML = "";
-
-  if (!data.characters || !data.characters.length) {
-    grid.innerHTML = `<small>Nenhum investigador online.</small>`;
-    return;
-  }
 
   data.characters.forEach(p => {
     const card = document.createElement("div");
@@ -126,14 +121,19 @@ async function loadMasterPlayers() {
       <img src="${p.image_url || "/static/images/default_character.png"}"
            onerror="this.src='/static/images/default_character.png'">
 
-      <div>
+      <div class="player-info">
         <strong>${p.name}</strong>
         <small>${p.current_map || "cidade"}</small>
-        <small>❤️ ${p.hp}/${p.hp_max}</small>
-        <small>🧠 ${p.sanity}/${p.sanity_max}</small>
-        <small>📖 ${p.mp}/${p.mp_max}</small>
 
-        <button onclick="kickPlayer('${p.user_id}')">Expulsar</button>
+        <div class="player-status">
+          ❤️ ${p.hp ?? "--"}/${p.hp_max ?? "--"}<br>
+          🧠 ${p.sanity ?? "--"}<br>
+          📖 ${p.mp ?? "--"}/${p.mp_max ?? "--"}
+        </div>
+
+        <button class="kick-btn" onclick="kickPlayer('${p.user_id}')">
+          Expulsar
+        </button>
       </div>
     `;
 
@@ -142,10 +142,7 @@ async function loadMasterPlayers() {
 }
 
 async function kickPlayer(userId) {
-  await fetch(`/api/master/kick/${userId}`, {
-    method: "POST"
-  });
-
+  await fetch(`/api/master/kick/${userId}`, { method: "POST" });
   await loadMasterPlayers();
 }
 
@@ -208,7 +205,7 @@ socket.on("online_players_updated", () => {
 });
 
 socket.on("force_logout", data => {
-  if (character && data.user_id === character.user_id) {
+  if (character && character.user_id === data.user_id) {
     window.location.href = "/logout";
   }
 });

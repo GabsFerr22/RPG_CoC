@@ -319,8 +319,8 @@ def get_all_characters():
     current_room = request.args.get('room')
 
     query = supabase.table('characters').select(
-        'id, name, image_url, current_map, current_room, pos_x, pos_y, sanity, sanity_max, hp, hp_max, mp, mp_max, credit_rating, movement, is_alive'
-    ).eq('is_alive', True)
+        'id,user_id,name,image_url,current_map,current_room,pos_x,pos_y,is_alive,hp,hp_max,mp,mp_max,sanity'
+    ).eq('is_alive', True).execute()
 
     if current_map:
         query = query.eq('current_map', current_map)
@@ -378,7 +378,7 @@ def get_online_players():
 @app.route('/api/master/kick/<user_id>', methods=['POST'])
 def kick_player(user_id):
     if not session.get('is_master'):
-        return jsonify({'error': 'forbidden'}), 403
+        return jsonify({'error': 'Apenas mestre'}), 403
 
     socketio.emit('force_logout', {'user_id': user_id}, room='main')
 
@@ -405,15 +405,16 @@ def get_character():
     if 'user_id' not in session:
         return jsonify({'error': 'no auth'}), 401
 
-    char = supabase.table('characters') \
+    chars = supabase.table('characters') \
         .select('*') \
         .eq('user_id', session['user_id']) \
         .execute().data
 
-    if not char:
+    if not chars:
         return jsonify({'error': 'no character'}), 404
 
-    char = char[0]
+    char = chars[0]
+    char['user_id'] = session['user_id']
 
     skills = supabase.table('skills') \
         .select('*') \
