@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    CALL OF CTHULHU — TRIESTE 1919 — game.css
+   Tema: Verde Sombrio / Eldritch
    ═══════════════════════════════════════════════════════ */
 
 /* ─── RESET & BASE ─────────────────────────────────────── */
@@ -10,20 +11,33 @@
 }
 
 :root {
-  --gold:        #d8c28a;
-  --gold-bright: #f1d88d;
-  --gold-dim:    #a88b52;
-  --border:      #6e552c;
-  --border-hi:   #8a6a38;
-  --bg-deep:     #030302;
-  --bg-panel:    #060504;
-  --bg-widget:   rgba(8, 7, 5, 0.92);
-  --bg-slot:     rgba(10, 10, 10, 0.85);
-  --red-danger:  #8b0000;
-  --sidebar-w:   290px;
-  --hud-w:       160px;
-  --inv-h:       64px;
-  --bottom-bar:  72px;          /* altura da barra inferior */
+  --green-title:  #b4d5a7;
+  --green-bright: #d2e5c9;
+  --green-soft:   #91b98c;
+  --green-dim:    #789a75;
+  --green-muted:  #5d875c;
+
+  --border:       rgba(92,130,96,0.42);
+  --border-hi:    rgba(135,185,135,0.58);
+
+  --bg-deep:      #020604;
+  --bg-panel:     rgba(4,14,9,0.94);
+  --bg-panel-2:   rgba(3,10,7,0.96);
+  --bg-widget:    rgba(4,14,9,0.92);
+  --bg-widget-hi: rgba(8,25,15,0.94);
+  --bg-slot:      rgba(6,12,9,0.88);
+
+  --text:         #d2e5c9;
+  --text-soft:    #b4d5a7;
+  --text-dim:     #789a75;
+
+  --red-danger:   #8b1f1f;
+  --red-soft:     #d06a6a;
+
+  --sidebar-w:    290px;
+  --hud-w:        160px;
+  --inv-h:        64px;
+  --bottom-bar:   72px;
 }
 
 html, body {
@@ -33,28 +47,54 @@ html, body {
 }
 
 body {
-  background: var(--bg-deep);
-  color: var(--gold);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(40,95,58,0.16) 0%, transparent 50%),
+    linear-gradient(rgba(0,0,0,0.32), rgba(0,0,0,0.72)),
+    var(--bg-deep);
+  color: var(--text);
   font-family: Georgia, serif;
   font-size: 14px;
 }
 
+/* textura escura sutil */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  opacity: 0.45;
+}
+
+/* ─── BOTÕES GERAIS ─────────────────────────────────────── */
 button, .quick-btn, a.quick-btn {
-  background: #1b130b;
-  color: var(--gold);
-  border: 1px solid var(--border-hi);
+  background: linear-gradient(180deg, rgba(25,55,35,0.82) 0%, rgba(8,25,15,0.96) 100%);
+  color: var(--green-bright);
+  border: 1px solid var(--green-muted);
   padding: 6px 10px;
   cursor: pointer;
   font-family: Georgia, serif;
   font-size: 13px;
   text-decoration: none;
   display: inline-block;
-  transition: background 0.2s, box-shadow 0.2s;
+  transition:
+    background 0.22s,
+    box-shadow 0.22s,
+    border-color 0.22s,
+    color 0.22s,
+    transform 0.18s;
 }
 
 button:hover, .quick-btn:hover {
-  background: #2a1e10;
-  box-shadow: 0 0 8px rgba(210, 180, 90, 0.3);
+  background: linear-gradient(180deg, rgba(35,70,45,0.90) 0%, rgba(12,35,20,0.98) 100%);
+  color: #f0f8e8;
+  border-color: var(--border-hi);
+  box-shadow: 0 0 16px rgba(110,190,120,0.22);
+}
+
+button:active, .quick-btn:active {
+  transform: scale(0.98);
 }
 
 /* ─── NÉVOA DE ENTRADA ──────────────────────────────────── */
@@ -63,12 +103,13 @@ button:hover, .quick-btn:hover {
   inset: 0;
   z-index: 200;
   pointer-events: none;
-  background: radial-gradient(
-    circle,
-    rgba(0,0,0,0) 15%,
-    rgba(200,200,200,.22) 55%,
-    rgba(0,0,0,.95) 100%
-  );
+  background:
+    radial-gradient(
+      circle,
+      rgba(0,0,0,0) 15%,
+      rgba(120,170,120,.16) 55%,
+      rgba(0,0,0,.95) 100%
+    );
   animation: fogReveal 4s forwards;
 }
 
@@ -86,27 +127,32 @@ button:hover, .quick-btn:hover {
   height: 100vh;
   z-index: 30;
   padding: 14px 12px 80px;
-  background: var(--bg-panel);
-  border-right: 2px solid var(--border);
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.96) 0%, rgba(3,10,7,0.98) 100%);
+  border-right: 1px solid var(--border-hi);
+  box-shadow:
+    8px 0 35px rgba(0,0,0,0.65),
+    inset -1px 0 0 rgba(135,185,135,0.10);
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 .sidebar h2 {
   font-size: 16px;
-  color: var(--gold-bright);
+  color: var(--green-title);
   letter-spacing: 2px;
   text-align: center;
   margin-bottom: 8px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(93,135,92,0.35);
   padding-bottom: 8px;
+  text-shadow: 0 0 14px rgba(130,210,135,0.25);
 }
 
 .sidebar h3 {
   font-size: 11px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--gold-dim);
+  color: var(--green-dim);
   margin: 12px 0 6px;
 }
 
@@ -116,8 +162,11 @@ button:hover, .quick-btn:hover {
   object-fit: contain;
   display: block;
   margin: 10px auto 14px;
-  border: 1px solid var(--border);
-  filter: drop-shadow(0 0 8px rgba(216,194,138,.2));
+  border: 1px solid var(--border-hi);
+  background: rgba(0,0,0,0.25);
+  filter:
+    drop-shadow(0 0 8px rgba(110,190,120,.20))
+    drop-shadow(0 8px 12px rgba(0,0,0,.8));
 }
 
 /* Perícias */
@@ -126,24 +175,25 @@ button:hover, .quick-btn:hover {
   justify-content: space-between;
   align-items: center;
   padding: 6px 4px;
-  border-bottom: 1px solid rgba(216,194,138,.15);
+  border-bottom: 1px solid rgba(93,135,92,.22);
   cursor: pointer;
   font-size: 13px;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s, padding-left 0.15s;
 }
 
 .skill:hover {
-  background: rgba(216,194,138,.07);
+  background: rgba(110,190,120,.07);
+  color: #f0f8e8;
+  padding-left: 8px;
 }
 
 .skill strong {
-  color: var(--gold-bright);
+  color: var(--green-title);
   min-width: 36px;
   text-align: right;
   font-size: 12px;
 }
 
-/* Seções da sidebar */
 .section {
   margin-bottom: 14px;
 }
@@ -151,24 +201,40 @@ button:hover, .quick-btn:hover {
 /* ─── TABULEIRO PRINCIPAL ───────────────────────────────── */
 .game-board {
   position: fixed;
-  left:   var(--sidebar-w);
-  top:    0;
-  right:  0;
+  left: var(--sidebar-w);
+  top: 0;
+  right: 0;
   bottom: var(--bottom-bar);
   display: grid;
   grid-template-columns: 48% 52%;
   gap: 8px;
   padding: 8px;
+  z-index: 2;
 }
 
 /* ─── PAINEL DO MAPA ────────────────────────────────────── */
 .city-panel,
 .local-panel {
   position: relative;
-  background: #050504;
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.88) 0%, rgba(2,7,5,0.96) 100%);
   border: 1px solid var(--border);
+  box-shadow:
+    0 0 30px rgba(0,0,0,0.65),
+    inset 0 0 30px rgba(0,0,0,0.35);
   overflow: hidden;
   border-radius: 2px;
+}
+
+.city-panel::before,
+.local-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  border: 1px solid rgba(135,185,135,0.08);
+  box-shadow: inset 0 0 45px rgba(0,0,0,0.35);
 }
 
 .map-stage {
@@ -189,6 +255,7 @@ button:hover, .quick-btn:hover {
   height: 100%;
   object-fit: contain;
   display: block;
+  filter: saturate(0.88) contrast(1.02) brightness(0.90);
 }
 
 .hidden { display: none !important; }
@@ -199,14 +266,15 @@ button:hover, .quick-btn:hover {
   top: 10px;
   left: 10px;
   z-index: 15;
-  background: rgba(5,4,3,.88);
+  background: rgba(4,14,9,.90);
   border: 1px solid var(--border-hi);
   padding: 6px 14px;
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--gold-bright);
+  color: var(--green-title);
   pointer-events: none;
+  box-shadow: 0 0 18px rgba(0,0,0,0.55);
 }
 
 /* Controle de partes do mapa */
@@ -215,13 +283,14 @@ button:hover, .quick-btn:hover {
   top: 48px;
   left: 10px;
   z-index: 20;
-  background: rgba(5,4,3,.88);
+  background: rgba(4,14,9,.90);
   border: 1px solid var(--border-hi);
   padding: 6px 10px;
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 12px;
+  box-shadow: 0 0 18px rgba(0,0,0,0.55);
 }
 
 .map-part-controls button {
@@ -230,7 +299,7 @@ button:hover, .quick-btn:hover {
 }
 
 #partName {
-  color: var(--gold-dim);
+  color: var(--green-dim);
   font-size: 12px;
   min-width: 80px;
   text-align: center;
@@ -242,21 +311,24 @@ button:hover, .quick-btn:hover {
   z-index: 12;
   transform: translate(-50%, -50%);
   padding: 4px 9px;
-  background: rgba(17,12,7,.78);
-  border: 1px solid #a88b52;
-  color: var(--gold);
+  background: rgba(4,14,9,.82);
+  border: 1px solid var(--green-muted);
+  color: var(--green-bright);
   border-radius: 10px;
   cursor: pointer;
   font-family: Georgia, serif;
   font-size: 11px;
   white-space: nowrap;
-  transition: box-shadow 0.2s, background 0.2s;
+  transition: box-shadow 0.2s, background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .hotspot:hover {
-  box-shadow: 0 0 18px rgba(210,180,90,.9);
-  background: rgba(40,26,10,.95);
-  color: var(--gold-bright);
+  box-shadow:
+    0 0 18px rgba(110,190,120,.45),
+    0 0 28px rgba(110,190,120,.18);
+  background: rgba(10,30,18,.95);
+  color: #f0f8e8;
+  border-color: var(--border-hi);
 }
 
 /* Camada de tokens e marcadores */
@@ -264,7 +336,7 @@ button:hover, .quick-btn:hover {
   position: absolute;
   inset: 0;
   z-index: 30;
-  pointer-events: none;   /* cliques passam pro stage, tokens têm pointer-events próprio */
+  pointer-events: none;
 }
 
 /* Marcadores de personagens na cidade */
@@ -285,14 +357,14 @@ button:hover, .quick-btn:hover {
   object-fit: contain;
   border-radius: 50%;
   background: rgba(0,0,0,.65);
-  border: 1px solid var(--gold);
-  filter: drop-shadow(0 0 6px var(--gold));
+  border: 1px solid var(--green-title);
+  filter: drop-shadow(0 0 8px rgba(110,190,120,.55));
 }
 
 .city-char-marker-box span {
   font-size: 9px;
-  color: var(--gold-bright);
-  background: rgba(5,4,3,.85);
+  color: var(--green-title);
+  background: rgba(4,14,9,.88);
   border: 1px solid var(--border-hi);
   padding: 1px 4px;
   white-space: nowrap;
@@ -314,7 +386,7 @@ button:hover, .quick-btn:hover {
   transform: translate(-50%, -100%);
   background: transparent;
   cursor: grab;
-  pointer-events: all;       /* tokens recebem cliques */
+  pointer-events: all;
   user-select: none;
   touch-action: none;
   display: flex;
@@ -332,9 +404,9 @@ button:hover, .quick-btn:hover {
 
 .token-label {
   font-size: 9px;
-  color: var(--gold-bright);
-  background: rgba(5,4,3,.8);
-  border: 1px solid var(--border);
+  color: var(--green-title);
+  background: rgba(4,14,9,.84);
+  border: 1px solid var(--green-muted);
   padding: 1px 5px;
   white-space: nowrap;
   pointer-events: none;
@@ -342,14 +414,19 @@ button:hover, .quick-btn:hover {
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
+  box-shadow: 0 0 8px rgba(0,0,0,0.55);
 }
 
 .player-token img {
-  filter: drop-shadow(0 8px 10px rgba(0,0,0,.85));
+  filter:
+    drop-shadow(0 8px 10px rgba(0,0,0,.85))
+    drop-shadow(0 0 8px rgba(110,190,120,.12));
 }
 
 .monster-token img {
-  filter: drop-shadow(0 0 14px rgba(150,20,20,.9));
+  filter:
+    drop-shadow(0 0 14px rgba(150,20,20,.78))
+    drop-shadow(0 8px 12px rgba(0,0,0,.88));
 }
 
 /* ─── HUD — CANTO SUPERIOR DIREITO ─────────────────────── */
@@ -359,25 +436,30 @@ button:hover, .quick-btn:hover {
   right: 14px;
   z-index: 40;
   padding: 12px 16px;
-  background: var(--bg-widget);
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.94) 0%, rgba(3,10,7,0.97) 100%);
   border: 1px solid var(--border-hi);
   text-align: center;
   min-width: var(--hud-w);
+  box-shadow:
+    0 0 35px rgba(0,0,0,0.70),
+    0 0 18px rgba(110,190,120,0.12);
 }
 
-/* Sanidade — em destaque */
+/* Sanidade */
 .san {
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(216,194,138,.2);
+  border-bottom: 1px solid rgba(93,135,92,.30);
 }
 
 .san span {
   font-size: 40px;
   min-width: 58px;
   display: inline-block;
-  color: var(--gold-bright);
+  color: var(--green-title);
   line-height: 1;
+  text-shadow: 0 0 12px rgba(130,210,135,0.22);
 }
 
 .san small {
@@ -385,7 +467,7 @@ button:hover, .quick-btn:hover {
   font-size: 9px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--gold-dim);
+  color: var(--green-dim);
   margin-top: 2px;
 }
 
@@ -395,7 +477,7 @@ button:hover, .quick-btn:hover {
   line-height: 1;
 }
 
-/* Stats menores (HP, MP, Crédito, MOV) */
+/* Stats menores */
 .hud-stat {
   display: flex;
   align-items: center;
@@ -416,11 +498,10 @@ button:hover, .quick-btn:hover {
 .hud > div:not(.san):not(.hud-stat) {
   font-size: 13px;
   margin: 4px 0;
-  color: var(--gold-dim);
+  color: var(--green-dim);
 }
 
-/* ─── BARRA INFERIOR — AÇÕES RÁPIDAS + INVENTÁRIO + DADOS ─ */
-/* Ações rápidas */
+/* ─── BARRA INFERIOR ────────────────────────────────────── */
 .quick-actions {
   position: fixed;
   left: calc(var(--sidebar-w) + 14px);
@@ -431,16 +512,20 @@ button:hover, .quick-btn:hover {
   align-items: center;
 }
 
-/* Inventário centralizado */
+/* Inventário */
 .inventory {
   position: fixed;
   left: 50%;
   bottom: 10px;
   transform: translateX(-50%);
   z-index: 40;
-  background: var(--bg-widget);
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.94) 0%, rgba(3,10,7,0.97) 100%);
   border: 1px solid var(--border-hi);
   padding: 6px 30px 6px 8px;
+  box-shadow:
+    0 0 35px rgba(0,0,0,0.70),
+    0 0 18px rgba(110,190,120,0.10);
 }
 
 #inventory {
@@ -456,9 +541,14 @@ button:hover, .quick-btn:hover {
   flex: 0 0 48px;
   position: relative;
   background: var(--bg-slot);
-  border: 1px solid #6e6042;
+  border: 1px solid rgba(93,135,92,0.45);
   font-size: 9px;
   overflow: visible;
+}
+
+.inv-slot:hover {
+  border-color: var(--border-hi);
+  box-shadow: 0 0 12px rgba(110,190,120,0.14);
 }
 
 .inv-add {
@@ -484,7 +574,7 @@ button:hover, .quick-btn:hover {
   text-align: center;
   padding: 2px;
   word-break: break-word;
-  color: var(--gold-bright);
+  color: var(--green-title);
 }
 
 .inventory-hover {
@@ -492,40 +582,46 @@ button:hover, .quick-btn:hover {
   bottom: 60px;
   left: 0;
   width: 200px;
-  background: #120d08;
+  background: rgba(4,14,9,0.97);
   border: 1px solid var(--border-hi);
   padding: 10px;
   z-index: 999;
   display: none;
-  box-shadow: 0 0 20px #000;
+  box-shadow:
+    0 0 25px rgba(0,0,0,0.88),
+    0 0 18px rgba(110,190,120,0.12);
 }
 
 .inventory-item:hover .inventory-hover { display: block; }
 
 .inventory-hover h4 {
   margin: 0 0 6px;
-  color: var(--gold-bright);
+  color: var(--green-title);
   font-size: 13px;
 }
 
 .inventory-hover p {
   font-size: 12px;
-  color: var(--gold);
+  color: var(--green-bright);
 }
 
-/* Dados — canto inferior direito */
+/* Dados */
 .dice {
   position: fixed;
   right: 14px;
   bottom: 14px;
   z-index: 40;
-  background: var(--bg-widget);
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.94) 0%, rgba(3,10,7,0.97) 100%);
   border: 1px solid var(--border-hi);
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
   gap: 5px;
   align-items: center;
+  box-shadow:
+    0 0 35px rgba(0,0,0,0.70),
+    0 0 18px rgba(110,190,120,0.10);
 }
 
 .dice button {
@@ -546,35 +642,39 @@ button:hover, .quick-btn:hover {
 /* ─── LOG DE ROLAGENS ───────────────────────────────────── */
 .roll-log {
   position: fixed;
-  right: 68px;           /* ao lado dos dados */
+  right: 68px;
   bottom: 14px;
   width: 300px;
   height: 180px;
   z-index: 40;
-  background: var(--bg-widget);
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.94) 0%, rgba(3,10,7,0.97) 100%);
   border: 1px solid var(--border-hi);
   padding: 8px 10px;
   overflow-y: auto;
+  box-shadow:
+    0 0 35px rgba(0,0,0,0.70),
+    0 0 18px rgba(110,190,120,0.10);
 }
 
 .roll-log h3 {
   font-size: 11px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--gold-dim);
+  color: var(--green-dim);
   margin-bottom: 6px;
-  border-bottom: 1px solid rgba(216,194,138,.2);
+  border-bottom: 1px solid rgba(93,135,92,.30);
   padding-bottom: 4px;
 }
 
 .roll-log div {
   font-size: 12px;
-  border-bottom: 1px solid rgba(216,194,138,.1);
+  border-bottom: 1px solid rgba(93,135,92,.14);
   padding: 3px 0;
   line-height: 1.4;
 }
 
-/* ─── CHAT AO VIVO ──────────────────────────────────────── */
+/* ─── CHAT ──────────────────────────────────────────────── */
 .live-chat {
   position: fixed;
   left: calc(var(--sidebar-w) + 14px);
@@ -582,18 +682,22 @@ button:hover, .quick-btn:hover {
   width: 320px;
   height: 190px;
   z-index: 45;
-  background: var(--bg-widget);
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.94) 0%, rgba(3,10,7,0.97) 100%);
   border: 1px solid var(--border-hi);
   padding: 8px 10px 8px;
+  box-shadow:
+    0 0 35px rgba(0,0,0,0.70),
+    0 0 18px rgba(110,190,120,0.10);
 }
 
 .live-chat h3 {
   font-size: 11px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--gold-dim);
+  color: var(--green-dim);
   margin-bottom: 6px;
-  border-bottom: 1px solid rgba(216,194,138,.2);
+  border-bottom: 1px solid rgba(93,135,92,.30);
   padding-bottom: 4px;
 }
 
@@ -605,8 +709,14 @@ button:hover, .quick-btn:hover {
   padding-right: 4px;
 }
 
-#chatMessages b  { color: var(--gold-bright); }
-#chatMessages small { color: var(--gold-dim); font-size: 10px; }
+#chatMessages b {
+  color: var(--green-title);
+}
+
+#chatMessages small {
+  color: var(--green-dim);
+  font-size: 10px;
+}
 
 .chat-input {
   display: flex;
@@ -616,13 +726,18 @@ button:hover, .quick-btn:hover {
 
 .chat-input input {
   flex: 1;
-  background: #0b0907;
-  color: var(--gold);
-  border: 1px solid var(--border-hi);
+  background: rgba(6,12,9,0.86);
+  color: var(--green-bright);
+  border: 1px solid var(--green-muted);
   padding: 6px;
   font-family: Georgia, serif;
   font-size: 12px;
   outline: none;
+}
+
+.chat-input input:focus {
+  border-color: var(--border-hi);
+  box-shadow: 0 0 12px rgba(110,190,120,0.16);
 }
 
 /* ─── PAINEL DO MESTRE ──────────────────────────────────── */
@@ -631,21 +746,25 @@ button:hover, .quick-btn:hover {
   right: 14px;
   top: 14px;
   z-index: 40;
-  background: var(--bg-widget);
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.94) 0%, rgba(3,10,7,0.97) 100%);
   border: 1px solid var(--border-hi);
   padding: 12px;
   min-width: 170px;
   max-height: calc(100vh - 28px);
   overflow-y: auto;
+  box-shadow:
+    0 0 35px rgba(0,0,0,0.70),
+    0 0 18px rgba(110,190,120,0.10);
 }
 
 .master-panel h3 {
   font-size: 11px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--gold-dim);
+  color: var(--green-dim);
   margin-bottom: 10px;
-  border-bottom: 1px solid rgba(216,194,138,.2);
+  border-bottom: 1px solid rgba(93,135,92,.30);
   padding-bottom: 6px;
 }
 
@@ -654,13 +773,18 @@ button:hover, .quick-btn:hover {
   display: block;
   width: 100%;
   margin-bottom: 8px;
-  background: #0b0907;
-  color: var(--gold);
-  border: 1px solid var(--border-hi);
+  background: rgba(6,12,9,0.86);
+  color: var(--green-bright);
+  border: 1px solid var(--green-muted);
   padding: 6px;
   font-family: Georgia, serif;
   font-size: 12px;
   outline: none;
+}
+
+.master-panel input:focus {
+  border-color: var(--border-hi);
+  box-shadow: 0 0 12px rgba(110,190,120,0.16);
 }
 
 .master-panel button {
@@ -671,7 +795,7 @@ button:hover, .quick-btn:hover {
   font-size: 12px;
 }
 
-/* Grid de players no painel do mestre */
+/* Grid de players */
 .players-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -683,8 +807,13 @@ button:hover, .quick-btn:hover {
   display: flex;
   gap: 8px;
   padding: 8px;
-  background: rgba(10,8,5,.85);
-  border: 1px solid var(--border-hi);
+  background: rgba(6,12,9,.78);
+  border: 1px solid rgba(93,135,92,0.42);
+}
+
+.player-card:hover {
+  border-color: var(--border-hi);
+  box-shadow: 0 0 14px rgba(110,190,120,0.12);
 }
 
 .player-card img {
@@ -692,6 +821,7 @@ button:hover, .quick-btn:hover {
   height: 56px;
   object-fit: contain;
   flex-shrink: 0;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,.75));
 }
 
 .player-info {
@@ -703,12 +833,12 @@ button:hover, .quick-btn:hover {
 
 .player-info strong {
   font-size: 12px;
-  color: var(--gold-bright);
+  color: var(--green-title);
 }
 
 .player-info small {
   font-size: 10px;
-  color: var(--gold-dim);
+  color: var(--green-dim);
 }
 
 .player-status {
@@ -731,18 +861,21 @@ button:hover, .quick-btn:hover {
   margin-top: 4px;
   font-size: 10px;
   padding: 3px 6px;
-  border-color: #5a1a1a;
-  color: #c84a4a;
+  border-color: rgba(150,50,50,0.55);
+  color: var(--red-soft);
 }
 
-.kick-btn:hover { background: rgba(139,0,0,.3); }
+.kick-btn:hover {
+  background: rgba(139,0,0,.28);
+  border-color: rgba(200,80,80,0.75);
+}
 
-/* Música do mestre */
+/* Música */
 .master-music select {
   width: 100%;
-  background: #0b0907;
-  color: var(--gold);
-  border: 1px solid var(--border-hi);
+  background: rgba(6,12,9,0.86);
+  color: var(--green-bright);
+  border: 1px solid var(--green-muted);
   padding: 6px;
   margin-bottom: 6px;
   font-family: Georgia, serif;
@@ -756,55 +889,63 @@ button:hover, .quick-btn:hover {
   margin-bottom: 6px;
 }
 
-.music-row button { flex: 1; text-align: center; }
+.music-row button {
+  flex: 1;
+  text-align: center;
+}
 
 .master-music label {
   font-size: 10px;
-  color: var(--gold-dim);
+  color: var(--green-dim);
   display: block;
   margin-bottom: 4px;
 }
 
 .master-music input[type=range] {
   width: 100%;
-  accent-color: var(--gold-dim);
+  accent-color: var(--green-soft);
 }
 
-/* ─── CONTROLE DE TAMANHO DE TOKEN ─────────────────────── */
+/* ─── CONTROLE TOKEN ────────────────────────────────────── */
 .token-size-control {
   position: fixed;
   left: calc(var(--sidebar-w) + 14px);
   bottom: 248px;
   z-index: 40;
-  background: var(--bg-widget);
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.94) 0%, rgba(3,10,7,0.97) 100%);
   border: 1px solid var(--border-hi);
   padding: 8px 10px;
+  box-shadow:
+    0 0 35px rgba(0,0,0,0.70),
+    0 0 18px rgba(110,190,120,0.10);
 }
 
 .token-size-control label {
   display: block;
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--green-dim);
   margin-bottom: 4px;
   letter-spacing: 1px;
 }
 
 .token-size-control input {
   width: 130px;
-  accent-color: var(--gold-dim);
+  accent-color: var(--green-soft);
 }
 
-/* ─── EFEITOS VISUAIS NO MAPA ───────────────────────────── */
+/* ─── EFEITOS VISUAIS ───────────────────────────────────── */
 .vtt-ping {
   position: absolute;
   width: 70px;
   height: 70px;
-  border: 3px solid var(--gold);
+  border: 3px solid var(--green-title);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   z-index: 80;
   animation: pingAnim 1.5s ease-out forwards;
   pointer-events: none;
+  box-shadow: 0 0 18px rgba(110,190,120,0.55);
 }
 
 @keyframes pingAnim {
@@ -819,7 +960,7 @@ button:hover, .quick-btn:hover {
   border-radius: 50%;
   background: #5b0b0b;
   color: #ffd0a0;
-  border: 2px solid var(--gold);
+  border: 2px solid #d06a6a;
   transform: translate(-50%, -50%);
   z-index: 70;
   display: flex;
@@ -827,7 +968,7 @@ button:hover, .quick-btn:hover {
   justify-content: center;
   font-weight: bold;
   font-size: 18px;
-  box-shadow: 0 0 16px #8b0000;
+  box-shadow: 0 0 16px rgba(180,30,30,0.65);
   pointer-events: none;
 }
 
@@ -835,33 +976,39 @@ button:hover, .quick-btn:hover {
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.78);
+  background: rgba(0,0,0,.80);
   z-index: 100;
   display: none;
   align-items: center;
   justify-content: center;
 }
 
-.modal.active { display: flex; }
+.modal.active {
+  display: flex;
+}
 
 .modal-box {
   width: 540px;
   max-width: 95vw;
   max-height: 82vh;
   overflow-y: auto;
-  background: #100b06;
-  border: 2px solid var(--border-hi);
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.97) 0%, rgba(3,10,7,0.99) 100%);
+  border: 1px solid var(--border-hi);
   padding: 24px;
-  box-shadow: 0 0 50px #000;
+  box-shadow:
+    0 0 60px rgba(0,0,0,0.88),
+    inset 0 0 35px rgba(0,0,0,0.45),
+    0 0 28px rgba(110,190,120,0.12);
   position: relative;
 }
 
 .modal-box h2 {
   font-size: 15px;
   letter-spacing: 2px;
-  color: var(--gold-bright);
+  color: var(--green-title);
   margin-bottom: 14px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(93,135,92,0.35);
   padding-bottom: 8px;
 }
 
@@ -872,17 +1019,24 @@ button:hover, .quick-btn:hover {
   font-size: 20px;
   background: transparent;
   border: none;
-  color: var(--gold-dim);
+  color: var(--green-dim);
   cursor: pointer;
   padding: 0;
 }
 
+.modal-close:hover {
+  color: var(--green-title);
+  box-shadow: none;
+}
+
 .modal-box input[type=text],
+.modal-box input[type=number],
+.modal-box input[type=file],
 .modal-box textarea {
   width: 100%;
-  background: #0b0907;
-  color: var(--gold);
-  border: 1px solid var(--border-hi);
+  background: rgba(6,12,9,0.86);
+  color: var(--green-bright);
+  border: 1px solid var(--green-muted);
   padding: 8px;
   font-family: Georgia, serif;
   font-size: 13px;
@@ -891,14 +1045,23 @@ button:hover, .quick-btn:hover {
   display: block;
 }
 
-.modal-box textarea { resize: vertical; min-height: 80px; }
+.modal-box input:focus,
+.modal-box textarea:focus {
+  border-color: var(--border-hi);
+  box-shadow: 0 0 12px rgba(110,190,120,0.16);
+}
+
+.modal-box textarea {
+  resize: vertical;
+  min-height: 80px;
+}
 
 /* Livro de pistas */
 .book textarea {
   width: 100%;
   height: 400px;
-  background: #d8c49a;
-  color: #1a1208;
+  background: #d3dfc8;
+  color: #07120b;
   font-family: Georgia, serif;
   font-size: 15px;
   padding: 20px;
@@ -907,20 +1070,20 @@ button:hover, .quick-btn:hover {
   resize: none;
 }
 
-/* Ficha do personagem */
+/* Ficha */
 #modalSheet p {
   font-size: 13px;
   padding: 3px 0;
-  border-bottom: 1px solid rgba(216,194,138,.1);
+  border-bottom: 1px solid rgba(93,135,92,.16);
 }
 
 #modalSheet hr {
   border: none;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid rgba(93,135,92,0.35);
   margin: 10px 0;
 }
 
-/* ─── BOTÃO DE MINIMIZAR PAINÉIS ────────────────────────── */
+/* ─── MINIMIZAR ─────────────────────────────────────────── */
 .minimize-btn {
   position: absolute;
   top: 4px;
@@ -930,15 +1093,14 @@ button:hover, .quick-btn:hover {
   padding: 0;
   font-size: 13px;
   z-index: 999;
-  background: rgba(8,7,5,.9);
-  border-color: var(--border);
+  background: rgba(4,14,9,.92);
+  border-color: var(--green-muted);
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* ─── PAINÉIS MINIMIZÁVEIS ──────────────────────────────── */
 .sidebar,
 .city-panel,
 .local-panel,
@@ -952,19 +1114,125 @@ button:hover, .quick-btn:hover {
 }
 
 .minimized {
-  width:      42px !important;
-  height:     42px !important;
-  min-width:  42px !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
   min-height: 42px !important;
-  overflow:   hidden !important;
-  padding:    0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
 }
 
-.minimized > *:not(.minimize-btn) { display: none !important; }
-.minimized .minimize-btn           { display: flex !important; top: 9px; right: 9px; }
+.minimized > *:not(.minimize-btn) {
+  display: none !important;
+}
+
+.minimized .minimize-btn {
+  display: flex !important;
+  top: 9px;
+  right: 9px;
+}
 
 /* ─── SCROLLBARS ────────────────────────────────────────── */
-::-webkit-scrollbar              { width: 5px; height: 5px; }
-::-webkit-scrollbar-track        { background: #0a0804; }
-::-webkit-scrollbar-thumb        { background: var(--border); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover  { background: var(--border-hi); }
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020604;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--green-muted);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green-soft);
+}
+
+/* ─── EDITAR PERSONAGEM ─────────────────────────────────── */
+.edit-character-box {
+  width: min(760px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.edit-section {
+  margin-bottom: 22px;
+  padding: 14px;
+  border: 1px solid rgba(92,130,96,0.45);
+  background: rgba(6,12,9,0.48);
+}
+
+.edit-section h3 {
+  margin-bottom: 12px;
+  color: var(--green-title);
+}
+
+.edit-section label {
+  display: block;
+  font-size: 12px;
+  color: var(--green-dim);
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.edit-section input {
+  width: 100%;
+  padding: 8px;
+  background: rgba(6,12,9,0.86);
+  border: 1px solid var(--green-muted);
+  color: var(--green-bright);
+  outline: none;
+}
+
+.edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+}
+
+.edit-preview {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.edit-preview img {
+  width: 120px;
+  height: 150px;
+  object-fit: cover;
+  border: 1px solid var(--border-hi);
+  background: #000;
+  filter: drop-shadow(0 0 10px rgba(110,190,120,0.12));
+}
+
+.edit-skill-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 40px;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.edit-skill-row button {
+  height: 34px;
+  cursor: pointer;
+}
+
+.save-character-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(180deg, rgba(25,55,35,0.82) 0%, rgba(8,25,15,0.94) 100%);
+  color: var(--green-bright);
+  border: 1px solid var(--green-muted);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.save-character-btn:hover {
+  border-color: var(--border-hi);
+  color: #f0f8e8;
+  box-shadow: 0 0 20px rgba(110,190,120,0.22);
+}

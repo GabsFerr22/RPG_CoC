@@ -4,225 +4,796 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trieste 1919 — Criar Investigador</title>
+
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --gold:#C8A84A;--dark:#0A0806;--ink:#1A1208;
-  --parchment:#E8D8A8;--border:#3A2A14;--dim:#6A5A30;
-}
-body{
-  background:#0A0806;
-  font-family:'IM Fell English',serif;
-  min-height:100vh;padding:40px 20px 60px;
-  background-image:radial-gradient(ellipse at 50% 0%, rgba(30,20,10,0.8) 0%, transparent 60%);
-}
-.fog-layer{
-  position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse at 30% 60%, rgba(30,40,35,0.4) 0%, transparent 55%);
-  animation:fogDrift 25s ease-in-out infinite alternate;
-}
-@keyframes fogDrift{0%{transform:translateX(-2%)}100%{transform:translateX(2%)}}
-
-.page-wrap{position:relative;z-index:10;max-width:860px;margin:0 auto}
-
-.page-title{
-  text-align:center;margin-bottom:36px;
-}
-.title-main{
-  font-family:'UnifrakturMaguntia',cursive;
-  font-size:36px;color:#C8A84A;
-  text-shadow:0 0 30px rgba(200,168,74,0.3);
-}
-.title-sub{
-  font-family:'Cinzel',serif;font-size:10px;
-  letter-spacing:5px;color:#5A4A20;
-  text-transform:uppercase;margin-top:6px;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.panel{
-  background:linear-gradient(160deg,#151008 0%,#0E0A04 100%);
-  border:1px solid #3A2A14;
-  box-shadow:0 0 40px rgba(0,0,0,0.8),inset 0 0 30px rgba(0,0,0,0.3);
-  padding:36px 40px;margin-bottom:24px;
-  position:relative;
-}
-.panel::before,.panel::after{
-  content:'';position:absolute;width:30px;height:30px;border-color:#5A4A1A;border-style:solid;
-}
-.panel::before{top:10px;left:10px;border-width:1px 0 0 1px}
-.panel::after{bottom:10px;right:10px;border-width:0 1px 1px 0}
+:root {
+  --gold: #C8A84A;
+  --dark: #0A0806;
+  --ink: #1A1208;
+  --parchment: #E8D8A8;
+  --border: #3A2A14;
+  --dim: #6A5A30;
 
-.section-title{
-  font-family:'Cinzel',serif;font-size:11px;
-  letter-spacing:4px;text-transform:uppercase;
-  color:#8A6A30;border-bottom:1px solid #2A1E0A;
-  padding-bottom:10px;margin-bottom:24px;
-  display:flex;align-items:center;gap:10px;
-}
-.section-title::before{content:'✦';font-size:10px;color:#6A4A20}
-
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-
-.form-group{margin-bottom:20px}
-label{
-  display:block;font-family:'Cinzel',serif;
-  font-size:10px;letter-spacing:3px;text-transform:uppercase;
-  color:#7A6028;margin-bottom:7px;
-}
-input[type=text],input[type=password],input[type=number],select,textarea{
-  width:100%;background:rgba(8,6,3,0.9);
-  border:1px solid #2A1E0A;border-top-color:#3A2A12;
-  color:#D4C090;font-family:'IM Fell English',serif;font-size:14px;
-  padding:10px 12px;outline:none;transition:all 0.3s;
-  box-shadow:inset 0 2px 6px rgba(0,0,0,0.5);
-}
-input:focus,select:focus,textarea:focus{
-  border-color:#7A5A20;
-  box-shadow:inset 0 2px 6px rgba(0,0,0,0.5),0 0 10px rgba(120,90,30,0.2);
-}
-input::placeholder,textarea::placeholder{color:#3A2A10;font-style:italic}
-select option{background:#0E0A04;color:#D4C090}
-textarea{resize:vertical;min-height:80px}
-
-/* Upload de imagem */
-.image-upload-area{
-  border:1px dashed #3A2A12;
-  background:rgba(8,6,3,0.6);
-  padding:28px;text-align:center;cursor:pointer;
-  transition:all 0.3s;position:relative;overflow:hidden;
-}
-.image-upload-area:hover{border-color:#6A4A1A;background:rgba(15,10,5,0.7)}
-.image-upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-icon{font-size:32px;color:#4A3A18;display:block;margin-bottom:8px}
-.upload-text{font-family:'Cinzel',serif;font-size:10px;color:#5A4A20;letter-spacing:2px}
-.preview-img{
-  width:120px;height:160px;object-fit:cover;
-  border:1px solid #4A3A1A;display:none;margin:0 auto;
+  --green-title: #b4d5a7;
+  --green-text: #d2e5c9;
+  --green-dim: #789a75;
+  --green-line: #5d875c;
+  --green-border: rgba(92,130,96,0.45);
 }
 
-/* Atributos */
-.attr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.attr-box{
-  background:rgba(5,4,2,0.8);border:1px solid #2A1E0A;
-  padding:12px;text-align:center;position:relative;
-}
-.attr-name{
-  font-family:'Cinzel',serif;font-size:9px;
-  letter-spacing:2px;color:#6A5020;
-  text-transform:uppercase;margin-bottom:8px;display:block;
-}
-.attr-input{
-  width:100%;background:transparent;border:none;
-  border-bottom:1px solid #3A2A10;
-  color:#C8A840;font-family:'Cinzel',serif;
-  font-size:22px;font-weight:600;text-align:center;
-  padding:4px 0;outline:none;
-}
-.attr-input:focus{border-bottom-color:#8A6A30;color:#E8C840}
-.attr-percent{
-  font-size:10px;color:#4A3A18;margin-top:4px;
-  font-family:'Cinzel',serif;
+html,
+body {
+  width: 100%;
+  min-height: 100%;
 }
 
-/* Status */
-.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:8px}
-.status-item{position:relative}
-.status-item label{display:flex;align-items:center;gap:6px}
-.status-icon{font-size:14px}
-.status-input{
-  width:100%;background:rgba(8,6,3,0.9);
-  border:1px solid #2A1E0A;border-top-color:#3A2A12;
-  color:#D4C090;font-family:'Cinzel',serif;font-size:18px;font-weight:600;
-  padding:10px;text-align:center;outline:none;transition:all 0.3s;
-}
-.status-input.sanity{border-top-color:#8B3A3A;color:#C85050}
-.status-input.hp{border-top-color:#3A6A3A;color:#50A850}
-.status-input.mp{border-top-color:#3A3A8B;color:#5050C8}
+body {
+  background:
+    linear-gradient(rgba(0,0,0,0.42), rgba(0,0,0,0.82)),
+    url("/static/images/login-bg.png");
 
-/* Perícias */
-.skills-container{margin-top:8px}
-.skill-row{
-  display:grid;grid-template-columns:1fr 80px 80px auto;
-  gap:10px;align-items:center;margin-bottom:10px;
-  padding:8px 12px;background:rgba(5,4,2,0.5);
-  border-left:2px solid #2A1E0A;
-}
-.skill-row:hover{border-left-color:#4A3A1A}
-.skill-name-input{background:transparent;border:none;border-bottom:1px solid #2A1E0A;color:#C4B080;font-family:'IM Fell English',serif;font-size:13px;padding:4px 0;outline:none;width:100%}
-.skill-name-input:focus{border-bottom-color:#6A5020}
-.skill-val-input{background:transparent;border:none;border-bottom:1px solid #2A1E0A;color:#A8A060;font-family:'Cinzel',serif;font-size:14px;font-weight:600;text-align:center;padding:4px;outline:none;width:100%}
-.skill-val-input:focus{border-bottom-color:#6A5020}
-.skill-cat-select{background:rgba(8,6,3,0.9);border:1px solid #2A1E0A;color:#7A6A38;font-family:'Cinzel',serif;font-size:10px;padding:4px 6px;outline:none}
-.btn-remove{background:none;border:1px solid #3A1A1A;color:#6A2A2A;cursor:pointer;padding:4px 8px;font-size:12px;transition:all 0.2s}
-.btn-remove:hover{background:rgba(139,0,0,0.2);color:#C84A4A;border-color:#5A2A2A}
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 
-.btn-add-skill{
-  background:transparent;border:1px dashed #2A2010;
-  color:#5A4A20;font-family:'Cinzel',serif;font-size:10px;
-  letter-spacing:3px;padding:10px;width:100%;cursor:pointer;
-  transition:all 0.3s;text-transform:uppercase;margin-top:4px;
-}
-.btn-add-skill:hover{border-color:#4A3A1A;color:#8A6A30}
-
-/* Perícias pré-definidas */
-.preset-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
-.preset-btn{
-  background:rgba(8,6,3,0.7);border:1px solid #2A1E0A;
-  color:#6A5020;font-family:'Cinzel',serif;font-size:9px;
-  letter-spacing:1px;padding:5px 10px;cursor:pointer;
-  transition:all 0.2s;text-transform:uppercase;
-}
-.preset-btn:hover{border-color:#4A3A1A;color:#A8801A;background:rgba(20,14,6,0.8)}
-
-/* Botão submit */
-.btn-submit{
-  width:100%;padding:16px;
-  background:linear-gradient(180deg,#2A1E0A 0%,#1A1206 100%);
-  border:1px solid #6A4A1A;
-  color:#C8A84A;font-family:'Cinzel',serif;font-size:13px;
-  font-weight:600;letter-spacing:5px;text-transform:uppercase;
-  cursor:pointer;transition:all 0.3s;
-}
-.btn-submit:hover{border-color:#C8A84A;box-shadow:0 0 25px rgba(200,168,74,0.25)}
-
-.error-msg{
-  background:rgba(139,0,0,0.2);border:1px solid rgba(139,0,0,0.4);
-  color:#C84A4A;padding:12px;font-size:12px;
-  letter-spacing:1px;margin-bottom:16px;display:none;
-  font-family:'Cinzel',serif;
+  font-family: 'IM Fell English', serif;
+  min-height: 100vh;
+  padding: 40px 20px 60px;
+  color: var(--green-text);
+  position: relative;
 }
 
-.loading{
-  position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999;
-  display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+/* textura antiga */
+.paper-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.35;
 }
-.loading.active{display:flex}
-.loading-eye{width:50px;height:50px;border:2px solid #3A2A10;border-top-color:#C8A84A;border-radius:50%;animation:spin 1.5s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-family:'Cinzel',serif;color:#8A6A30;letter-spacing:4px;font-size:11px;animation:loadPulse 1.5s ease-in-out infinite}
-@keyframes loadPulse{0%,100%{opacity:0.4}50%{opacity:1}}
 
-.back-link{
-  display:inline-flex;align-items:center;gap:8px;
-  font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;
-  color:#5A4A20;text-decoration:none;margin-bottom:24px;
-  transition:color 0.2s;
+/* tentáculos dos cantos */
+.corner-tentacle {
+  position: fixed;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.72;
+  filter:
+    drop-shadow(0 0 12px rgba(120,220,145,0.14))
+    drop-shadow(0 0 20px rgba(60,120,75,0.10));
 }
-.back-link:hover{color:#8A6A30}
 
-/* Divisor de seção */
-.sec-divider{
-  display:flex;align-items:center;gap:12px;margin:8px 0 20px;
-  font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;
-  color:#4A3A18;text-transform:uppercase;
+.corner-lt {
+  top: -10px;
+  left: -10px;
+  width: 250px;
+  animation: floatLT 14s ease-in-out infinite;
 }
-.sec-divider::before,.sec-divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,#2A1E0A,transparent)}
+
+.corner-rt {
+  top: -10px;
+  right: -10px;
+  width: 250px;
+  animation: floatRT 15s ease-in-out infinite;
+}
+
+.corner-lb {
+  bottom: -10px;
+  left: -10px;
+  width: 260px;
+  animation: floatLB 16s ease-in-out infinite;
+}
+
+.corner-rb {
+  bottom: -10px;
+  right: -10px;
+  width: 260px;
+  animation: floatRB 15.5s ease-in-out infinite;
+}
+
+@keyframes floatLT {
+  0%,100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(4px, -4px) scale(1.012);
+  }
+}
+
+@keyframes floatRT {
+  0%,100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-4px, -3px) scale(1.012);
+  }
+}
+
+@keyframes floatLB {
+  0%,100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(4px, 3px) scale(1.014);
+  }
+}
+
+@keyframes floatRB {
+  0%,100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-4px, 3px) scale(1.014);
+  }
+}
+
+/* estrutura */
+.page-wrap {
+  position: relative;
+  z-index: 10;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.page-title {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.title-main {
+  font-family: 'UnifrakturMaguntia', cursive;
+  font-size: 38px;
+  color: var(--green-title);
+  text-shadow:
+    0 0 18px rgba(130,210,135,0.32),
+    0 2px 4px rgba(0,0,0,0.85);
+}
+
+.title-sub {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 5px;
+  color: var(--green-dim);
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+/* painéis */
+.panel {
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.90) 0%, rgba(3,10,7,0.93) 55%, rgba(5,13,10,0.95) 100%);
+
+  border: 1px solid var(--green-border);
+
+  box-shadow:
+    0 0 55px rgba(0,0,0,0.82),
+    inset 0 0 35px rgba(0,0,0,0.48),
+    0 0 20px rgba(72,110,82,0.16);
+
+  padding: 36px 40px;
+  margin-bottom: 24px;
+  position: relative;
+  backdrop-filter: blur(2px);
+  animation: panelBreath 9.5s ease-in-out infinite;
+}
+
+@keyframes panelBreath {
+  0%, 100% {
+    border-color: rgba(92,130,96,0.42);
+    box-shadow:
+      0 0 55px rgba(0,0,0,0.82),
+      inset 0 0 35px rgba(0,0,0,0.48),
+      0 0 20px rgba(72,110,82,0.16);
+  }
+
+  50% {
+    border-color: rgba(135,185,135,0.56);
+    box-shadow:
+      0 0 62px rgba(0,0,0,0.88),
+      inset 0 0 38px rgba(0,0,0,0.52),
+      0 0 26px rgba(92,160,105,0.20);
+  }
+}
+
+.panel::before,
+.panel::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-color: rgba(118,160,118,0.50);
+  border-style: solid;
+  filter: drop-shadow(0 0 6px rgba(90,140,95,0.18));
+}
+
+.panel::before {
+  top: 10px;
+  left: 10px;
+  border-width: 1px 0 0 1px;
+}
+
+.panel::after {
+  bottom: 10px;
+  right: 10px;
+  border-width: 0 1px 1px 0;
+}
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #91b98c;
+  border-bottom: 1px solid rgba(93,135,92,0.35);
+  padding-bottom: 10px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title::before {
+  content: '✦';
+  font-size: 10px;
+  color: #91b98c;
+}
+
+/* grids */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 16px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #8aa484;
+  margin-bottom: 7px;
+}
+
+/* inputs gerais */
+input[type=text],
+input[type=password],
+input[type=number],
+select,
+textarea {
+  width: 100%;
+  background: rgba(6,12,9,0.84);
+  border: 1px solid rgba(70,100,74,0.55);
+  border-top-color: rgba(98,138,102,0.45);
+  color: #d3dfc8;
+  font-family: 'IM Fell English', serif;
+  font-size: 14px;
+  padding: 10px 12px;
+  outline: none;
+  transition: all 0.3s;
+  box-shadow:
+    inset 0 2px 8px rgba(0,0,0,0.55),
+    0 0 12px rgba(60,120,75,0.08);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #88a87f;
+  box-shadow:
+    inset 0 2px 8px rgba(0,0,0,0.55),
+    0 0 14px rgba(100,145,102,0.20);
+  color: #eef5e8;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #56705a;
+  font-style: italic;
+}
+
+select option {
+  background: #07120b;
+  color: #d3dfc8;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* upload */
+.image-upload-area {
+  border: 1px dashed rgba(93,135,92,0.45);
+  background: rgba(6,12,9,0.58);
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.image-upload-area:hover {
+  border-color: #91b98c;
+  background: rgba(9,18,12,0.72);
+  box-shadow: 0 0 18px rgba(110,190,120,0.12);
+}
+
+.image-upload-area input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.upload-icon {
+  font-size: 32px;
+  color: #789a75;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  color: #789a75;
+  letter-spacing: 2px;
+}
+
+.preview-img {
+  width: 120px;
+  height: 160px;
+  object-fit: cover;
+  border: 1px solid #5d875c;
+  display: none;
+  margin: 0 auto;
+}
+
+/* atributos */
+.attr-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 12px;
+}
+
+.attr-box {
+  background: rgba(5,12,8,0.78);
+  border: 1px solid rgba(70,100,74,0.42);
+  padding: 12px;
+  text-align: center;
+  position: relative;
+}
+
+.attr-box:hover {
+  border-color: rgba(135,185,135,0.52);
+  box-shadow: 0 0 14px rgba(110,190,120,0.10);
+}
+
+.attr-name {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #789a75;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.attr-input {
+  width: 100%;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(93,135,92,0.35) !important;
+  color: #b4d5a7 !important;
+  font-family: 'Cinzel', serif !important;
+  font-size: 22px !important;
+  font-weight: 600;
+  text-align: center;
+  padding: 4px 0 !important;
+  outline: none;
+  box-shadow: none !important;
+}
+
+.attr-input:focus {
+  border-bottom-color: #b7dbad !important;
+  color: #eef5e8 !important;
+}
+
+.attr-percent {
+  font-size: 10px;
+  color: #5e785d;
+  margin-top: 4px;
+  font-family: 'Cinzel', serif;
+}
+
+/* status */
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.status-item {
+  position: relative;
+}
+
+.status-item label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-icon {
+  font-size: 14px;
+}
+
+.status-input {
+  width: 100%;
+  background: rgba(6,12,9,0.84);
+  border: 1px solid rgba(70,100,74,0.55);
+  border-top-color: rgba(98,138,102,0.45);
+  color: #d3dfc8;
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 10px;
+  text-align: center;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.status-input.sanity {
+  border-top-color: rgba(145,185,140,0.75);
+  color: #b4d5a7;
+}
+
+.status-input.hp {
+  border-top-color: rgba(110,190,120,0.75);
+  color: #95d59a;
+}
+
+.status-input.mp {
+  border-top-color: rgba(110,150,190,0.75);
+  color: #a4c3dc;
+}
+
+/* perícias */
+.skills-container {
+  margin-top: 8px;
+}
+
+.skill-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 90px auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: rgba(5,12,8,0.58);
+  border-left: 2px solid rgba(93,135,92,0.30);
+}
+
+.skill-row:hover {
+  border-left-color: #91b98c;
+  background: rgba(7,16,10,0.70);
+}
+
+.skill-name-input {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(93,135,92,0.35) !important;
+  color: #d3dfc8 !important;
+  font-family: 'IM Fell English', serif !important;
+  font-size: 13px !important;
+  padding: 4px 0 !important;
+  outline: none;
+  width: 100%;
+  box-shadow: none !important;
+}
+
+.skill-name-input:focus {
+  border-bottom-color: #b7dbad !important;
+}
+
+.skill-val-input {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(93,135,92,0.35) !important;
+  color: #b4d5a7 !important;
+  font-family: 'Cinzel', serif !important;
+  font-size: 14px !important;
+  font-weight: 600;
+  text-align: center;
+  padding: 4px !important;
+  outline: none;
+  width: 100%;
+  box-shadow: none !important;
+}
+
+.skill-val-input:focus {
+  border-bottom-color: #b7dbad !important;
+}
+
+.skill-cat-select {
+  background: rgba(6,12,9,0.90);
+  border: 1px solid rgba(70,100,74,0.55);
+  color: #8aa484;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  padding: 4px 6px;
+  outline: none;
+}
+
+.btn-remove {
+  background: none;
+  border: 1px solid rgba(120,40,40,0.45);
+  color: #a76868;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.btn-remove:hover {
+  background: rgba(139,0,0,0.2);
+  color: #d06a6a;
+  border-color: rgba(190,70,70,0.65);
+}
+
+.btn-add-skill {
+  background: transparent;
+  border: 1px dashed rgba(93,135,92,0.45);
+  color: #789a75;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  padding: 10px;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.btn-add-skill:hover {
+  border-color: #91b98c;
+  color: #b4d5a7;
+  box-shadow: 0 0 16px rgba(110,190,120,0.12);
+}
+
+/* perícias pré-definidas */
+.preset-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.preset-btn {
+  background: rgba(6,12,9,0.70);
+  border: 1px solid rgba(70,100,74,0.45);
+  color: #789a75;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.preset-btn:hover {
+  border-color: #91b98c;
+  color: #b4d5a7;
+  background: rgba(10,22,14,0.85);
+}
+
+/* submit */
+.btn-submit {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(25,55,35,0.82) 0%, rgba(8,25,15,0.94) 100%);
+  border: 1px solid #5d875c;
+  color: #d2e5c9;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-submit:hover {
+  border-color: #b7dbad;
+  color: #f0f8e8;
+  box-shadow: 0 0 25px rgba(110,190,120,0.28);
+  transform: translateY(-1px);
+}
+
+/* mensagens */
+.error-msg {
+  background: rgba(90,0,0,0.25);
+  border: 1px solid rgba(150,25,25,0.45);
+  color: #d06a6a;
+  padding: 12px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  display: none;
+  font-family: 'Cinzel', serif;
+}
+
+/* loading */
+.loading {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loading.active {
+  display: flex;
+}
+
+.loading-eye {
+  width: 50px;
+  height: 50px;
+  border: 2px solid #314333;
+  border-top-color: #b4d5a7;
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-family: 'Cinzel', serif;
+  color: #91b98c;
+  letter-spacing: 4px;
+  font-size: 11px;
+  animation: loadPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadPulse {
+  0%,100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* voltar */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #789a75;
+  text-decoration: none;
+  margin-bottom: 24px;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+
+.back-link:hover {
+  color: #b4d5a7;
+  text-shadow: 0 0 12px rgba(130,210,135,0.35);
+}
+
+/* divisor */
+.sec-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 20px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #5e785d;
+  text-transform: uppercase;
+}
+
+.sec-divider::before,
+.sec-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(93,135,92,0.35), transparent);
+}
+
+/* responsivo */
+@media (max-width: 900px) {
+  .corner-lt,
+  .corner-rt,
+  .corner-lb,
+  .corner-rb {
+    width: 180px;
+    opacity: 0.60;
+  }
+}
+
+@media (max-width: 720px) {
+  body {
+    padding: 28px 14px 50px;
+  }
+
+  .grid-2,
+  .grid-3,
+  .attr-grid,
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    padding: 30px 24px;
+  }
+
+  .skill-row {
+    grid-template-columns: 1fr;
+  }
+
+  .corner-lt,
+  .corner-rt,
+  .corner-lb,
+  .corner-rb {
+    width: 135px;
+    opacity: 0.48;
+  }
+}
 </style>
 </head>
+
 <body>
-<div class="fog-layer"></div>
+<div class="paper-overlay"></div>
+
+<img src="/static/images/tentacle_LeftTop.png" class="corner-tentacle corner-lt" alt="" aria-hidden="true">
+<img src="/static/images/tentacle_RightTop.png" class="corner-tentacle corner-rt" alt="" aria-hidden="true">
+<img src="/static/images/tentacle_LeftBottom.png" class="corner-tentacle corner-lb" alt="" aria-hidden="true">
+<img src="/static/images/tentacle_RightBottom.png" class="corner-tentacle corner-rb" alt="" aria-hidden="true">
+
 <div class="page-wrap">
   <a href="/login" class="back-link">← Voltar ao Acesso</a>
 
@@ -238,11 +809,13 @@ textarea{resize:vertical;min-height:80px}
     <!-- CREDENCIAIS -->
     <div class="panel">
       <div class="section-title">Credenciais de Acesso</div>
+
       <div class="grid-2">
         <div class="form-group">
           <label>Nome de Usuário</label>
           <input type="text" name="username" placeholder="como vai se identificar" required autocomplete="off"/>
         </div>
+
         <div class="form-group">
           <label>Senha</label>
           <input type="password" name="password" placeholder="•••••••••••" required/>
@@ -253,18 +826,22 @@ textarea{resize:vertical;min-height:80px}
     <!-- PERSONAGEM -->
     <div class="panel">
       <div class="section-title">Identidade do Personagem</div>
+
       <div class="grid-2">
         <div class="form-group">
           <label>Nome do Personagem</label>
           <input type="text" name="char_name" placeholder="quem você é nesse mundo" required/>
         </div>
+
         <div class="form-group">
           <label>Ocupação</label>
           <input type="text" name="occupation" placeholder="médico, jornalista, detetive..."/>
         </div>
       </div>
+
       <div class="form-group" style="margin-top:8px">
-        <label>Retrato do Investigador (PNG sem fundo recomendado)</label>
+        <label>Retrato do Investigador</label>
+
         <div class="image-upload-area" id="uploadArea">
           <input type="file" name="char_image" accept="image/*" onchange="previewImage(this)"/>
           <img class="preview-img" id="previewImg" src="" alt="preview"/>
@@ -276,48 +853,57 @@ textarea{resize:vertical;min-height:80px}
 
     <!-- ATRIBUTOS -->
     <div class="panel">
-      <div class="section-title">Atributos Base (valor em pontos, ex: 60 = 60%)</div>
+      <div class="section-title">Atributos Base</div>
+
       <div class="attr-grid">
         <div class="attr-box">
           <span class="attr-name">Força (STR)</span>
           <input class="attr-input" type="number" name="strength" value="50" min="1" max="99" oninput="updatePercent(this,'str-pct')"/>
           <div class="attr-percent" id="str-pct">Regular: 25 | Difícil: 12</div>
         </div>
+
         <div class="attr-box">
           <span class="attr-name">Constituição (CON)</span>
           <input class="attr-input" type="number" name="constitution" value="50" min="1" max="99" oninput="updatePercent(this,'con-pct')"/>
           <div class="attr-percent" id="con-pct">Regular: 25 | Difícil: 12</div>
         </div>
+
         <div class="attr-box">
           <span class="attr-name">Tamanho (SIZ)</span>
           <input class="attr-input" type="number" name="size" value="50" min="1" max="99" oninput="updatePercent(this,'siz-pct')"/>
           <div class="attr-percent" id="siz-pct">Regular: 25 | Difícil: 12</div>
         </div>
+
         <div class="attr-box">
           <span class="attr-name">Destreza (DEX)</span>
           <input class="attr-input" type="number" name="dexterity" value="50" min="1" max="99" oninput="updatePercent(this,'dex-pct')"/>
           <div class="attr-percent" id="dex-pct">Regular: 25 | Difícil: 12</div>
         </div>
+
         <div class="attr-box">
           <span class="attr-name">Aparência (APP)</span>
           <input class="attr-input" type="number" name="appearance" value="50" min="1" max="99" oninput="updatePercent(this,'app-pct')"/>
           <div class="attr-percent" id="app-pct">Regular: 25 | Difícil: 12</div>
         </div>
+
         <div class="attr-box">
           <span class="attr-name">Inteligência (INT)</span>
           <input class="attr-input" type="number" name="intelligence" value="50" min="1" max="99" oninput="updatePercent(this,'int-pct')"/>
           <div class="attr-percent" id="int-pct">Regular: 25 | Difícil: 12</div>
         </div>
+
         <div class="attr-box">
           <span class="attr-name">Poder (POW)</span>
           <input class="attr-input" type="number" name="power" value="50" min="1" max="99" oninput="updatePercent(this,'pow-pct')"/>
           <div class="attr-percent" id="pow-pct">Regular: 25 | Difícil: 12</div>
         </div>
+
         <div class="attr-box">
           <span class="attr-name">Educação (EDU)</span>
           <input class="attr-input" type="number" name="education" value="50" min="1" max="99" oninput="updatePercent(this,'edu-pct')"/>
           <div class="attr-percent" id="edu-pct">Regular: 25 | Difícil: 12</div>
         </div>
+
         <div class="attr-box">
           <span class="attr-name">Sorte (LUCK)</span>
           <input class="attr-input" type="number" name="luck" value="50" min="1" max="99" oninput="updatePercent(this,'luck-pct')"/>
@@ -329,27 +915,33 @@ textarea{resize:vertical;min-height:80px}
     <!-- STATUS -->
     <div class="panel">
       <div class="section-title">Status Vitais</div>
+
       <div class="status-grid">
         <div class="status-item">
           <label><span class="status-icon">🧠</span> Sanidade (SAN)</label>
           <input class="status-input sanity" type="number" name="sanity" value="50" min="0" max="99"/>
         </div>
+
         <div class="status-item">
           <label><span class="status-icon">❤️</span> Pontos de Vida (HP)</label>
           <input class="status-input hp" type="number" name="hp" value="10" min="1" max="20"/>
         </div>
+
         <div class="status-item">
           <label><span class="status-icon">📖</span> Pontos de Magia (MP)</label>
           <input class="status-input mp" type="number" name="mp" value="10" min="0" max="20"/>
         </div>
+
         <div class="status-item">
           <label><span class="status-icon">💰</span> Nível de Crédito</label>
           <input class="status-input" type="number" name="credit_rating" value="20" min="0" max="99"/>
         </div>
+
         <div class="status-item">
           <label><span class="status-icon">🦶</span> Movimento (MOV)</label>
           <input class="status-input" type="number" name="movement" value="8" min="1" max="10"/>
         </div>
+
         <div class="status-item">
           <label><span class="status-icon">⚔️</span> Bônus de Dano</label>
           <input class="status-input" type="text" name="damage_bonus" value="0" placeholder="+1d4"/>
@@ -360,17 +952,19 @@ textarea{resize:vertical;min-height:80px}
     <!-- PERÍCIAS -->
     <div class="panel">
       <div class="section-title">Perícias</div>
+
       <div class="sec-divider">Perícias comuns da época</div>
+
       <div class="preset-skills">
         <button type="button" class="preset-btn" onclick="addPreset('Biblioteconomia',20,'intelectual')">Biblioteconomia 20%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Charme',15,'social')">Charme 15%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Escalar',20,'físico')">Escalar 20%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Escutar',20,'percepção')">Escutar 20%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Furtividade',20,'físico')">Furtividade 20%</button>
-        <button type="button" class="preset-btn" onclick="addPreset('História',05,'intelectual')">História 5%</button>
-        <button type="button" class="preset-btn" onclick="addPreset('Medicina',01,'intelectual')">Medicina 1%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('História',5,'intelectual')">História 5%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Medicina',1,'intelectual')">Medicina 1%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Natação',20,'físico')">Natação 20%</button>
-        <button type="button" class="preset-btn" onclick="addPreset('Ocultismo',05,'especial')">Ocultismo 5%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Ocultismo',5,'especial')">Ocultismo 5%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Percepção',25,'percepção')">Percepção 25%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Persuasão',10,'social')">Persuasão 10%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Primeiros Socorros',30,'geral')">Primeiros Socorros 30%</button>
@@ -378,19 +972,21 @@ textarea{resize:vertical;min-height:80px}
         <button type="button" class="preset-btn" onclick="addPreset('Armas de Fogo',20,'combate')">Armas de Fogo 20%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Armas Brancas',25,'combate')">Armas Brancas 25%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Esquivar',DEX=>Math.floor(DEX/2),'combate')">Esquivar (DEX/2)</button>
-        <button type="button" class="preset-btn" onclick="addPreset('Idiomas (Alemão)',01,'idioma')">Alemão 1%</button>
-        <button type="button" class="preset-btn" onclick="addPreset('Idiomas (Italiano)',01,'idioma')">Italiano 1%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Idiomas (Alemão)',1,'idioma')">Alemão 1%</button>
+        <button type="button" class="preset-btn" onclick="addPreset('Idiomas (Italiano)',1,'idioma')">Italiano 1%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Mecânica',10,'técnico')">Mecânica 10%</button>
         <button type="button" class="preset-btn" onclick="addPreset('Navegação',10,'técnico')">Navegação 10%</button>
       </div>
 
       <div class="sec-divider">Suas perícias</div>
+
       <div class="skills-container" id="skillsContainer"></div>
+
       <button type="button" class="btn-add-skill" onclick="addSkillRow()">+ Adicionar Perícia Personalizada</button>
+
       <input type="hidden" name="skills_json" id="skills_json"/>
     </div>
 
-    <!-- SUBMIT -->
     <button type="button" class="btn-submit" onclick="submitForm()">
       ✦ Despertar o Investigador ✦
     </button>
@@ -403,111 +999,159 @@ textarea{resize:vertical;min-height:80px}
 </div>
 
 <script>
-let skills=[];
-let skillId=0;
+let skills = [];
+let skillId = 0;
 
-function updatePercent(input,targetId){
-  const v=parseInt(input.value)||0;
-  const half=Math.floor(v/2);
-  const fifth=Math.floor(v/5);
-  document.getElementById(targetId).textContent=`Regular: ${half} | Difícil: ${fifth}`;
+function updatePercent(input, targetId) {
+  const v = parseInt(input.value) || 0;
+  const half = Math.floor(v / 2);
+  const fifth = Math.floor(v / 5);
+
+  document.getElementById(targetId).textContent = `Regular: ${half} | Difícil: ${fifth}`;
 }
 
-// inicializa percents
-document.querySelectorAll('.attr-input').forEach(inp=>{
-  const id=inp.closest('.attr-box').querySelector('.attr-percent').id;
-  updatePercent(inp,id);
+document.querySelectorAll('.attr-input').forEach(inp => {
+  const id = inp.closest('.attr-box').querySelector('.attr-percent').id;
+  updatePercent(inp, id);
 });
 
-function previewImage(input){
-  if(input.files&&input.files[0]){
-    const r=new FileReader();
-    r.onload=e=>{
-      const img=document.getElementById('previewImg');
-      img.src=e.target.result;img.style.display='block';
-      document.getElementById('uploadIcon').style.display='none';
-      document.getElementById('uploadText').style.display='none';
+function previewImage(input) {
+  if (input.files && input.files[0]) {
+    const r = new FileReader();
+
+    r.onload = e => {
+      const img = document.getElementById('previewImg');
+
+      img.src = e.target.result;
+      img.style.display = 'block';
+
+      document.getElementById('uploadIcon').style.display = 'none';
+      document.getElementById('uploadText').style.display = 'none';
     };
+
     r.readAsDataURL(input.files[0]);
   }
 }
 
-function addPreset(name,value,cat){
-  const v=typeof value==='function'?
-    value(parseInt(document.querySelector('[name=dexterity]').value)||50):value;
-  addSkillRow(name,v,cat);
+function addPreset(name, value, cat) {
+  const v = typeof value === 'function'
+    ? value(parseInt(document.querySelector('[name=dexterity]').value) || 50)
+    : value;
+
+  addSkillRow(name, v, cat);
 }
 
-function addSkillRow(name='',value=0,cat='geral'){
-  const id='skill_'+skillId++;
-  const div=document.createElement('div');
-  div.className='skill-row';div.id=id;
-  div.innerHTML=`
+function addSkillRow(name = '', value = 0, cat = 'geral') {
+  const id = 'skill_' + skillId++;
+  const div = document.createElement('div');
+
+  div.className = 'skill-row';
+  div.id = id;
+
+  div.innerHTML = `
     <input class="skill-name-input" type="text" placeholder="Nome da perícia" value="${name}" oninput="syncSkills()"/>
+
     <input class="skill-val-input" type="number" placeholder="%" value="${value}" min="0" max="99" oninput="syncSkills()"/>
+
     <select class="skill-cat-select" onchange="syncSkills()">
-      ${['geral','intelectual','físico','social','combate','percepção','especial','técnico','idioma'].map(c=>`<option value="${c}"${c===cat?' selected':''}>${c}</option>`).join('')}
+      ${['geral','intelectual','físico','social','combate','percepção','especial','técnico','idioma'].map(c => `<option value="${c}"${c === cat ? ' selected' : ''}>${c}</option>`).join('')}
     </select>
+
     <button type="button" class="btn-remove" onclick="removeSkill('${id}')">✕</button>
   `;
+
   document.getElementById('skillsContainer').appendChild(div);
   syncSkills();
 }
 
-function removeSkill(id){
+function removeSkill(id) {
   document.getElementById(id)?.remove();
   syncSkills();
 }
 
-function syncSkills(){
-  const rows=document.querySelectorAll('.skill-row');
-  const data=[];
-  rows.forEach(row=>{
-    const inputs=row.querySelectorAll('input,select');
-    const name=inputs[0].value.trim();
-    if(name){
+function syncSkills() {
+  const rows = document.querySelectorAll('.skill-row');
+  const data = [];
+
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input,select');
+    const name = inputs[0].value.trim();
+
+    if (name) {
       data.push({
         name,
-        value:parseInt(inputs[1].value)||0,
-        base:parseInt(inputs[1].value)||0,
-        category:inputs[2].value
+        value: parseInt(inputs[1].value) || 0,
+        base: parseInt(inputs[1].value) || 0,
+        category: inputs[2].value
       });
     }
   });
-  document.getElementById('skills_json').value=JSON.stringify(data);
+
+  document.getElementById('skills_json').value = JSON.stringify(data);
 }
 
-async function submitForm(){
+async function submitForm() {
   syncSkills();
-  const form=document.getElementById('registerForm');
-  const fd=new FormData(form);
-  const err=document.getElementById('errorMsg');
-  err.style.display='none';
 
-  const u=fd.get('username')?.trim();
-  const p=fd.get('password');
-  const cn=fd.get('char_name')?.trim();
-  if(!u||!p||!cn){showError('Nome de usuário, senha e nome do personagem são obrigatórios');return}
-  if(p.length<4){showError('Senha deve ter ao menos 4 caracteres');return}
+  const form = document.getElementById('registerForm');
+  const fd = new FormData(form);
+  const err = document.getElementById('errorMsg');
+
+  err.style.display = 'none';
+
+  const u = fd.get('username')?.trim();
+  const p = fd.get('password');
+  const cn = fd.get('char_name')?.trim();
+
+  if (!u || !p || !cn) {
+    showError('Nome de usuário, senha e nome do personagem são obrigatórios');
+    return;
+  }
+
+  if (p.length < 4) {
+    showError('Senha deve ter ao menos 4 caracteres');
+    return;
+  }
 
   document.getElementById('loading').classList.add('active');
-  try{
-    const r=await fetch('/register',{method:'POST',body:fd,credentials:'include'});
-    const d=await r.json();
-    if(d.success){window.location.href=d.redirect||'/login'}
-    else{document.getElementById('loading').classList.remove('active');showError(d.error||'Erro ao criar personagem')}
-  }catch(e){document.getElementById('loading').classList.remove('active');showError('Erro de conexão')}
+
+  try {
+    const r = await fetch('/register', {
+      method: 'POST',
+      body: fd,
+      credentials: 'include'
+    });
+
+    const d = await r.json();
+
+    if (d.success) {
+      window.location.href = d.redirect || '/login';
+    } else {
+      document.getElementById('loading').classList.remove('active');
+      showError(d.error || 'Erro ao criar personagem');
+    }
+
+  } catch (e) {
+    document.getElementById('loading').classList.remove('active');
+    showError('Erro de conexão');
+  }
 }
 
-function showError(msg){
-  const e=document.getElementById('errorMsg');e.textContent=msg;e.style.display='block';
-  window.scrollTo({top:0,behavior:'smooth'});
+function showError(msg) {
+  const e = document.getElementById('errorMsg');
+
+  e.textContent = msg;
+  e.style.display = 'block';
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
 }
 
-// Adiciona algumas perícias padrão ao carregar
-addPreset('Percepção',25,'percepção');
-addPreset('Primeiros Socorros',30,'geral');
-addPreset('Furtividade',20,'físico');
+addPreset('Percepção', 25, 'percepção');
+addPreset('Primeiros Socorros', 30, 'geral');
+addPreset('Furtividade', 20, 'físico');
 </script>
 </body>
 </html>

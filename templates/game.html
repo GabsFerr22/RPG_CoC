@@ -1,228 +1,2561 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Trieste, 1919</title>
-  <link rel="stylesheet" href="/static/css/game.css">
+<meta charset="UTF-8">
+<title>Trieste 1919 — Chamado de Cthulhu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   TRIESTE 1919 — REDESIGN
+   ══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:        #c9a84c;
+  --gold-dim:    #8a6d2f;
+  --gold-bright: #e8c97a;
+  --green-deep:  #020605;
+  --green-panel: #0a1a0e;
+  --green-card:  #0d1f11;
+  --green-accent:#28422D;
+  --green-border:#2a4a2e;
+  --green-hi:    #3a6040;
+  --green-text:  #7ab880;
+  --green-bright:#b8d9b0;
+  --text:        #d4c8a8;
+  --text-dim:    #7a8a72;
+  --text-soft:   #a8b89a;
+  --red-bar:     #8b2a2a;
+  --red-hp:      #c04a4a;
+  --blue-mp:     #3a6a8a;
+  --blue-mp-hi:  #5a9abf;
+  --border-gold: rgba(201,168,76,0.45);
+  --border-green:rgba(42,74,46,0.65);
+  --shadow:      0 4px 24px rgba(0,0,0,0.75);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--green-deep);
+  color: var(--text);
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 14px;
+}
+
+/* Noise texture overlay */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.55;
+}
+
+/* ─── LAYOUT GRID ──────────────────────────────── */
+#app {
+  position: fixed; inset: 0; z-index: 1;
+  display: grid;
+  grid-template-rows: 58px 1fr 52px;
+  grid-template-columns: 280px 1fr 200px;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* ─── TOP HEADER ───────────────────────────────── */
+#header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: linear-gradient(180deg, rgba(5,12,7,0.98) 0%, rgba(2,8,4,0.96) 100%);
+  border-bottom: 1px solid var(--border-gold);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.6);
+  z-index: 50;
+}
+
+#header::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+/* Nav menus */
+.nav-group {
+  display: flex; gap: 6px; align-items: center;
+}
+
+.nav-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  color: var(--gold-bright);
+  border-color: var(--border-gold);
+  background: rgba(201,168,76,0.06);
+}
+
+/* Title block */
+#title-block {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  text-align: center;
+  line-height: 1;
+}
+
+#title-main {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 45%, var(--green-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+}
+
+#title-sub {
+  font-family: 'Special Elite', serif;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* Right nav icons */
+.nav-icons {
+  display: flex; gap: 8px; align-items: center;
+}
+
+.nav-icon-btn {
+  background: transparent;
+  border: 1px solid var(--border-green);
+  color: var(--text-dim);
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  font-family: 'Crimson Text', serif;
+}
+
+.nav-icon-btn:hover {
+  border-color: var(--border-gold);
+  color: var(--gold);
+}
+
+/* ─── LEFT PANEL — CHARACTER ───────────────────── */
+#char-panel {
+  grid-column: 1;
+  grid-row: 2;
+  background: linear-gradient(160deg, rgba(10,26,14,0.97) 0%, rgba(4,12,6,0.99) 100%);
+  border-right: 1px solid var(--border-green);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px 10px 80px;
+}
+
+/* Character photo + name */
+#char-photo-block {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-green);
+}
+
+#charImage {
+  width: 72px;
+  height: 90px;
+  object-fit: cover;
+  border: 1px solid var(--border-gold);
+  background: var(--green-panel);
+  flex-shrink: 0;
+  filter: sepia(0.15) contrast(1.05);
+}
+
+#char-name-block { flex: 1; padding-top: 4px; }
+
+#charName {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: var(--gold-bright);
+  line-height: 1.2;
+  margin-bottom: 3px;
+}
+
+#charOccupation {
+  font-family: 'Special Elite', serif;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+/* Attributes mini grid */
+#attr-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.attr-card {
+  background: rgba(8,20,10,0.85);
+  border: 1px solid var(--border-green);
+  padding: 5px 3px;
+  text-align: center;
+}
+
+.attr-card .attr-label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  display: block;
+}
+
+.attr-card .attr-val {
+  font-family: 'Special Elite', serif;
+  font-size: 16px;
+  color: var(--green-bright);
+  line-height: 1;
+}
+
+/* Skills */
+#char-panel h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-green);
+}
+
+.skill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 3px;
+  border-bottom: 1px solid rgba(42,74,46,0.2);
+  cursor: pointer;
+  transition: background 0.15s, padding-left 0.15s;
+}
+
+.skill-row:hover {
+  background: rgba(40,66,45,0.18);
+  padding-left: 7px;
+}
+
+.skill-row .skill-name { font-size: 12px; color: var(--text-soft); }
+.skill-row .skill-pct {
+  font-family: 'Special Elite', serif;
+  font-size: 13px;
+  color: var(--green-bright);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ─── CENTER MAPS ───────────────────────────────── */
+#maps-area {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.map-card {
+  position: relative;
+  background: rgba(4,12,6,0.92);
+  border: 1px solid var(--border-green);
+  box-shadow: var(--shadow), inset 0 0 30px rgba(0,0,0,0.4);
+  overflow: hidden;
+}
+
+.map-card::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 5; pointer-events: none;
+  border: 1px solid rgba(201,168,76,0.07);
+}
+
+.map-title {
+  position: absolute;
+  top: 8px; left: 8px;
+  z-index: 20;
+  background: rgba(4,12,6,0.92);
+  border: 1px solid var(--border-gold);
+  padding: 4px 12px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  pointer-events: none;
+}
+
+.map-subtitle {
+  display: block;
+  font-size: 8px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  margin-top: 1px;
+}
+
+.map-stage {
+  position: relative;
+  width: 100%; height: 100%;
+}
+
+.city-map, .local-map {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.78) contrast(1.05) brightness(0.82);
+}
+
+.map-location-bar {
+  position: absolute;
+  bottom: 8px; left: 8px; right: 8px;
+  z-index: 20;
+  background: rgba(4,12,6,0.92);
+  border: 1px solid var(--border-gold);
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.map-location-bar span {
+  font-family: 'Special Elite', serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.map-location-bar strong {
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.map-search-btn {
+  background: transparent; border: none;
+  color: var(--gold-dim); cursor: pointer;
+  font-size: 14px; padding: 0 2px;
+}
+
+.map-part-nav {
+  position: absolute;
+  top: 8px; right: 8px;
+  z-index: 20;
+  display: flex; gap: 4px;
+}
+
+.map-part-nav button {
+  background: rgba(4,12,6,0.92);
+  border: 1px solid var(--border-gold);
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  padding: 3px 7px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.map-part-nav button:hover {
+  color: var(--gold-bright);
+  border-color: var(--gold);
+}
+
+/* Hotspots */
+.hotspot {
+  position: absolute;
+  z-index: 12;
+  transform: translate(-50%, -50%);
+  padding: 3px 8px;
+  background: rgba(4,14,9,.82);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold-bright);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  white-space: nowrap;
+  letter-spacing: 1px;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+
+.hotspot:hover {
+  box-shadow: 0 0 14px rgba(201,168,76,0.4);
+  background: rgba(10,25,15,.96);
+  border-color: var(--gold);
+}
+
+/* Tokens */
+.token {
+  position: absolute;
+  z-index: 35;
+  width: 80px; height: 112px;
+  transform: translate(-50%, -100%);
+  cursor: grab;
+  pointer-events: all;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.token img {
+  width: 100%; flex: 1;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,.9));
+}
+
+.token-label {
+  font-family: 'Special Elite', serif;
+  font-size: 9px;
+  color: var(--gold-bright);
+  background: rgba(4,12,6,.88);
+  border: 1px solid var(--gold-dim);
+  padding: 1px 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#tokensLayer, #cityMarkersLayer {
+  position: absolute; inset: 0;
+  z-index: 30; pointer-events: none;
+}
+
+#tokensLayer { pointer-events: all; }
+
+/* ─── RIGHT PANEL ───────────────────────────────── */
+#right-panel {
+  grid-column: 3;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: linear-gradient(160deg, rgba(10,26,14,0.97) 0%, rgba(4,12,6,0.99) 100%);
+  border-left: 1px solid var(--border-green);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Sanity Card ── */
+#sanity-card {
+  padding: 14px 12px 10px;
+  border-bottom: 1px solid var(--border-green);
+  text-align: center;
+}
+
+.rp-section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 8px;
+}
+
+#san-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+#san-display span {
+  font-family: 'Cinzel', serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--green-bright);
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(120,200,130,0.2);
+}
+
+#san-display .san-max {
+  font-size: 16px;
+  color: var(--text-dim);
+  align-self: flex-end;
+  padding-bottom: 8px;
+}
+
+.san-status {
+  font-family: 'Special Elite', serif;
+  font-size: 10px;
+  color: var(--green-text);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.san-controls {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.stat-adj-btn {
+  background: rgba(8,20,10,0.9);
+  border: 1px solid var(--border-green);
+  color: var(--text-dim);
+  width: 26px; height: 26px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  transition: all 0.18s;
+}
+
+.stat-adj-btn:hover {
+  border-color: var(--border-gold);
+  color: var(--gold-bright);
+}
+
+/* ── Stat bars ── */
+.stat-bar-block {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-green);
+}
+
+.stat-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.stat-bar-icon { font-size: 14px; flex-shrink: 0; }
+
+.stat-bar-label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  min-width: 44px;
+  text-transform: uppercase;
+}
+
+.stat-bar-val {
+  font-family: 'Special Elite', serif;
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+  text-align: right;
+}
+
+.bar-track {
+  width: 100%;
+  height: 5px;
+  background: rgba(8,20,10,0.9);
+  border: 1px solid var(--border-green);
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.bar-fill {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.bar-fill.hp  { background: linear-gradient(90deg, var(--red-bar), var(--red-hp)); }
+.bar-fill.mp  { background: linear-gradient(90deg, var(--blue-mp), var(--blue-mp-hi)); }
+.bar-fill.mov { background: linear-gradient(90deg, var(--green-accent), var(--green-hi)); }
+.bar-fill.cred{ background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+
+.stat-adj-row {
+  display: flex; gap: 4px; align-items: center; margin-bottom: 6px;
+}
+
+.stat-adj-row .mini-btn {
+  background: rgba(8,20,10,0.9);
+  border: 1px solid var(--border-green);
+  color: var(--text-dim);
+  width: 20px; height: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-adj-row .mini-btn:hover { border-color: var(--border-gold); color: var(--gold-bright); }
+
+/* ── Dice Section ── */
+#dice-card {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-green);
+}
+
+#dice-display-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#dice-img-btn {
+  width: 52px; height: 52px;
+  cursor: pointer;
+  filter: drop-shadow(0 0 8px rgba(201,168,76,0.2));
+  transition: transform 0.15s, filter 0.15s;
+  flex-shrink: 0;
+}
+
+#dice-img-btn:hover {
+  filter: drop-shadow(0 0 14px rgba(201,168,76,0.5));
+  transform: scale(1.07);
+}
+
+#dice-img-btn.rolling {
+  animation: diceRoll 0.5s ease-in-out;
+}
+
+@keyframes diceRoll {
+  0%   { transform: rotate(0deg) scale(1); }
+  25%  { transform: rotate(15deg) scale(1.1); }
+  50%  { transform: rotate(-10deg) scale(0.95); }
+  75%  { transform: rotate(8deg) scale(1.05); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+#dice-result {
+  flex: 1;
+  text-align: center;
+}
+
+#dice-result-num {
+  font-family: 'Cinzel', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--gold-bright);
+  line-height: 1;
+  display: block;
+}
+
+#dice-result-type {
+  font-family: 'Special Elite', serif;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+}
+
+.dice-modifier {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.dice-modifier label {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.dice-modifier select {
+  background: rgba(8,20,10,0.9);
+  border: 1px solid var(--border-green);
+  color: var(--green-bright);
+  padding: 3px 5px;
+  font-family: 'Special Elite', serif;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+}
+
+.dice-modifier select:focus { border-color: var(--border-gold); }
+
+/* ── Roll Log ── */
+#roll-log-card {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-green);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#roll-log-card .rp-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#rollLog {
+  flex: 1;
+  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+#rollLog .roll-entry {
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(42,74,46,0.15);
+  color: var(--text-soft);
+}
+
+#rollLog .roll-success { color: #6aac5a; }
+#rollLog .roll-fail    { color: #c05050; }
+
+.clear-btn {
+  background: transparent;
+  border: 1px solid var(--border-green);
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.18s;
+}
+
+.clear-btn:hover { border-color: var(--border-gold); color: var(--gold-dim); }
+
+/* ─── BOTTOM BAR ───────────────────────────────── */
+#bottom-bar {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  position: relative;
+  background: linear-gradient(180deg, rgba(5,12,7,0.98) 0%, rgba(2,6,3,0.99) 100%);
+  border-top: 1px solid var(--border-gold);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  overflow: hidden;
+}
+
+#bottom-bar::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+}
+
+.bottom-info-group {
+  display: flex; gap: 16px; align-items: center;
+}
+
+.bottom-item {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'Special Elite', serif;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.bottom-item strong {
+  color: var(--text-soft);
+  font-weight: normal;
+}
+
+.bottom-divider {
+  width: 1px; height: 20px;
+  background: var(--border-green);
+}
+
+.bottom-center {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 18px; align-items: center;
+}
+
+.bottom-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  border: 1px solid var(--border-gold);
+  padding: 3px 10px;
+}
+
+/* Bottom bar master controls */
+#bottom-master-controls {
+  display: flex; gap: 8px; align-items: center;
+}
+
+.master-time-input {
+  background: rgba(4,10,6,0.9);
+  border: 1px solid var(--border-green);
+  color: var(--text-soft);
+  padding: 3px 6px;
+  font-family: 'Special Elite', serif;
+  font-size: 11px;
+  width: 60px;
+  outline: none;
+}
+
+.master-time-input:focus { border-color: var(--border-gold); }
+
+.set-time-btn {
+  background: rgba(20,45,25,0.8);
+  border: 1px solid var(--border-gold);
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.set-time-btn:hover { color: var(--gold-bright); }
+
+/* ─── CENTER BOTTOM OVERLAY ─── inventory / chat ─ */
+#center-overlay {
+  position: fixed;
+  left: 280px; right: 200px;
+  bottom: 52px;
+  z-index: 40;
+  display: grid;
+  grid-template-rows: auto auto;
+  pointer-events: none;
+}
+
+/* ── Inventory ── */
+#inventory-panel {
+  pointer-events: all;
+  background: linear-gradient(90deg, rgba(8,20,10,0.97) 0%, rgba(12,28,14,0.97) 50%, rgba(8,20,10,0.97) 100%);
+  border: 1px solid var(--border-gold);
+  border-bottom: none;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.inv-label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-right: 6px;
+  white-space: nowrap;
+}
+
+#inventory {
+  display: flex; gap: 4px;
+}
+
+.inv-slot {
+  width: 46px; height: 46px;
+  background: rgba(4,10,6,0.85);
+  border: 1px solid rgba(42,74,46,0.55);
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.18s;
+  display: flex; align-items: center; justify-content: center;
+  overflow: visible;
+}
+
+.inv-slot:hover { border-color: var(--border-gold); }
+
+.inv-slot img {
+  width: 34px; height: 34px;
+  object-fit: contain;
+  filter: sepia(0.3) contrast(0.9);
+}
+
+.inv-slot .item-qty {
+  position: absolute; bottom: 2px; right: 3px;
+  font-family: 'Special Elite', serif;
+  font-size: 9px;
+  color: var(--gold-dim);
+}
+
+.inv-add-slot {
+  width: 46px; height: 46px;
+  background: rgba(4,10,6,0.7);
+  border: 1px dashed rgba(42,74,46,0.4);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--text-dim);
+  transition: all 0.18s;
+}
+
+.inv-add-slot:hover { border-color: var(--border-gold); color: var(--gold-dim); }
+
+/* ── Chat ── */
+#chat-panel {
+  pointer-events: all;
+  background: rgba(6,15,8,0.97);
+  border: 1px solid var(--border-gold);
+  padding: 8px 12px;
+}
+
+#chat-panel-inner {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 10px;
+  align-items: start;
+}
+
+.chat-label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.chat-label span {
+  font-size: 8px;
+  color: var(--green-text);
+  margin-left: 6px;
+  letter-spacing: 2px;
+}
+
+#chatMessages {
+  height: 64px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 5px;
+  padding-right: 2px;
+}
+
+#chatMessages b { color: var(--gold-bright); }
+#chatMessages small { color: var(--text-dim); font-size: 10px; }
+
+.chat-input-row {
+  display: flex; gap: 4px;
+}
+
+.chat-input-row input {
+  flex: 1;
+  background: rgba(4,10,6,0.86);
+  border: 1px solid var(--border-green);
+  color: var(--text);
+  padding: 5px 8px;
+  font-family: 'Crimson Text', serif;
+  font-size: 12px;
+  outline: none;
+}
+
+.chat-input-row input:focus { border-color: var(--border-gold); }
+
+.chat-input-row button {
+  background: rgba(20,40,22,0.9);
+  border: 1px solid var(--border-green);
+  color: var(--text-dim);
+  padding: 5px 10px;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.chat-input-row button:hover {
+  border-color: var(--border-gold);
+  color: var(--gold-bright);
+}
+
+/* Quick actions (floats within chat panel right col) */
+.quick-action-group {
+  display: flex; flex-direction: column; gap: 4px;
+}
+
+.quick-action-group label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+}
+
+.quick-btns {
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+
+.quick-btn {
+  background: rgba(8,20,10,0.9);
+  border: 1px solid var(--border-green);
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 4px 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.18s;
+}
+
+.quick-btn:hover {
+  border-color: var(--border-gold);
+  color: var(--gold-bright);
+}
+
+/* ─── MODAIS ─────────────────────────────────── */
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.82);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active { display: flex; }
+
+.modal-box {
+  width: 560px; max-width: 95vw;
+  max-height: 84vh;
+  overflow-y: auto;
+  background: linear-gradient(160deg, rgba(8,22,12,0.99) 0%, rgba(4,12,6,0.99) 100%);
+  border: 1px solid var(--border-gold);
+  padding: 24px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.9), 0 0 30px rgba(201,168,76,0.08);
+  position: relative;
+}
+
+.modal-box::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+}
+
+.modal-box h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--gold-bright);
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-green);
+  padding-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.modal-close {
+  position: absolute; top: 10px; right: 14px;
+  font-size: 18px; background: transparent; border: none;
+  color: var(--text-dim); cursor: pointer; padding: 0;
+  font-family: 'Cinzel', serif;
+  transition: color 0.18s;
+}
+
+.modal-close:hover { color: var(--gold-bright); }
+
+.modal-box input[type=text],
+.modal-box input[type=number],
+.modal-box input[type=file],
+.modal-box textarea {
+  width: 100%;
+  background: rgba(4,10,6,0.88);
+  color: var(--text);
+  border: 1px solid var(--border-green);
+  padding: 8px 10px;
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  outline: none;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.modal-box input:focus,
+.modal-box textarea:focus {
+  border-color: var(--border-gold);
+}
+
+.modal-box textarea { resize: vertical; min-height: 80px; }
+
+.modal-box button {
+  background: rgba(20,45,22,0.85);
+  border: 1px solid var(--border-gold);
+  color: var(--gold-bright);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 8px 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.18s;
+}
+
+.modal-box button:hover {
+  background: rgba(30,60,32,0.9);
+  box-shadow: 0 0 16px rgba(201,168,76,0.18);
+}
+
+/* Sheet modal */
+#modalSheet p {
+  font-size: 13px;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(42,74,46,0.18);
+  color: var(--text-soft);
+}
+
+#modalSheet hr { border: none; border-top: 1px solid var(--border-green); margin: 10px 0; }
+#modalSheet b { color: var(--gold-bright); }
+
+/* Notes / book style */
+.book textarea {
+  width: 100%; height: 360px;
+  background: #d6d2b8;
+  color: #0d1008;
+  font-family: 'Special Elite', serif;
+  font-size: 14px;
+  padding: 20px;
+  border: none; outline: none; resize: none;
+}
+
+/* Edit character */
+.edit-character-box { width: min(780px, 94vw); max-height: 88vh; overflow-y: auto; }
+
+.edit-section {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-green);
+  background: rgba(4,10,6,0.45);
+}
+
+.edit-section h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.edit-section label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 6px; margin-bottom: 3px;
+}
+
+.edit-section input {
+  width: 100%;
+  padding: 7px 8px;
+  background: rgba(4,10,6,0.88);
+  border: 1px solid var(--border-green);
+  color: var(--text);
+  outline: none;
+  font-family: 'Crimson Text', serif;
+}
+
+.edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+
+.edit-preview { margin-top: 10px; display: flex; justify-content: center; }
+.edit-preview img {
+  width: 100px; height: 130px;
+  object-fit: cover;
+  border: 1px solid var(--border-gold);
+  background: #000;
+}
+
+.edit-skill-row {
+  display: grid;
+  grid-template-columns: 1fr 90px 36px;
+  gap: 6px; margin-bottom: 6px; align-items: center;
+}
+
+.edit-skill-row button {
+  height: 32px; padding: 0;
+  background: rgba(80,20,20,0.6);
+  border-color: rgba(150,50,50,0.55);
+  color: #d06a6a;
+}
+
+.save-character-btn {
+  width: 100%; padding: 10px;
+  background: linear-gradient(180deg, rgba(25,55,30,0.88) 0%, rgba(10,28,12,0.95) 100%);
+  border: 1px solid var(--border-gold);
+  color: var(--gold-bright);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.save-character-btn:hover {
+  box-shadow: 0 0 18px rgba(201,168,76,0.2);
+}
+
+/* ─── MASTER PANEL ───────────────────────────── */
+#master-panel {
+  position: fixed;
+  right: 206px; top: 64px;
+  z-index: 40;
+  background: rgba(8,20,10,0.97);
+  border: 1px solid var(--border-gold);
+  padding: 10px 12px;
+  min-width: 150px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+}
+
+#master-panel h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-green);
+  padding-bottom: 5px;
+}
+
+#master-panel button {
+  display: block; width: 100%; margin-bottom: 5px;
+  text-align: left;
+  background: rgba(8,20,10,0.9);
+  border: 1px solid var(--border-green);
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 5px 8px;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-transform: uppercase;
+}
+
+#master-panel button:hover {
+  border-color: var(--border-gold);
+  color: var(--gold-bright);
+}
+
+#master-panel input {
+  display: block; width: 100%; margin-bottom: 6px;
+  background: rgba(4,10,6,0.88);
+  border: 1px solid var(--border-green);
+  color: var(--text);
+  padding: 5px 6px;
+  font-family: 'Crimson Text', serif;
+  font-size: 12px;
+  outline: none;
+}
+
+/* ─── PLAYERS GRID (MASTER) ─────────────────── */
+.players-grid { display: grid; grid-template-columns: 1fr; gap: 7px; margin-top: 6px; }
+
+.player-card {
+  display: flex; gap: 7px; padding: 7px;
+  background: rgba(4,10,6,0.75);
+  border: 1px solid var(--border-green);
+}
+
+.player-card img { width: 38px; height: 50px; object-fit: contain; flex-shrink: 0; }
+.player-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.player-info strong { font-family: 'Cinzel', serif; font-size: 11px; color: var(--gold-bright); }
+.player-info small { font-size: 10px; color: var(--text-dim); }
+.player-status { font-size: 11px; line-height: 1.7; color: var(--text-soft); }
+
+.stat-mini {
+  width: 15px; height: 15px;
+  background: rgba(8,20,10,.9);
+  border: 1px solid var(--border-green);
+  color: var(--text-dim);
+  font-size: 11px; padding: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+.kick-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 9px; letter-spacing: 1px;
+  padding: 2px 5px; margin-top: 3px;
+  cursor: pointer;
+  background: rgba(80,15,15,.6);
+  border: 1px solid rgba(150,50,50,.55);
+  color: #c06060;
+}
+
+/* ─── VISUAL EFFECTS ─────────────────────────── */
+.vtt-ping {
+  position: absolute;
+  width: 60px; height: 60px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 80;
+  animation: pingAnim 1.5s ease-out forwards;
+  pointer-events: none;
+  box-shadow: 0 0 14px rgba(201,168,76,0.5);
+}
+
+@keyframes pingAnim {
+  from { opacity: 1; scale: 0.3; }
+  to   { opacity: 0; scale: 2; }
+}
+
+.danger-marker {
+  position: absolute;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #5b0b0b;
+  color: #ffd0a0;
+  border: 2px solid #d06a6a;
+  transform: translate(-50%, -50%);
+  z-index: 70;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 16px;
+  box-shadow: 0 0 14px rgba(180,30,30,0.65);
+  pointer-events: none;
+}
+
+#fogIntro {
+  position: fixed; inset: 0; z-index: 200; pointer-events: none;
+  background: radial-gradient(circle, rgba(0,0,0,0) 15%, rgba(100,150,100,.14) 55%, rgba(0,0,0,.95) 100%);
+  animation: fogReveal 4s forwards;
+}
+
+@keyframes fogReveal {
+  from { opacity: 1; filter: blur(12px); }
+  to   { opacity: 0; filter: blur(0); }
+}
+
+/* Toast */
+#masterToast {
+  position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
+  background: rgba(8,6,3,0.97);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 12px; letter-spacing: 2px;
+  padding: 12px 24px;
+  z-index: 9999; pointer-events: none;
+  box-shadow: 0 0 28px rgba(139,42,26,0.4);
+  text-align: center;
+  max-width: 380px;
+  opacity: 0; transition: opacity 0.4s;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #020605; }
+::-webkit-scrollbar-thumb { background: var(--green-accent); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--green-hi); }
+
+.hidden { display: none !important; }
+
+/* ─── TOKEN SIZE CTRL ─────────────────────────── */
+#token-size-ctrl {
+  position: fixed;
+  left: 288px; bottom: 310px;
+  z-index: 40;
+  background: rgba(8,20,10,0.96);
+  border: 1px solid var(--border-gold);
+  padding: 7px 10px;
+  box-shadow: var(--shadow);
+}
+
+#token-size-ctrl label {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 9px; letter-spacing: 2px;
+  color: var(--text-dim); margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+#token-size-ctrl input {
+  width: 120px;
+  accent-color: var(--green-hi);
+}
+
+/* Music controls (master sidebar) */
+.master-music select {
+  width: 100%;
+  background: rgba(4,10,6,.88);
+  color: var(--text);
+  border: 1px solid var(--border-green);
+  padding: 5px;
+  margin-bottom: 5px;
+  font-family: 'Crimson Text', serif;
+  font-size: 12px; outline: none;
+}
+
+.music-row { display: flex; gap: 4px; margin-bottom: 5px; }
+.music-row button { flex: 1; text-align: center; }
+
+</style>
 </head>
 <body>
 
 <div id="fogIntro"></div>
+<div id="masterToast"></div>
+<audio id="bgMusic" loop></audio>
 
-<aside class="sidebar" id="sidebarPanel">
-  <button class="minimize-btn" onclick="togglePanel('sidebarPanel')">—</button>
+<div id="app">
 
-  {% if is_master %}
-    <h2>Guardião</h2>
+  <!-- ═══════════════ HEADER ════════════════════ -->
+  <header id="header">
+    <nav class="nav-group">
+      <button class="nav-btn" onclick="openModal('notesModal')">Diário</button>
+    </nav>
 
-    <div class="section">
-      <h3>Investigadores</h3>
-      <div id="masterPlayersGrid" class="players-grid"></div>
+    <div id="title-block">
+      <div id="title-main">TRIESTE 1919</div>
+      <div id="title-sub">— Chamado de Cthulhu —</div>
     </div>
 
-    <div class="section master-music">
-      <h3>Música</h3>
+    <nav class="nav-group" style="align-items:center; gap:6px;">
+      {% if not is_master %}
+      <button class="nav-btn" onclick="openModal('sheetModal')">Personagem</button>
+      {% endif %}
+      <div class="nav-icons">
+        <button class="nav-icon-btn" onclick="openModal('helpModal')" title="Ajuda">?</button>
+        {% if is_master %}
+        <button class="nav-icon-btn" style="font-size:11px; letter-spacing:1px; width:auto; padding:0 8px;" onclick="openModal('masterSettingsModal')">MESTRE</button>
+        {% endif %}
+        <a href="/logout" class="nav-icon-btn" style="text-decoration:none; font-family:'Cinzel',serif; font-size:9px; letter-spacing:1px; width:auto; padding:0 8px;">SAIR</a>
+      </div>
+    </nav>
+  </header>
 
-      <select id="musicSelect">
-        <option value="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/music/Promise.mp3">1º Promise</option>
-        <option value="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/music/BlankFairy.mp3">2º BlankFairy</option>
-        <option value="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/music/LauraTheme.mp3">3º LauraTheme</option>
-      </select>
-
-      <div class="music-row">
-        <button onclick="masterPlayMusic()">▶</button>
-        <button onclick="masterStopMusic()">■</button>
-        <button onclick="masterMuteMusic()">🔇</button>
+  <!-- ═══════════════ LEFT — CHAR PANEL ═════════════ -->
+  <aside id="char-panel">
+    {% if is_master %}
+      <h3 style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--border-green);">Investigadores</h3>
+      <div id="masterPlayersGrid" class="players-grid"></div>
+      <div class="section master-music" style="margin-top:14px;">
+        <h3>Música</h3>
+        <select id="musicSelect">
+          <option value="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/music/Promise.mp3">Promise</option>
+          <option value="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/music/BlankFairy.mp3">BlankFairy</option>
+          <option value="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/music/LauraTheme.mp3">LauraTheme</option>
+        </select>
+        <div class="music-row">
+          <button onclick="masterPlayMusic()">▶</button>
+          <button onclick="masterStopMusic()">■</button>
+          <button onclick="masterMuteMusic()">🔇</button>
+        </div>
+        <label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:3px;">Volume</label>
+        <input id="musicVolume" type="range" min="0" max="1" step="0.05" value="0.5" onchange="masterChangeVolume()" style="width:100%;accent-color:var(--green-hi);">
+      </div>
+    {% else %}
+      <div id="char-photo-block">
+        <img id="charImage" src="/static/images/default_character.png" alt="Personagem">
+        <div id="char-name-block">
+          <div id="charName">Carregando...</div>
+          <div id="charOccupation">Investigador</div>
+        </div>
       </div>
 
-      <label>Volume</label>
-      <input id="musicVolume" type="range" min="0" max="1" step="0.05" value="0.5" onchange="masterChangeVolume()">
+      <div id="attr-grid">
+        <div class="attr-card"><span class="attr-label">FOR</span><span class="attr-val" id="attr-str">--</span></div>
+        <div class="attr-card"><span class="attr-label">CON</span><span class="attr-val" id="attr-con">--</span></div>
+        <div class="attr-card"><span class="attr-label">DES</span><span class="attr-val" id="attr-dex">--</span></div>
+        <div class="attr-card"><span class="attr-label">INT</span><span class="attr-val" id="attr-int">--</span></div>
+        <div class="attr-card"><span class="attr-label">APP</span><span class="attr-val" id="attr-app">--</span></div>
+        <div class="attr-card"><span class="attr-label">SAB</span><span class="attr-val" id="attr-sab">--</span></div>
+      </div>
 
-      
-    </div>
-
-  {% else %}
-    <h2 id="charName">Carregando...</h2>
-    <img id="charImage" src="" alt="Personagem">
-
-    <div class="section">
       <h3>Perícias</h3>
       <div id="skillsList"></div>
+    {% endif %}
+  </aside>
+
+  <!-- ═══════════════ CENTER — MAPS ════════════════ -->
+  <main id="maps-area">
+    <!-- City Map -->
+    <section class="map-card">
+      <div class="map-title">
+        Mapa de Trieste
+        <span class="map-subtitle">Vista da Cidade</span>
+      </div>
+      <div class="map-stage city-stage" id="cityStage">
+        <img src="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/trieste.webp" class="city-map">
+
+        <button class="hotspot" style="left:17%;top:62%;" data-map="cais">Cais Velho</button>
+        <button class="hotspot" style="left:20%;top:45%;" data-map="armazem">Armazém Nº7</button>
+        <button class="hotspot" style="left:48%;top:47%;" data-map="hotel">Hotel Bruma Cinza</button>
+        <button class="hotspot" style="left:18%;top:35%;" data-map="cafe">Café Imperiale</button>
+        <button class="hotspot" style="left:56%;top:37%;" data-map="farmacia">Farmácia Weiss</button>
+        <button class="hotspot" style="left:71%;top:22%;" data-map="igreja">Igreja de San Giusto</button>
+        <button class="hotspot" style="left:66%;top:12%;" data-map="mirante">Mirante Esquecido</button>
+        <button class="hotspot" style="left:63%;top:28%;" data-map="vicolo">Vicolo del Muschio</button>
+        <button class="hotspot" style="left:44%;top:23%;" data-map="cemiterio">Cemitério Sant'Anna</button>
+        <button class="hotspot" style="left:30%;top:12%;" data-map="mansao">Mansão Valdris</button>
+        <button class="hotspot" style="left:74%;top:35%;" data-map="prefeitura">Prefeitura</button>
+        <button class="hotspot" style="left:86%;top:48%;" data-map="delegacia">Delegacia</button>
+        <button class="hotspot" style="left:63%;top:55%;" data-map="praca">Praça Central</button>
+        <button class="hotspot" style="left:72%;top:87%;" data-map="Frigorifico">Frigorífico</button>
+        <button class="hotspot" style="left:75%;top:63%;" data-map="esgotos">Esgotos</button>
+        <div id="cityMarkersLayer"></div>
+      </div>
+      <div class="map-location-bar">
+        <div><span>Localização Atual</span><br><strong id="cityLocationLabel">Cidade de Trieste</strong></div>
+        <button class="map-search-btn">⌕</button>
+      </div>
+    </section>
+
+    <!-- Local Map -->
+    <section class="map-card">
+      <div class="map-title" id="localTitle">
+        Mapa Local
+        <span class="map-subtitle" id="localSubtitle">Interior</span>
+      </div>
+      <div class="map-part-nav">
+        <button onclick="changeMapPart(-1)">◀</button>
+        <button onclick="changeMapPart(1)">▶</button>
+      </div>
+      <div class="map-stage local-stage" id="localStage">
+        <img id="localMap" src="" class="local-map hidden">
+        <div id="tokensLayer"></div>
+      </div>
+      <div class="map-location-bar">
+        <div><span>Local Atual</span><br><strong id="localLocationLabel">Selecione um local</strong></div>
+        <button class="map-search-btn">⌕</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══════════════ RIGHT PANEL ════════════════ -->
+  <aside id="right-panel">
+    {% if not is_master %}
+    <!-- Sanity -->
+    <div id="sanity-card">
+      <div class="rp-section-title">Sanidade</div>
+      <div id="san-display">
+        <button class="stat-adj-btn" onclick="changeStat('sanity',-1)">◀</button>
+        <span id="sanity">--</span>
+        <span class="san-max">/ <span id="sanityMax">99</span></span>
+        <button class="stat-adj-btn" onclick="changeStat('sanity',1)">▶</button>
+      </div>
+      <div class="san-status" id="sanStatus">Estável</div>
     </div>
+
+    <!-- Stat bars -->
+    <div class="stat-bar-block">
+      <!-- HP -->
+      <div class="rp-section-title" style="margin-bottom:5px;">Status</div>
+      <div class="stat-adj-row">
+        <span style="font-size:14px;">❤️</span>
+        <span class="stat-bar-label" style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;min-width:40px;">Vida</span>
+        <button class="mini-btn" onclick="changeStat('hp',-1)">−</button>
+        <span id="hp" style="font-family:'Special Elite',serif;font-size:13px;color:var(--text);flex:1;text-align:center;">--</span>
+        <button class="mini-btn" onclick="changeStat('hp',1)">+</button>
+      </div>
+      <div class="bar-track"><div class="bar-fill hp" id="hpBar" style="width:70%"></div></div>
+
+      <!-- MP -->
+      <div class="stat-adj-row" style="margin-top:6px;">
+        <span style="font-size:14px;">🔮</span>
+        <span class="stat-bar-label" style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;min-width:40px;">Magia</span>
+        <button class="mini-btn" onclick="changeStat('mp',-1)">−</button>
+        <span id="mp" style="font-family:'Special Elite',serif;font-size:13px;color:var(--text);flex:1;text-align:center;">--</span>
+        <button class="mini-btn" onclick="changeStat('mp',1)">+</button>
+      </div>
+      <div class="bar-track"><div class="bar-fill mp" id="mpBar" style="width:60%"></div></div>
+
+      <!-- Credit -->
+      <div class="stat-adj-row" style="margin-top:6px;">
+        <span style="font-size:14px;">🪙</span>
+        <span class="stat-bar-label" style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;min-width:40px;">Crédito</span>
+        <span id="credit" style="font-family:'Special Elite',serif;font-size:13px;color:var(--text);flex:1;text-align:center;">--</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill cred" id="credBar" style="width:45%"></div></div>
+
+      <!-- MOV -->
+      <div class="stat-adj-row" style="margin-top:6px;">
+        <span style="font-size:14px;">🦶</span>
+        <span class="stat-bar-label" style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;min-width:40px;">MOV</span>
+        <span id="mov" style="font-family:'Special Elite',serif;font-size:13px;color:var(--text);flex:1;text-align:center;">--</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill mov" id="movBar" style="width:66%"></div></div>
+    </div>
+    {% endif %}
+
+    <!-- Dice Section -->
+    <div id="dice-card">
+      <div class="rp-section-title" style="margin-bottom:8px;">Rolagem</div>
+      <div id="dice-display-area">
+        <img id="dice-img-btn"
+             src="/static/dice.png"
+             alt="Dados"
+             onclick="rollActiveDice()"
+             title="Rolar dados">
+        <div id="dice-result">
+          <span id="dice-result-num">—</span>
+          <span id="dice-result-type">d100</span>
+        </div>
+        <div class="dice-modifier">
+          <label>Dado</label>
+          <select id="diceTypeSelect">
+            <option value="d4">1d4</option>
+            <option value="d6">1d6</option>
+            <option value="d10">1d10</option>
+            <option value="d20">1d20</option>
+            <option value="d100" selected>1d100</option>
+          </select>
+          <label style="margin-top:4px;">Modificador</label>
+          <div style="display:flex;gap:3px;align-items:center;margin-top:2px;">
+            <button style="background:rgba(8,20,10,.9);border:1px solid var(--border-green);color:var(--text-dim);width:20px;height:20px;cursor:pointer;font-size:13px;" onclick="adjMod(-1)">−</button>
+            <span id="modVal" style="font-family:'Special Elite',serif;font-size:12px;color:var(--text);min-width:24px;text-align:center;">0</span>
+            <button style="background:rgba(8,20,10,.9);border:1px solid var(--border-green);color:var(--text-dim);width:20px;height:20px;cursor:pointer;font-size:13px;" onclick="adjMod(1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roll Log -->
+    <div id="roll-log-card">
+      <div class="rp-section-title">
+        Log de Rolagens
+        <button class="clear-btn" onclick="clearRollLog()">Limpar</button>
+      </div>
+      <div id="rollLog"></div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════ BOTTOM BAR ═════════════════ -->
+  <footer id="bottom-bar">
+    <div class="bottom-info-group">
+      <div class="bottom-item">Campanha: <strong id="campaignName">Ecos Emergentes</strong></div>
+      <div class="bottom-divider"></div>
+      <div class="bottom-item">Sessão: <strong id="sessionNum">1</strong></div>
+      <div class="bottom-divider"></div>
+      <div class="bottom-item">Guardião: <strong id="guardianName">—</strong></div>
+    </div>
+
+    <div class="bottom-center">
+      <div class="bottom-badge" id="bottomClimate">⛅ Clima: Névoa Densa</div>
+      <div class="bottom-badge" id="bottomTime">🕐 <span id="clockDisplay">21:47</span></div>
+      <div class="bottom-badge" id="bottomDate">📅 <span id="dateDisplay">24 de Novembro de 1919</span></div>
+    </div>
+
+    <div id="bottom-right-info" class="bottom-info-group">
+      {% if is_master %}
+      <div id="bottom-master-controls">
+        <input type="text" class="master-time-input" id="masterTimeInput" placeholder="HH:MM" title="Hora do jogo">
+        <input type="text" class="master-time-input" id="masterDateInput" placeholder="Data" style="width:120px;" title="Data do jogo">
+        <button class="set-time-btn" onclick="setGameTime()">Definir</button>
+      </div>
+      {% else %}
+      <div class="bottom-item" id="charStatusBottom">Investigador</div>
+      {% endif %}
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════ CENTER OVERLAY (inventory + chat) ═══════════════ -->
+<div id="center-overlay">
+  {% if not is_master %}
+  <div id="inventory-panel">
+    <span class="inv-label">Inventário</span>
+    <div id="inventory"></div>
+    <div class="inv-add-slot" onclick="openItemModal(10)" title="Adicionar item">+</div>
+  </div>
   {% endif %}
-</aside>
 
-<main class="game-board">
-  <section class="city-panel" id="cityPanel">
-    <button class="minimize-btn" onclick="togglePanel('cityPanel')">—</button>
-    <div class="map-stage city-stage" id="cityStage">
-      <img src="https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/trieste.webp" class="city-map">
-
-      <button class="hotspot" style="left:17%;top:62%;" data-map="cais">Cais Velho</button>
-      <button class="hotspot" style="left:20%;top:45%;" data-map="armazem">Armazem Nº7</button>
-      <button class="hotspot" style="left:48%;top:47%;" data-map="hotel">Hotel Bruma Cinza</button>
-      <button class="hotspot" style="left:18%;top:35%;" data-map="cafe">Café Imperiale</button>
-      <button class="hotspot" style="left:56%;top:37%;" data-map="farmacia">Farmácia Weiss</button>
-      <button class="hotspot" style="left:71%;top:22%;" data-map="igreja">Igreja de San Giusto</button>
-      <button class="hotspot" style="left:66%;top:12%;" data-map="mirante">Mirante Esquecido</button>
-      <button class="hotspot" style="left:63%;top:28%;" data-map="vicolo">Vicolo del Muschio</button>
-      <button class="hotspot" style="left:44%;top:23%;" data-map="cemiterio">Cemitério Sant'Anna</button>
-      <button class="hotspot" style="left:30%;top:12%;" data-map="mansao">Mansão Valdris</button>
-      <button class="hotspot" style="left:74%;top:35%;" data-map="prefeitura">Prefeitura</button>
-      <button class="hotspot" style="left:86%;top:48%;" data-map="delegacia">Delegacia</button>
-      <button class="hotspot" style="left:63%;top:55%;" data-map="praca">Praça Central</button>
-      <button class="hotspot" style="left:72%;top:87%;" data-map="Frigorifico">Frigorifico</button>
-      <button class="hotspot" style="left:75%;top:63%;" data-map="esgotos">Esgotos</button>
-
-      <div id="cityMarkersLayer"></div>
+  <div id="chat-panel">
+    <div id="chat-panel-inner">
+      <div>
+        <div class="chat-label">Chat <span>— Sala: Investigadores</span></div>
+        <div id="chatMessages"></div>
+        <div class="chat-input-row">
+          <input id="chatInput" placeholder="Digite sua mensagem...">
+          <button onclick="sendChat()">▶</button>
+        </div>
+      </div>
+      <div class="quick-action-group">
+        <label>Ações Rápidas</label>
+        <div class="quick-btns">
+          {% if not is_master %}
+          <button class="quick-btn" onclick="openModal('sheetModal')">Ficha</button>
+          <button class="quick-btn" onclick="openEditCharacterModal()">Editar</button>
+          {% endif %}
+          <button class="quick-btn" onclick="openModal('notesModal')">📖 Pistas</button>
+          {% if is_master %}
+          <button class="quick-btn" onclick="openNpcModal()">Criar NPC</button>
+          <button class="quick-btn" onclick="setVttTool('ping')">Ping</button>
+          <button class="quick-btn" onclick="masterEvent('fog')">Névoa</button>
+          <button class="quick-btn" onclick="masterEvent('shake')">Terror</button>
+          {% endif %}
+        </div>
+      </div>
     </div>
-  </section>
-
-<section class="local-panel">
-  <div class="local-header" id="localTitle">Selecione um local</div>
-
-  <div class="map-part-controls">
-    <button onclick="changeMapPart(-1)">◀ Parte</button>
-    <span id="partName">---</span>
-    <button onclick="changeMapPart(1)">Parte ▶</button>
-  </div>
-
-  <div class="map-stage local-stage" id="localStage">
-    <img id="localMap" src="" class="local-map hidden">
-    <div id="tokensLayer"></div>
-  </div>
-</section>
-</main>
-
-<section class="hud" id="hudPanel">
-  <button class="minimize-btn" onclick="togglePanel('hudPanel')">—</button>
-  <div class="san">
-    <button onclick="changeStat('sanity', -1)">◀</button>
-    <span id="sanity">--</span>
-    <button onclick="changeStat('sanity', 1)">▶</button>
-    <small>SANIDADE</small>
-  </div>
-<div class="hud-stat">
-  <button class="stat-btn" onclick="changeStat('hp', -1)">−</button>
-  ❤️ <span id="hp">--</span>
-  <button class="stat-btn" onclick="changeStat('hp', 1)">+</button>
-</div>
-  <div>🪙 <span id="credit">--</span></div>
-<div class="hud-stat">
-  <button class="stat-btn" onclick="changeStat('mp', -1)">−</button>
-  📖 <span id="mp">--</span>
-  <button class="stat-btn" onclick="changeStat('mp', 1)">+</button>
-</div>
-  <div>🦶 <span id="mov">--</span></div>
-</section>
-
-<section class="quick-actions">
-  <a href="/logout" class="quick-btn">Sair</a>
-  <button class="quick-btn" onclick="openModal('sheetModal')">Ficha</button>
-  <button class="quick-btn" onclick="openModal('notesModal')">📖 Pistas</button>
-</section>
-
-<section class="inventory" id="inventoryPanel">
-  <button class="minimize-btn" onclick="togglePanel('inventoryPanel')">—</button>
-<div id="inventory"></div>
-</section>
-
-<div class="modal" id="itemModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('itemModal')">-</button>
-
-    <h2>Adicionar Item</h2>
-
-    <input id="itemName" placeholder="Nome do item">
-
-    <textarea
-      id="itemDescription"
-      placeholder="Descrição"
-    ></textarea>
-
-    <button onclick="saveItem()">Adicionar</button>
   </div>
 </div>
-
-<section class="dice" id="dicePanel">
-  <button class="minimize-btn" onclick="togglePanel('dicePanel')">—</button>
-  <!-- <div id="diceAnim" class="dice-anim">🎲</div> -->
-  <button onclick="rollDice('d4')">d4</button>
-  <button onclick="rollDice('d6')">d6</button>
-  <button onclick="rollDice('d8')">d8</button>
-  <button onclick="rollDice('d10')">d10</button>
-  <button onclick="rollDice('d20')">d20</button>
-  <button onclick="rollDice('d100')">d100</button>
-</section>
-
-<section class="live-chat" id="chatPanel">
-<button class="minimize-btn" onclick="togglePanel('chatPanel')">—</button>
-  <h3>Chat</h3>
-  <div id="chatMessages"></div>
-  <div class="chat-input">
-    <input id="chatInput" placeholder="Mensagem...">
-    <button onclick="sendChat()">Enviar</button>
-  </div>
-</section>
-
-<section class="token-size-control">
-  <label>Tamanho</label>
-  <input type="range" min="60" max="260" value="140" id="tokenSizeInput">
-</section>
-
-<section class="roll-log" id="rollPanel">
- <button class="minimize-btn" onclick="togglePanel('rollPanel')">—</button>
-  <h3>Rolagens</h3>
-  <div id="rollLog"></div>
-</section>
 
 {% if is_master %}
-<section class="master-panel" id="masterPanel">
-<button class="minimize-btn" onclick="togglePanel('masterPanel')">—</button>
-  <h3>Mestre</h3>
-  <input id="monsterName" placeholder="Nome do monstro">
-  <button onclick="openNpcModal()">Criar NPC</button>
-  <button onclick="masterEvent('fog')">Névoa</button>
-  <button onclick="masterEvent('shake')">Terror</button>
-  <button onclick="setVttTool('move')">Mover</button>
-  <button onclick="setVttTool('ping')">Ping</button>
-  <button onclick="setVttTool('danger')">Perigo</button>
-  <button onclick="setVttTool('fog')">Névoa Local</button>
+<!-- Master Floating Panel -->
+<section id="master-panel">
+  <h3>Ferramentas</h3>
+  <button onclick="setVttTool('move')">🖐 Mover</button>
+  <button onclick="setVttTool('ping')">📍 Ping</button>
+  <button onclick="setVttTool('danger')">⚠ Perigo</button>
+  <button onclick="masterEvent('fog')">🌫 Névoa Global</button>
+  <button onclick="masterEvent('shake')">💀 Terror</button>
+  <button onclick="openNpcModal()">+ Criar NPC</button>
 </section>
 {% endif %}
 
+<!-- Token size control -->
+<div id="token-size-ctrl">
+  <label id="tokenSizeLabel">Tamanho Token</label>
+  <input type="range" min="60" max="260" value="140" id="tokenSizeInput">
+</div>
 
-<div id="npcModal" class="modal">
+<!-- ═══════════════ MODAIS ═══════════════════ -->
+
+<!-- Item Modal -->
+<div class="modal" id="itemModal">
   <div class="modal-box">
-    <button onclick="closeModal('npcModal')">-</button>
-    <input id="npcName" placeholder="Nome do NPC">
-    <input type="file" id="npcImage">
-    <button onclick="createNPC()">Criar</button>
+    <button class="modal-close" onclick="closeModal('itemModal')">✕</button>
+    <h2>Adicionar Item</h2>
+    <input id="itemName" placeholder="Nome do item">
+    <textarea id="itemDescription" placeholder="Descrição do item..."></textarea>
+    <button onclick="saveItem()">Adicionar ao Inventário</button>
   </div>
 </div>
 
-
+<!-- Sheet Modal -->
 <div class="modal" id="sheetModal">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('sheetModal')">-</button>
-    <h2 id="modalCharName"></h2>
+    <button class="modal-close" onclick="closeModal('sheetModal')">✕</button>
+    <h2 id="modalCharName">Ficha do Personagem</h2>
     <div id="modalSheet"></div>
   </div>
 </div>
 
+<!-- Notes Modal -->
 <div class="modal" id="notesModal">
-  <div class="modal-box book">
-    <button class="modal-close" onclick="closeModal('notesModal')">-</button>
+  <div class="modal-box book" style="max-width:600px;">
+    <button class="modal-close" onclick="closeModal('notesModal')">✕</button>
     <h2>Livro de Pistas</h2>
-    <textarea id="playerNotes" placeholder="Escreva suas pistas aqui..."></textarea>
+    <textarea id="playerNotes" placeholder="Escreva suas pistas e anotações aqui..."></textarea>
   </div>
 </div>
-<audio id="bgMusic" loop></audio>
+
+<!-- NPC Modal -->
+<div id="npcModal" class="modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('npcModal')">✕</button>
+    <h2>Criar NPC</h2>
+    <input id="npcName" placeholder="Nome do NPC">
+    <input type="file" id="npcImage" accept="image/*">
+    <button onclick="createNPC()">Invocar NPC</button>
+  </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal" id="helpModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('helpModal')">✕</button>
+    <h2>Ajuda — Trieste 1919</h2>
+    <div id="modalSheet">
+      <p><b>Mapa da cidade:</b> Clique em um local para entrar nele.</p>
+      <p><b>Mapa local:</b> Clique para mover seu personagem.</p>
+      <p><b>Perícias:</b> Clique em uma perícia para rolar d100.</p>
+      <p><b>Dados:</b> Selecione o dado e clique na imagem para rolar.</p>
+      <p><b>Chat:</b> Envie mensagens para os outros investigadores.</p>
+    </div>
+  </div>
+</div>
+
+{% if not is_master %}
+<!-- Edit Character Modal -->
+<div class="modal" id="editCharacterModal">
+  <div class="modal-box edit-character-box">
+    <button class="modal-close" onclick="closeModal('editCharacterModal')">✕</button>
+    <h2>Editar Personagem</h2>
+
+    <div class="edit-section">
+      <h3>Identidade</h3>
+      <label>Nome</label>
+      <input id="editCharName" placeholder="Nome do personagem">
+      <label>Ocupação</label>
+      <input id="editCharOccupation" placeholder="Investigador Particular, Médico...">
+      <label>Foto do personagem</label>
+      <input type="file" id="editCharImage" accept="image/*">
+      <div class="edit-preview">
+        <img id="editCharPreview" src="/static/images/default_character.png">
+      </div>
+    </div>
+
+    <div class="edit-section">
+      <h3>Status</h3>
+      <div class="edit-grid">
+        <div><label>Sanidade</label><input id="editSanity" type="number"></div>
+        <div><label>Sanidade Máxima</label><input id="editSanityMax" type="number"></div>
+        <div><label>Vida</label><input id="editHp" type="number"></div>
+        <div><label>Vida Máxima</label><input id="editHpMax" type="number"></div>
+        <div><label>Magia</label><input id="editMp" type="number"></div>
+        <div><label>Magia Máxima</label><input id="editMpMax" type="number"></div>
+        <div><label>Crédito</label><input id="editCredit" type="number"></div>
+        <div><label>MOV</label><input id="editMov" type="number"></div>
+      </div>
+    </div>
+
+    <div class="edit-section">
+      <h3>Atributos</h3>
+      <div class="edit-grid">
+        <div><label>FOR</label><input id="editStrength" type="number"></div>
+        <div><label>CON</label><input id="editConstitution" type="number"></div>
+        <div><label>TAM</label><input id="editSize" type="number"></div>
+        <div><label>DES</label><input id="editDexterity" type="number"></div>
+        <div><label>APP</label><input id="editAppearance" type="number"></div>
+        <div><label>INT</label><input id="editIntelligence" type="number"></div>
+        <div><label>POD</label><input id="editPower" type="number"></div>
+        <div><label>EDU</label><input id="editEducation" type="number"></div>
+        <div><label>SORTE</label><input id="editLuck" type="number"></div>
+      </div>
+    </div>
+
+    <div class="edit-section">
+      <h3>Perícias</h3>
+      <div id="editSkillsList"></div>
+      <button type="button" onclick="addEditSkill()" style="margin-top:6px;">+ Adicionar Perícia</button>
+    </div>
+
+    <button class="save-character-btn" onclick="saveFullCharacter()">Salvar Alterações</button>
+  </div>
+</div>
+{% endif %}
 
 <script>
-  const IS_MASTER = {{ 'true' if is_master else 'false' }};
+const IS_MASTER = {{ 'true' if is_master else 'false' }};
 </script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-<script src="/static/js/game.js"></script>
+<script>
+// ═══════════════════════════════════════════
+// GAME LOGIC — Trieste 1919
+// ═══════════════════════════════════════════
+
+const socket = io();
+
+let currentTool   = "move";
+let character     = null;
+let currentPartIndex = 0;
+let skills        = [];
+let selectedNpcId = null;
+let currentMap    = "city";
+let currentRoom   = "city";
+let selectedSlot  = null;
+let playerTokenSize = Number(localStorage.getItem("cthulhu_player_token_size")) || 100;
+let npcTokenSize    = Number(localStorage.getItem("cthulhu_npc_token_size"))    || 100;
+let diceModifier    = 0;
+
+// ─── CLOCK ────────────────────────────────
+let gameHour = 21, gameMinute = 47;
+let clockInterval = null;
+
+function startGameClock() {
+  if (clockInterval) clearInterval(clockInterval);
+  clockInterval = setInterval(() => {
+    gameMinute++;
+    if (gameMinute >= 60) { gameMinute = 0; gameHour = (gameHour + 1) % 24; }
+    updateClockDisplay();
+  }, 60000);
+  updateClockDisplay();
+}
+
+function updateClockDisplay() {
+  const el = document.getElementById("clockDisplay");
+  if (el) el.textContent = `${String(gameHour).padStart(2,'0')}:${String(gameMinute).padStart(2,'0')}`;
+}
+
+function setGameTime() {
+  const tInput = document.getElementById("masterTimeInput");
+  const dInput = document.getElementById("masterDateInput");
+  if (tInput && tInput.value) {
+    const parts = tInput.value.split(":");
+    gameHour   = parseInt(parts[0]) || 0;
+    gameMinute = parseInt(parts[1]) || 0;
+    updateClockDisplay();
+    startGameClock();
+  }
+  if (dInput && dInput.value) {
+    const el = document.getElementById("dateDisplay");
+    if (el) el.textContent = dInput.value;
+  }
+  socket.emit("game_time_set", { hour: gameHour, minute: gameMinute });
+}
+
+// ─── MAPS ─────────────────────────────────
+
+const LOCAL_PARTS = {
+  hotel:      [{ name: "Térreo", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/hotel_terreo.webp" },{ name: "1º Andar", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/hotel_1andar.webp" },{ name: "2º Andar", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/hotel_2andar.webp" }],
+  mansao:     [{ name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mansao_valdris.webp" },{ name: "Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mansao_valdris_terreo.webp" },{ name: "1º Andar", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mansao_valdris_1andar.webp" },{ name: "2º Andar", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mansao_valdris_2andar.webp" },{ name: "Porão", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mansao_valdris_porao.webp" }],
+  igreja:     [{ name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/igreja_exterior.webp" },{ name: "Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/igreja_principal.webp" },{ name: "Subsolo", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/igreja_subsolo.webp" }],
+  mirante:    [{ name: "Mirante", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/mirante_esquecido.webp" }],
+  esgotos:    [{ name: "Esgoto", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/esgotos_trieste.webp" }],
+  cais:       [{ name: "Cais Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cais_exterior.webp" },{ name: "Cais Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cais_interior.webp" }],
+  delegacia:  [{ name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/delegacia_exterior.webp" },{ name: "Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/delegacia_central.webp" },{ name: "Prisão", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/delegacia_prisao.webp" }],
+  cafe:       [{ name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cafe_exterior.webp" },{ name: "Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cafe_interior.webp" }],
+  praca:      [{ name: "Praça", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/praca_central.webp" }],
+  Frigorifico:[{ name: "Frigorífico", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/frigorifico.webp" }],
+  armazem:    [{ name: "Armazém", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/Armazem.webp" }],
+  vicolo:     [{ name: "Vicolo", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/vicolo_del_muschio.webp" }],
+  farmacia:   [{ name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/farmacia_weiss_exterior.webp" },{ name: "Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/farmacia_weiss.webp" }],
+  prefeitura: [{ name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/prefeitura_exterior.webp" },{ name: "Interior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/prefeitura_interior.webp" }],
+  cemiterio:  [{ name: "Exterior", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cemiterio_exterior.webp" },{ name: "Covas", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cemiterio_covas.webp" },{ name: "Coveiro", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cemiterio_coveiro.webp" },{ name: "Sessão F", img: "https://rltosysjdtsfrvntfgvz.supabase.co/storage/v1/object/public/rpg_assets/maps/cemiterio_familiar.webp" }]
+};
+
+// ─── VTT TOOLS ────────────────────────────
+
+function setVttTool(tool) {
+  currentTool = tool; selectedNpcId = null;
+  clearNpcSelection();
+  if (tool === "fog") { masterEvent("fog"); currentTool = "move"; return; }
+  if (tool === "shake") { masterEvent("shake"); currentTool = "move"; return; }
+}
+
+function clearNpcSelection() {
+  document.querySelectorAll(".monster-token").forEach(t => {
+    t.style.outline = ""; t.style.filter = "";
+  });
+}
+
+// ─── LOCAL MAP CLICK ──────────────────────
+
+const localStage = document.getElementById("localStage");
+localStage.onclick = async (e) => {
+  if (currentMap === "city") return;
+  const rect = localStage.getBoundingClientRect();
+  let x = ((e.clientX - rect.left) / rect.width) * 100;
+  let y = ((e.clientY - rect.top) / rect.height) * 100;
+  x = Math.max(0, Math.min(100, x));
+  y = Math.max(0, Math.min(100, y));
+
+  if (IS_MASTER && currentTool === "move" && selectedNpcId) {
+    await fetch(`/api/monsters/move/${selectedNpcId}`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pos_x: x, pos_y: y })
+    });
+    clearNpcSelection(); selectedNpcId = null; return;
+  }
+  if (e.target.closest(".token")) return;
+  if (IS_MASTER && currentTool === "ping") { createPing(x, y); socket.emit("vtt_ping", { x, y, currentMap, currentRoom }); return; }
+  if (IS_MASTER && currentTool === "danger") { createDangerMarker(x, y); socket.emit("vtt_danger", { x, y, currentMap, currentRoom }); return; }
+  if (!IS_MASTER && character && currentTool === "move") { await moveMyToken(x, y); }
+};
+
+// ─── MAP NAVIGATION ───────────────────────
+
+document.querySelectorAll(".hotspot").forEach(btn => {
+  btn.addEventListener("click", async () => { await openLocalMap(btn.dataset.map); });
+});
+
+async function openLocalMap(mapName) {
+  currentMap = mapName; currentPartIndex = 0;
+  openCurrentPart();
+  document.getElementById("tokensLayer").innerHTML = "";
+  const lbl = document.getElementById("cityLocationLabel");
+  if (lbl) lbl.textContent = mapName.charAt(0).toUpperCase() + mapName.slice(1);
+  if (!IS_MASTER) await moveMyToken(50, 70);
+  await loadAllCharacters(); await loadMonsters(); await refreshCityMarkers();
+}
+
+function openCurrentPart() {
+  const parts = LOCAL_PARTS[currentMap] || [];
+  const part = parts[currentPartIndex];
+  if (!part) return;
+  currentRoom = `${currentMap}_${part.name}`;
+  const localMap = document.getElementById("localMap");
+  localMap.src = part.img; localMap.classList.remove("hidden");
+  const titleEl = document.getElementById("localTitle");
+  const subEl   = document.getElementById("localSubtitle");
+  if (titleEl) titleEl.childNodes[0].nodeValue = currentMap.toUpperCase();
+  if (subEl)   subEl.textContent = part.name;
+  const locLabel = document.getElementById("localLocationLabel");
+  if (locLabel) locLabel.textContent = part.name;
+}
+
+async function changeMapPart(direction) {
+  const parts = LOCAL_PARTS[currentMap] || [];
+  if (!parts.length) return;
+  currentPartIndex = (currentPartIndex + direction + parts.length) % parts.length;
+  openCurrentPart();
+  document.getElementById("tokensLayer").innerHTML = "";
+  await loadAllCharacters(); await loadMonsters();
+  socket.emit("map_part_changed", { currentMap, currentPartIndex });
+}
+
+// ─── CHAR MOVEMENT ────────────────────────
+
+async function moveMyToken(x, y) {
+  if (!character || currentMap === "city") return;
+  character.pos_x = x; character.pos_y = y;
+  character.current_map = currentMap; character.current_room = currentRoom;
+  renderToken(character.id, character.name, character.image_url, x, y);
+  await fetch("/api/character/move", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ current_map: currentMap, current_room: currentRoom, pos_x: x, pos_y: y, char_name: character.name, image_url: character.image_url })
+  });
+}
+
+// ─── LOAD CHARACTERS / MONSTERS ──────────
+
+async function loadAllCharacters() {
+  const res = await fetch(`/api/all_characters?map=${currentMap}&room=${currentRoom}`);
+  const data = await res.json();
+  const layer = document.getElementById("tokensLayer");
+  layer.innerHTML = "";
+  data.characters.forEach(c => renderToken(c.id, c.name, c.image_url, c.pos_x, c.pos_y));
+}
+
+async function loadMonsters() {
+  const res = await fetch(`/api/monsters?map=${currentMap}&room=${currentRoom}`);
+  const data = await res.json();
+  data.monsters.forEach(m => renderMonster(m));
+}
+
+// ─── RENDER TOKENS ────────────────────────
+
+function renderToken(id, name, image, x, y) {
+  const layer = document.getElementById("tokensLayer");
+  let token = layer.querySelector(`[data-token="${id}"]`);
+  if (!token) {
+    token = document.createElement("div");
+    token.className = "token player-token"; token.dataset.token = id; token.title = name;
+    token.innerHTML = `<img src="${image || '/static/images/default_character.png'}" onerror="this.src='/static/images/default_character.png'"><span class="token-label">${name}</span>`;
+    token.onclick = async (e) => {
+      e.stopPropagation();
+      if (!IS_MASTER) return;
+      if (currentTool === "danger" && confirm(`Remover token de ${name}?`)) {
+        await fetch(`/api/character/hide/${id}`, { method: "POST" });
+      }
+    };
+    layer.appendChild(token);
+  }
+  const imgEl = token.querySelector("img");
+  if (imgEl) { imgEl.src = image || '/static/images/default_character.png'; }
+  const lbl = token.querySelector(".token-label"); if (lbl) lbl.innerText = name;
+  token.style.left = `${x}%`; token.style.top = `${y}%`;
+  token.style.height = `${playerTokenSize}px`;
+  token.style.width = `${Math.floor(playerTokenSize * 0.72)}px`;
+}
+
+function renderMonster(monster) {
+  const layer = document.getElementById("tokensLayer");
+  let token = layer.querySelector(`[data-monster="${monster.id}"]`);
+  if (!token) {
+    token = document.createElement("div");
+    token.className = "token monster-token"; token.dataset.monster = monster.id; token.title = monster.name;
+    token.innerHTML = `<img src="${monster.image_url || '/static/images/default_monster.png'}" onerror="this.src='/static/images/default_monster.png'"><span class="token-label">${monster.name}</span>`;
+    token.onclick = async (e) => {
+      e.stopPropagation();
+      if (!IS_MASTER) return;
+      if (currentTool === "danger") {
+        if (confirm(`Remover ${monster.name}?`)) await fetch(`/api/monsters/${monster.id}`, { method: "DELETE" });
+        return;
+      }
+      if (currentTool === "move") {
+        const wasSel = selectedNpcId === monster.id;
+        clearNpcSelection();
+        if (wasSel) { selectedNpcId = null; }
+        else { selectedNpcId = monster.id; token.style.outline = "2px solid #c9a84c"; token.style.filter = "drop-shadow(0 0 10px rgba(201,168,76,0.6))"; }
+      }
+    };
+    layer.appendChild(token);
+  }
+  token.style.left = `${monster.pos_x}%`; token.style.top = `${monster.pos_y}%`;
+  token.style.height = `${npcTokenSize}px`; token.style.width = `${Math.floor(npcTokenSize * 0.72)}px`;
+}
+
+function applyTokenSize() {
+  document.querySelectorAll(".player-token").forEach(t => { t.style.height = `${playerTokenSize}px`; t.style.width = `${Math.floor(playerTokenSize*0.72)}px`; });
+  document.querySelectorAll(".monster-token").forEach(t => { t.style.height = `${npcTokenSize}px`; t.style.width = `${Math.floor(npcTokenSize*0.72)}px`; });
+}
+
+function setupTokenSizeControl() {
+  const input = document.getElementById("tokenSizeInput");
+  const label = document.getElementById("tokenSizeLabel");
+  if (!input) return;
+  if (IS_MASTER) {
+    if (label) label.innerText = "Tamanho NPC";
+    input.value = npcTokenSize;
+    input.oninput = () => { npcTokenSize = Number(input.value); localStorage.setItem("cthulhu_npc_token_size", npcTokenSize); applyTokenSize(); };
+  } else {
+    if (label) label.innerText = "Meu Tamanho";
+    input.value = playerTokenSize;
+    input.oninput = () => { playerTokenSize = Number(input.value); localStorage.setItem("cthulhu_player_token_size", playerTokenSize); applyTokenSize(); };
+  }
+}
+
+// ─── CITY MARKERS ─────────────────────────
+
+async function refreshCityMarkers() {
+  const res = await fetch("/api/all_characters"); const data = await res.json();
+  const layer = document.getElementById("cityMarkersLayer"); if (!layer) return;
+  layer.innerHTML = "";
+  data.characters.forEach(c => { if (c.current_map && c.current_map !== "city") renderCityLocationMarker(c.current_map, c.image_url, c.name); });
+}
+
+function renderCityLocationMarker(mapName, imageUrl, name = "") {
+  const hotspot = document.querySelector(`.hotspot[data-map="${mapName}"]`);
+  if (!hotspot) return;
+  const layer = document.getElementById("cityMarkersLayer");
+  const marker = document.createElement("div");
+  marker.style.cssText = `position:absolute;left:${hotspot.style.left};top:calc(${hotspot.style.top} + 18px);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;transform:translate(-50%,0);z-index:20;`;
+  marker.innerHTML = `<img src="${imageUrl || '/static/images/default_character.png'}" style="width:22px;height:22px;border-radius:50%;border:1px solid var(--gold);object-fit:contain;background:rgba(0,0,0,.65);" onerror="this.src='/static/images/default_character.png'"><span style="font-size:8px;color:var(--gold-bright);background:rgba(4,12,6,.9);border:1px solid var(--border-gold);padding:1px 3px;white-space:nowrap;">${name}</span>`;
+  layer.appendChild(marker);
+}
+
+// ─── CHARACTER LOAD ────────────────────────
+
+async function loadCharacter() {
+  if (IS_MASTER) return;
+  const res = await fetch("/api/character"); const data = await res.json();
+  character = data.character; skills = data.skills || [];
+  const nameEl = document.getElementById("charName"); if (nameEl) nameEl.innerText = character.name;
+  const occEl = document.getElementById("charOccupation"); if (occEl) occEl.innerText = character.occupation || "Investigador";
+  const img = document.getElementById("charImage");
+  if (img) { img.src = character.image_url || "/static/images/default_character.png"; img.onerror = () => { img.src = "/static/images/default_character.png"; }; }
+
+  // Attributes
+  const attrMap = {
+    'attr-str': 'strength', 'attr-con': 'constitution', 'attr-dex': 'dexterity',
+    'attr-int': 'intelligence', 'attr-app': 'appearance', 'attr-sab': 'luck'
+  };
+  Object.entries(attrMap).forEach(([elId, field]) => {
+    const el = document.getElementById(elId); if (el) el.textContent = character[field] ?? '--';
+  });
+
+  updateHUD();
+  renderPlayerSidebar();
+  initInventory();
+  fillSheetModal();
+  loadNotes();
+  setupTokenSizeControl();
+  await refreshCityMarkers();
+}
+
+function updateHUD() {
+  if (!character || IS_MASTER) return;
+  const s = document.getElementById("sanity"); if (s) s.innerText = character.sanity;
+  const sm = document.getElementById("sanityMax"); if (sm) sm.innerText = character.sanity_max;
+  const h = document.getElementById("hp"); if (h) h.innerText = `${character.hp}/${character.hp_max}`;
+  const c = document.getElementById("credit"); if (c) c.innerText = `¢${character.credit_rating}`;
+  const m = document.getElementById("mp"); if (m) m.innerText = `${character.mp}/${character.mp_max}`;
+  const mv = document.getElementById("mov"); if (mv) mv.innerText = `${character.movement}/${character.movement}`;
+
+  // Bars
+  const hpPct = character.hp_max ? (character.hp / character.hp_max * 100) : 0;
+  const mpPct = character.mp_max ? (character.mp / character.mp_max * 100) : 0;
+  const sanPct = character.sanity_max ? (character.sanity / character.sanity_max * 100) : 0;
+  const hpBar = document.getElementById("hpBar"); if (hpBar) hpBar.style.width = hpPct + "%";
+  const mpBar = document.getElementById("mpBar"); if (mpBar) mpBar.style.width = mpPct + "%";
+
+  // Sanity status
+  const statEl = document.getElementById("sanStatus");
+  if (statEl) {
+    if (sanPct > 70) { statEl.textContent = "Estável ✦"; statEl.style.color = "var(--green-text)"; }
+    else if (sanPct > 40) { statEl.textContent = "Perturbado"; statEl.style.color = "var(--gold)"; }
+    else { statEl.textContent = "Insano"; statEl.style.color = "var(--red-hp)"; }
+  }
+
+  // Body filter low sanity
+  if (character.sanity <= 10) document.body.style.filter = `saturate(${character.sanity / 10})`;
+  else document.body.style.filter = "";
+}
+
+function renderPlayerSidebar() {
+  if (IS_MASTER || !character) return;
+  const nameEl = document.getElementById("charName"); if (nameEl) nameEl.innerText = character.name;
+  const img = document.getElementById("charImage");
+  if (img) { img.src = character.image_url || "/static/images/default_character.png"; img.onerror = () => { img.src = "/static/images/default_character.png"; }; }
+  const list = document.getElementById("skillsList"); if (!list) return;
+  list.innerHTML = "";
+  skills.forEach(skill => {
+    const div = document.createElement("div"); div.className = "skill-row";
+    div.innerHTML = `<span class="skill-name">${skill.name}</span><strong class="skill-pct">${skill.current_value}%</strong>`;
+    div.onclick = () => rollDice("d100", skill.name, skill.current_value);
+    list.appendChild(div);
+  });
+}
+
+function fillSheetModal() {
+  if (IS_MASTER || !character) return;
+  const nameEl = document.getElementById("modalCharName"); if (nameEl) nameEl.innerText = character.name;
+  const sheetEl = document.getElementById("modalSheet"); if (!sheetEl) return;
+  sheetEl.innerHTML = `
+    <p><b>Sanidade:</b> ${character.sanity}/${character.sanity_max}</p>
+    <p><b>Vida:</b> ${character.hp}/${character.hp_max}</p>
+    <p><b>Magia:</b> ${character.mp}/${character.mp_max}</p>
+    <p><b>Crédito:</b> ${character.credit_rating}</p>
+    <p><b>MOV:</b> ${character.movement}</p>
+    <hr>
+    <p><b>FOR:</b> ${character.strength} &nbsp; <b>CON:</b> ${character.constitution} &nbsp; <b>TAM:</b> ${character.size}</p>
+    <p><b>DES:</b> ${character.dexterity} &nbsp; <b>APP:</b> ${character.appearance} &nbsp; <b>INT:</b> ${character.intelligence}</p>
+    <p><b>POD:</b> ${character.power} &nbsp; <b>EDU:</b> ${character.education} &nbsp; <b>SORTE:</b> ${character.luck}</p>
+    <hr>
+    ${skills.map(s => `<p>${s.name}: <b>${s.current_value}%</b></p>`).join("")}`;
+}
+
+// ─── STATS ────────────────────────────────
+
+async function changeStat(stat, delta) {
+  if (!character) return;
+  const caps = { sanity: character.sanity_max || 99, hp: character.hp_max, mp: character.mp_max };
+  character[stat] = Math.max(0, Math.min(caps[stat] ?? 999, Number(character[stat]) + delta));
+  updateHUD();
+  await fetch("/api/character/update", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ [stat]: character[stat] }) });
+}
+
+// ─── DICE ─────────────────────────────────
+
+function adjMod(delta) {
+  diceModifier = Math.max(-20, Math.min(20, diceModifier + delta));
+  const el = document.getElementById("modVal"); if (el) el.textContent = (diceModifier >= 0 ? "+" : "") + diceModifier;
+}
+
+function rollActiveDice() {
+  const select = document.getElementById("diceTypeSelect");
+  const diceType = select ? select.value : "d100";
+  const imgBtn = document.getElementById("dice-img-btn");
+  if (imgBtn) { imgBtn.classList.add("rolling"); setTimeout(() => imgBtn.classList.remove("rolling"), 500); }
+  const typeEl = document.getElementById("dice-result-type"); if (typeEl) typeEl.textContent = diceType;
+  rollDice(diceType, "", null);
+}
+
+async function rollDice(dice, purpose = "", skillValue = null) {
+  await fetch("/api/dice/roll", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ dice, purpose, skill_value: skillValue, char_name: character ? character.name : "Desconhecido" })
+  });
+}
+
+function addRollLog(text, isSuccess) {
+  const rollLog = document.getElementById("rollLog"); if (!rollLog) return;
+  const line = document.createElement("div");
+  line.className = "roll-entry" + (isSuccess === false ? " roll-fail" : isSuccess === true ? " roll-success" : "");
+  line.textContent = text;
+  rollLog.prepend(line);
+  while (rollLog.children.length > 50) rollLog.lastChild.remove();
+  const numEl = document.getElementById("dice-result-num");
+  const match = text.match(/= (\d+)/); if (match && numEl) numEl.textContent = match[1];
+}
+
+function clearRollLog() { const el = document.getElementById("rollLog"); if (el) el.innerHTML = ""; }
+
+function formatRoll(data) {
+  let t = `${data.char_name}: ${data.dice_type} = ${data.result}`;
+  if (data.purpose) t += ` | ${data.purpose}`;
+  if (data.skill_value != null) t += ` (${data.skill_value}%)`;
+  if (data.success_level) t += ` — ${data.success_level}`;
+  return t;
+}
+
+// ─── INVENTORY ────────────────────────────
+
+function initInventory() {
+  const inv = document.getElementById("inventory"); if (!inv) return;
+  inv.innerHTML = "";
+  for (let i = 0; i < 9; i++) {
+    const slot = document.createElement("div");
+    slot.className = "inv-slot"; slot.dataset.slot = i;
+    slot.innerHTML = `<span style="font-size:10px;color:var(--text-dim);">${i+1}</span>`;
+    slot.onclick = () => openItemModal(i);
+    inv.appendChild(slot);
+  }
+}
+
+function openItemModal(slot) {
+  selectedSlot = slot;
+  document.getElementById("itemName").value = "";
+  document.getElementById("itemDescription").value = "";
+  openModal("itemModal");
+}
+
+function saveItem() {
+  const name = document.getElementById("itemName").value.trim();
+  const desc = document.getElementById("itemDescription").value.trim();
+  if (!name || selectedSlot === null) return;
+  const slot = document.querySelector(`.inv-slot[data-slot="${selectedSlot}"]`);
+  if (slot) {
+    slot.innerHTML = `<span style="font-size:9px;text-align:center;padding:2px;color:var(--text-soft);word-break:break-word;display:block;">${name}</span>`;
+    slot.title = desc;
+  }
+  closeModal("itemModal");
+}
+
+// ─── CHAT ─────────────────────────────────
+
+async function sendChat() {
+  const input = document.getElementById("chatInput");
+  const msg = input.value.trim(); if (!msg) return; input.value = "";
+  await fetch("/api/chat/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: msg }) });
+}
+
+function appendChatMessage(data) {
+  const messages = document.getElementById("chatMessages"); if (!messages) return;
+  const line = document.createElement("div");
+  line.innerHTML = `<b>${data.username}</b> <small>${data.timestamp}</small>: ${data.message}`;
+  messages.appendChild(line); messages.scrollTop = messages.scrollHeight;
+}
+
+const chatInputEl = document.getElementById("chatInput");
+if (chatInputEl) chatInputEl.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); sendChat(); } });
+
+// ─── EFFECTS ──────────────────────────────
+
+function createPing(x, y) {
+  const layer = document.getElementById("tokensLayer");
+  const ping = document.createElement("div"); ping.className = "vtt-ping";
+  ping.style.left = `${x}%`; ping.style.top = `${y}%`;
+  layer.appendChild(ping); setTimeout(() => ping.remove(), 1500);
+}
+
+function createDangerMarker(x, y) {
+  const layer = document.getElementById("tokensLayer");
+  const m = document.createElement("div"); m.className = "danger-marker";
+  m.style.left = `${x}%`; m.style.top = `${y}%`; m.innerText = "!";
+  layer.appendChild(m);
+}
+
+function showToast(message) {
+  const toast = document.getElementById("masterToast");
+  toast.innerText = message; toast.style.opacity = "1";
+  clearTimeout(toast._timeout); toast._timeout = setTimeout(() => { toast.style.opacity = "0"; }, 4000);
+}
+
+// ─── MODALS ───────────────────────────────
+
+function openModal(id) { const el = document.getElementById(id); if (el) el.classList.add("active"); }
+function closeModal(id) { const el = document.getElementById(id); if (el) el.classList.remove("active"); }
+
+document.querySelectorAll(".modal").forEach(m => {
+  m.addEventListener("click", e => { if (e.target === m) closeModal(m.id); });
+});
+
+// ─── NOTES ────────────────────────────────
+
+function loadNotes() {
+  const ta = document.getElementById("playerNotes"); if (!ta) return;
+  ta.value = localStorage.getItem("cthulhu_notes") || "";
+  ta.oninput = () => localStorage.setItem("cthulhu_notes", ta.value);
+}
+
+// ─── MASTER FUNCTIONS ─────────────────────
+
+async function loadMasterPlayers() {
+  if (!IS_MASTER) return;
+  const res = await fetch("/api/online_players"); const data = await res.json();
+  const grid = document.getElementById("masterPlayersGrid"); if (!grid) return;
+  grid.innerHTML = "";
+  data.characters.forEach(p => {
+    const card = document.createElement("div"); card.className = "player-card";
+    card.innerHTML = `<img src="${p.image_url || '/static/images/default_character.png'}" onerror="this.src='/static/images/default_character.png'">
+      <div class="player-info">
+        <strong>${p.name}</strong><small>${p.current_map || "cidade"}</small>
+        <div class="player-status">
+          ❤️ <button class="stat-mini" onclick="masterChangePlayerStat('${p.id}','hp',${p.hp},-1)">−</button>${p.hp ?? "--"}/${p.hp_max ?? "--"}<button class="stat-mini" onclick="masterChangePlayerStat('${p.id}','hp',${p.hp},1)">+</button><br>
+          🧠 <button class="stat-mini" onclick="masterChangePlayerStat('${p.id}','sanity',${p.sanity},-1)">−</button>${p.sanity ?? "--"}/${p.sanity_max ?? "--"}<button class="stat-mini" onclick="masterChangePlayerStat('${p.id}','sanity',${p.sanity},1)">+</button>
+        </div>
+        <button class="kick-btn" onclick="kickPlayer('${p.user_id}')">Deslogar</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+async function kickPlayer(userId) { await fetch(`/api/master/kick/${userId}`, { method: "POST" }); await loadMasterPlayers(); }
+async function masterChangePlayerStat(charId, stat, cur, delta) {
+  await fetch(`/api/master/character/${charId}/update`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ [stat]: Math.max(0, Number(cur) + delta) }) });
+  await loadMasterPlayers();
+}
+
+function masterPlayMusic() {
+  const audio = document.getElementById("bgMusic"); const sel = document.getElementById("musicSelect"); const vol = document.getElementById("musicVolume");
+  audio.src = sel.value; audio.volume = Number(vol.value); audio.play();
+  socket.emit("music_control", { action: "play", src: sel.value, volume: Number(vol.value) });
+}
+
+function masterStopMusic() { const a = document.getElementById("bgMusic"); a.pause(); a.currentTime = 0; socket.emit("music_control", { action: "stop" }); }
+function masterMuteMusic() { const a = document.getElementById("bgMusic"); a.muted = !a.muted; socket.emit("music_control", { action: "mute", muted: a.muted }); }
+function masterChangeVolume() { const a = document.getElementById("bgMusic"); const v = document.getElementById("musicVolume"); a.volume = Number(v.value); socket.emit("music_control", { action: "volume", volume: Number(v.value) }); }
+
+async function masterEvent(effect) {
+  await fetch("/api/master/broadcast", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: effect === "fog" ? "A névoa toma o lugar..." : "Algo observa vocês.", effect }) });
+}
+
+// ─── NPC ──────────────────────────────────
+
+function openNpcModal() { openModal("npcModal"); }
+
+async function createNPC() {
+  const name = document.getElementById("npcName").value.trim() || "NPC";
+  const file = document.getElementById("npcImage").files[0];
+  let imageUrl = "/static/images/default_character.png";
+  if (file) {
+    const fd = new FormData(); fd.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: fd }); const data = await res.json();
+    if (data.url) imageUrl = data.url;
+  }
+  await fetch("/api/monsters/spawn", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, type: "npc", current_map: currentMap, current_room: currentRoom, pos_x: 50, pos_y: 50, image_url: imageUrl, hp: 1 }) });
+  document.getElementById("npcName").value = ""; document.getElementById("npcImage").value = "";
+  closeModal("npcModal");
+}
+
+// ─── EDIT CHARACTER ────────────────────────
+
+function openEditCharacterModal() {
+  if (IS_MASTER || !character) return;
+  document.getElementById("editCharName").value = character.name || "";
+  const prev = document.getElementById("editCharPreview"); if (prev) prev.src = character.image_url || "/static/images/default_character.png";
+  document.getElementById("editSanity").value = character.sanity ?? 0;
+  document.getElementById("editSanityMax").value = character.sanity_max ?? 99;
+  document.getElementById("editHp").value = character.hp ?? 0;
+  document.getElementById("editHpMax").value = character.hp_max ?? 0;
+  document.getElementById("editMp").value = character.mp ?? 0;
+  document.getElementById("editMpMax").value = character.mp_max ?? 0;
+  document.getElementById("editCredit").value = character.credit_rating ?? 0;
+  document.getElementById("editMov").value = character.movement ?? 0;
+  document.getElementById("editStrength").value = character.strength ?? 0;
+  document.getElementById("editConstitution").value = character.constitution ?? 0;
+  document.getElementById("editSize").value = character.size ?? 0;
+  document.getElementById("editDexterity").value = character.dexterity ?? 0;
+  document.getElementById("editAppearance").value = character.appearance ?? 0;
+  document.getElementById("editIntelligence").value = character.intelligence ?? 0;
+  document.getElementById("editPower").value = character.power ?? 0;
+  document.getElementById("editEducation").value = character.education ?? 0;
+  document.getElementById("editLuck").value = character.luck ?? 0;
+  renderEditSkills();
+  openModal("editCharacterModal");
+}
+
+function renderEditSkills() {
+  const list = document.getElementById("editSkillsList"); if (!list) return;
+  list.innerHTML = "";
+  skills.forEach((skill, idx) => {
+    const row = document.createElement("div"); row.className = "edit-skill-row";
+    row.innerHTML = `<input class="edit-skill-name" value="${escapeHtml(skill.name || '')}" placeholder="Nome" data-index="${idx}"><input class="edit-skill-value" type="number" value="${skill.current_value ?? 0}" data-index="${idx}"><button type="button" onclick="removeEditSkill(${idx})">×</button>`;
+    list.appendChild(row);
+  });
+}
+
+function addEditSkill() { skills.push({ id: null, name: "", current_value: 0 }); renderEditSkills(); }
+function removeEditSkill(i) { skills.splice(i, 1); renderEditSkills(); }
+
+function collectEditSkills() {
+  const rows = document.querySelectorAll(".edit-skill-row"); const out = [];
+  rows.forEach(row => {
+    const n = row.querySelector(".edit-skill-name"); const v = row.querySelector(".edit-skill-value");
+    const idx = Number(n.dataset.index); const old = skills[idx] || {};
+    const name = n.value.trim(); if (!name) return;
+    out.push({ id: old.id || null, name, base_value: old.base_value || 0, current_value: Number(v.value) || 0, category: old.category || "general" });
+  });
+  return out;
+}
+
+async function saveFullCharacter() {
+  if (IS_MASTER || !character) return;
+  let imageUrl = character.image_url || "/static/images/default_character.png";
+  const fileInput = document.getElementById("editCharImage");
+  const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+  if (file) {
+    const fd = new FormData(); fd.append("file", file);
+    const ur = await fetch("/api/upload", { method: "POST", body: fd }); const ud = await ur.json();
+    if (ud.url) imageUrl = ud.url;
+  }
+  const payload = {
+    name: document.getElementById("editCharName").value.trim(), image_url: imageUrl,
+    sanity: Number(document.getElementById("editSanity").value), sanity_max: Number(document.getElementById("editSanityMax").value),
+    hp: Number(document.getElementById("editHp").value), hp_max: Number(document.getElementById("editHpMax").value),
+    mp: Number(document.getElementById("editMp").value), mp_max: Number(document.getElementById("editMpMax").value),
+    credit_rating: Number(document.getElementById("editCredit").value), movement: Number(document.getElementById("editMov").value),
+    strength: Number(document.getElementById("editStrength").value), constitution: Number(document.getElementById("editConstitution").value),
+    size: Number(document.getElementById("editSize").value), dexterity: Number(document.getElementById("editDexterity").value),
+    appearance: Number(document.getElementById("editAppearance").value), intelligence: Number(document.getElementById("editIntelligence").value),
+    power: Number(document.getElementById("editPower").value), education: Number(document.getElementById("editEducation").value),
+    luck: Number(document.getElementById("editLuck").value), skills: collectEditSkills()
+  };
+  if (!payload.name) { alert("O personagem precisa ter um nome."); return; }
+  const res = await fetch("/api/character/full_update", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+  const data = await res.json();
+  if (!res.ok || data.error) { alert(data.error || "Erro ao salvar."); return; }
+  character = data.character; skills = data.skills || [];
+  updateHUD(); fillSheetModal(); renderPlayerSidebar();
+  if (currentMap !== "city") renderToken(character.id, character.name, character.image_url, character.pos_x || 50, character.pos_y || 70);
+  closeModal("editCharacterModal"); showToast("Personagem atualizado.");
+}
+
+const editImgInput = document.getElementById("editCharImage");
+if (editImgInput) editImgInput.addEventListener("change", () => {
+  const f = editImgInput.files[0]; if (!f) return;
+  const prev = document.getElementById("editCharPreview"); if (prev) prev.src = URL.createObjectURL(f);
+});
+
+function escapeHtml(v) { return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+
+// ─── SOCKET EVENTS ────────────────────────
+
+socket.on("online_players_updated", () => { if (IS_MASTER) loadMasterPlayers(); });
+socket.on("force_logout", data => { if (character && character.user_id === data.user_id) window.location.href = "/logout"; });
+socket.on("music_control", data => {
+  const audio = document.getElementById("bgMusic"); if (!audio) return;
+  if (data.action === "play") { audio.src = data.src; audio.volume = data.volume ?? 0.5; audio.play(); }
+  if (data.action === "stop") { audio.pause(); audio.currentTime = 0; }
+  if (data.action === "mute") audio.muted = data.muted;
+  if (data.action === "volume") audio.volume = data.volume;
+});
+socket.on("character_moved", async data => {
+  if (data.current_map === currentMap && data.current_room === currentRoom) renderToken(data.user_id, data.char_name, data.image_url || "/static/images/default_character.png", data.pos_x, data.pos_y);
+  await refreshCityMarkers();
+});
+socket.on("character_updated", data => {
+  if (character && (data.user_id === character.user_id || data.char_id === character.id)) { Object.assign(character, data.updates || {}); updateHUD(); }
+  if (IS_MASTER) loadMasterPlayers();
+});
+socket.on("character_hidden", data => { const t = document.querySelector(`[data-token="${data.id}"]`); if (t) t.remove(); });
+socket.on("monster_spawned", m => { if (m.current_map === currentMap && m.current_room === currentRoom) renderMonster(m); });
+socket.on("monster_moved", data => { const t = document.querySelector(`[data-monster="${data.id}"]`); if (t) { t.style.left = `${data.pos_x}%`; t.style.top = `${data.pos_y}%`; } });
+socket.on("monster_removed", data => { const t = document.querySelector(`[data-monster="${data.id}"]`); if (t) t.remove(); if (selectedNpcId === data.id) selectedNpcId = null; });
+socket.on("dice_rolled", data => { const ok = data.success_level ? !data.success_level.includes("Falha") : null; addRollLog(formatRoll(data), ok); });
+socket.on("chat_message", appendChatMessage);
+socket.on("vtt_ping", data => { if (data.currentMap === currentMap && data.currentRoom === currentRoom) createPing(data.x, data.y); });
+socket.on("vtt_danger", data => { if (data.currentMap === currentMap && data.currentRoom === currentRoom) createDangerMarker(data.x, data.y); });
+socket.on("map_part_changed", async data => { currentMap = data.currentMap; currentPartIndex = data.currentPartIndex; openCurrentPart(); document.getElementById("tokensLayer").innerHTML = ""; await loadAllCharacters(); await loadMonsters(); });
+socket.on("master_event", data => {
+  if (data.effect === "fog") { const f = document.getElementById("fogIntro"); if (f) { f.style.animation = "none"; void f.offsetWidth; f.style.animation = "fogReveal 4s forwards"; } }
+  if (data.effect === "shake") { document.body.animate([{transform:"translate(0,0)"},{transform:"translate(7px,0)"},{transform:"translate(-7px,0)"},{transform:"translate(4px,0)"},{transform:"translate(0,0)"}], {duration:500}); }
+  if (data.message) showToast(data.message);
+});
+socket.on("game_time_set", data => {
+  gameHour = data.hour; gameMinute = data.minute;
+  updateClockDisplay(); startGameClock();
+});
+
+// ─── INIT ─────────────────────────────────
+
+async function initGame() {
+  setupTokenSizeControl();
+  startGameClock();
+  await refreshCityMarkers();
+  if (IS_MASTER) { await loadMasterPlayers(); setInterval(loadMasterPlayers, 3000); }
+  else { await loadCharacter(); }
+}
+
+initGame();
+</script>
 </body>
 </html>

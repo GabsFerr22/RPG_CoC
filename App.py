@@ -448,6 +448,9 @@ def get_character():
 
 @app.route('/api/character/move', methods=['POST'])
 def move_character():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não autenticado'}), 401
+
     data = request.get_json()
 
     supabase.table('characters').update({
@@ -459,6 +462,7 @@ def move_character():
 
     socketio.emit('character_moved', {
         'user_id': session['user_id'],
+        'char_name': data.get('char_name', session.get('username')),
         'pos_x': data['pos_x'],
         'pos_y': data['pos_y'],
         'current_map': data['current_map'],
@@ -554,6 +558,125 @@ def move_monster(monster_id):
 
     return jsonify({'success': True})
 
+
+# ─────────────────────────────────────────
+# EDITAR PERSONAGEM
+# ─────────────────────────────────────────
+
+@app.route('/api/character/full_update', methods=['POST'])
+def full_update_character():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    if session.get('is_master'):
+        return jsonify({'error': 'Mestre não pode editar personagem por essa rota'}), 403
+
+    data = request.get_json() or {}
+    user_id = session['user_id']
+
+    chars = supabase.table('characters') \
+        .select('*') \
+        .eq('user_id', user_id) \
+        .execute().data
+
+    if not chars:
+        return jsonify({'error': 'Personagem não encontrado'}), 404
+
+    character = chars[0]
+    char_id = character['id']
+
+    def safe_int(field, default=0):
+        try:
+            return int(data.get(field, default))
+        except:
+            return default
+
+    update_data = {
+        'name': data.get('name', character.get('name')),
+        'image_url': data.get('image_url', character.get('image_url')),
+
+        'sanity': safe_int('sanity', character.get('sanity', 50)),
+        'sanity_max': safe_int('sanity_max', character.get('sanity_max', 50)),
+
+        'hp': safe_int('hp', character.get('hp', 10)),
+        'hp_max': safe_int('hp_max', character.get('hp_max', 10)),
+
+        'mp': safe_int('mp', character.get('mp', 10)),
+        'mp_max': safe_int('mp_max', character.get('mp_max', 10)),
+
+        'credit_rating': safe_int('credit_rating', character.get('credit_rating', 0)),
+        'movement': safe_int('movement', character.get('movement', 8)),
+
+        'strength': safe_int('strength', character.get('strength', 50)),
+        'constitution': safe_int('constitution', character.get('constitution', 50)),
+        'size': safe_int('size', character.get('size', 50)),
+        'dexterity': safe_int('dexterity', character.get('dexterity', 50)),
+        'appearance': safe_int('appearance', character.get('appearance', 50)),
+        'intelligence': safe_int('intelligence', character.get('intelligence', 50)),
+        'power': safe_int('power', character.get('power', 50)),
+        'education': safe_int('education', character.get('education', 50)),
+        'luck': safe_int('luck', character.get('luck', 50)),
+    }
+
+    if not update_data['name']:
+        return jsonify({'error': 'O personagem precisa ter um nome'}), 400
+
+    supabase.table('characters') \
+        .update(update_data) \
+        .eq('id', char_id) \
+        .execute()
+
+    incoming_skills = data.get('skills', [])
+
+    supabase.table('skills') \
+        .delete() \
+        .eq('character_id', char_id) \
+        .execute()
+
+    for skill in incoming_skills:
+        name = str(skill.get('name', '')).strip()
+
+        if not name:
+            continue
+
+        try:
+            current_value = int(skill.get('current_value', 0))
+        except:
+            current_value = 0
+
+        supabase.table('skills').insert({
+            'character_id': char_id,
+            'name': name,
+            'base_value': int(skill.get('base_value', 0) or 0),
+            'current_value': current_value,
+            'category': skill.get('category', 'general')
+        }).execute()
+
+    updated_char = supabase.table('characters') \
+        .select('*') \
+        .eq('id', char_id) \
+        .execute().data[0]
+
+    updated_char['user_id'] = user_id
+
+    updated_skills = supabase.table('skills') \
+        .select('*') \
+        .eq('character_id', char_id) \
+        .execute().data
+
+    socketio.emit('character_updated', {
+        'user_id': user_id,
+        'char_id': char_id,
+        'updates': update_data
+    }, room='main')
+
+    socketio.emit('online_players_updated', {}, room='main')
+
+    return jsonify({
+        'success': True,
+        'character': updated_char,
+        'skills': updated_skills
+    })
 
 # ─────────────────────────────────────────
 # CHAT AO VIVO

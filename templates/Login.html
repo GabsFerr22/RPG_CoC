@@ -4,278 +4,741 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trieste 1919 — Acesso Restrito</title>
+
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --blood:#8B0000;--gold:#C8A84A;--parchment:#E8D8A8;
-  --dark:#0A0806;--fog:#B8C4C8;--ink:#1A1208;
-  --green-cult:#2A4A1A;--border:#3A2A14;
-}
-html,body{width:100%;height:100%;overflow:hidden}
-body{
-  background:#0A0806;
-  font-family:'IM Fell English',serif;
-  display:flex;align-items:center;justify-content:center;
-  position:relative;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Névoa animada */
-.fog-layer{
-  position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse at 20% 50%, rgba(40,50,55,0.6) 0%, transparent 60%),
-             radial-gradient(ellipse at 80% 20%, rgba(30,40,45,0.4) 0%, transparent 50%),
-             radial-gradient(ellipse at 60% 80%, rgba(35,45,50,0.5) 0%, transparent 55%);
-  animation:fogDrift 20s ease-in-out infinite alternate;
-}
-@keyframes fogDrift{
-  0%{transform:translateX(-3%) translateY(2%) scale(1.02)}
-  100%{transform:translateX(3%) translateY(-2%) scale(0.98)}
+:root {
+  --blood: #8B0000;
+  --gold: #C8A84A;
+  --parchment: #E8D8A8;
+  --dark: #0A0806;
+  --ink: #1A1208;
+  --green-cult: #2A4A1A;
+  --border: #3A2A14;
 }
 
-/* Textura de papel velha */
-.paper-overlay{
-  position:fixed;inset:0;pointer-events:none;z-index:1;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  opacity:0.5;
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
-/* Velas nos cantos */
-.candle{position:fixed;pointer-events:none;z-index:2}
-.candle-left{left:60px;bottom:80px}
-.candle-right{right:60px;bottom:80px}
-.candle svg{width:30px;height:80px}
-.flame{
-  position:absolute;top:-18px;left:50%;transform:translateX(-50%);
-  width:12px;height:20px;
-  background:radial-gradient(ellipse at 50% 80%, #FFA020 0%, #FF6A00 40%, transparent 70%);
-  border-radius:50% 50% 30% 30%;
-  animation:flicker 1.5s ease-in-out infinite alternate;
-  filter:blur(1px);
-}
-.flame::after{
-  content:'';position:absolute;top:4px;left:50%;transform:translateX(-50%);
-  width:6px;height:10px;
-  background:radial-gradient(ellipse, #FFF8E0 0%, #FFE080 60%, transparent 100%);
-  border-radius:50%;
-}
-@keyframes flicker{
-  0%{transform:translateX(-50%) scaleX(1) scaleY(1) rotate(-2deg);opacity:0.9}
-  33%{transform:translateX(-52%) scaleX(0.9) scaleY(1.05) rotate(1deg);opacity:1}
-  66%{transform:translateX(-48%) scaleX(1.05) scaleY(0.97) rotate(-1deg);opacity:0.95}
-  100%{transform:translateX(-50%) scaleX(0.95) scaleY(1.03) rotate(2deg);opacity:0.88}
-}
-.candle-glow{
-  position:absolute;top:-30px;left:50%;transform:translateX(-50%);
-  width:80px;height:80px;
-  background:radial-gradient(ellipse, rgba(255,160,30,0.25) 0%, transparent 70%);
-  border-radius:50%;animation:glowPulse 1.5s ease-in-out infinite alternate;
-}
-@keyframes glowPulse{
-  0%{opacity:0.7;transform:translateX(-50%) scale(0.95)}
-  100%{opacity:1;transform:translateX(-50%) scale(1.05)}
+body {
+  background:
+    linear-gradient(rgba(0,0,0,0.40), rgba(0,0,0,0.78)),
+    url("/static/images/login-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  font-family: 'IM Fell English', serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
 
-/* Container principal */
-.container{
-  position:relative;z-index:10;
-  width:420px;
-  background:linear-gradient(160deg,#1A1208 0%,#0E0A04 60%,#12100A 100%);
-  border:1px solid #3A2A14;
-  box-shadow:0 0 60px rgba(0,0,0,0.9), inset 0 0 40px rgba(0,0,0,0.5),
-             0 0 20px rgba(139,90,20,0.15);
-  padding:48px 44px 40px;
-  animation:containerReveal 1.2s ease-out;
-}
-@keyframes containerReveal{
-  0%{opacity:0;transform:translateY(20px) scale(0.97)}
-  100%{opacity:1;transform:translateY(0) scale(1)}
+/* textura antiga por cima */
+.paper-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.35;
 }
 
-/* Ornamentos de canto */
-.container::before,.container::after{
-  content:'';position:absolute;width:40px;height:40px;
-  border-color:#6A4A20;border-style:solid;
-}
-.container::before{top:12px;left:12px;border-width:2px 0 0 2px}
-.container::after{bottom:12px;right:12px;border-width:0 2px 2px 0}
-
-/* Borda interna */
-.inner-border{
-  position:absolute;inset:22px;
-  border:1px solid rgba(100,70,25,0.3);
-  pointer-events:none;
+/* tentáculos dos cantos da tela */
+.corner-tentacle {
+  position: fixed;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.78;
+  filter:
+    drop-shadow(0 0 12px rgba(120,220,145,0.16))
+    drop-shadow(0 0 20px rgba(60,120,75,0.10));
 }
 
-/* Cabeçalho */
-.header{text-align:center;margin-bottom:36px}
-.glyph{
-  font-size:28px;color:#6A4A20;display:block;
-  margin-bottom:8px;letter-spacing:8px;
-  animation:glyphPulse 4s ease-in-out infinite;
-}
-@keyframes glyphPulse{
-  0%,100%{opacity:0.5;text-shadow:none}
-  50%{opacity:1;text-shadow:0 0 12px rgba(139,90,20,0.6)}
-}
-.title{
-  font-family:'UnifrakturMaguntia',cursive;
-  font-size:32px;color:#C8A84A;
-  text-shadow:0 0 20px rgba(200,168,74,0.4),0 2px 4px rgba(0,0,0,0.8);
-  letter-spacing:2px;line-height:1.1;
-}
-.subtitle{
-  font-family:'Cinzel',serif;
-  font-size:10px;color:#6A5A30;
-  letter-spacing:4px;text-transform:uppercase;
-  margin-top:8px;
-}
-.divider{
-  display:flex;align-items:center;gap:10px;
-  margin:16px 0 0;
-}
-.divider-line{flex:1;height:1px;background:linear-gradient(to right,transparent,#4A3A1A,transparent)}
-.divider-sym{color:#6A4A20;font-size:14px}
-
-/* Formulário */
-.form-group{margin-bottom:20px;position:relative}
-label{
-  display:block;
-  font-family:'Cinzel',serif;
-  font-size:10px;letter-spacing:3px;text-transform:uppercase;
-  color:#8A6A30;margin-bottom:8px;
-}
-input{
-  width:100%;background:rgba(10,8,5,0.8);
-  border:1px solid #3A2A12;border-top-color:#4A3A1A;
-  color:#D4C090;font-family:'IM Fell English',serif;
-  font-size:15px;padding:12px 14px;
-  outline:none;transition:all 0.3s;
-  box-shadow:inset 0 2px 8px rgba(0,0,0,0.5);
-}
-input::placeholder{color:#4A3A18;font-style:italic}
-input:focus{
-  border-color:#8A6A30;
-  box-shadow:inset 0 2px 8px rgba(0,0,0,0.5), 0 0 12px rgba(139,106,48,0.2);
-  color:#E8D090;
+/* canto superior esquerdo */
+.corner-lt {
+  top: -10px;
+  left: -10px;
+  width: 250px;
+  animation: floatLT 14s ease-in-out infinite;
 }
 
-.btn{
-  width:100%;padding:14px;margin-top:8px;
-  background:linear-gradient(180deg,#2A1E0A 0%,#1A1206 100%);
-  border:1px solid #6A4A1A;
-  color:#C8A84A;
-  font-family:'Cinzel',serif;font-size:13px;font-weight:600;
-  letter-spacing:4px;text-transform:uppercase;
-  cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;
-}
-.btn::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(200,168,74,0.08) 0%,transparent 100%);
-  opacity:0;transition:opacity 0.3s;
-}
-.btn:hover{
-  border-color:#C8A84A;color:#E8C84A;
-  box-shadow:0 0 20px rgba(200,168,74,0.2);
-}
-.btn:hover::before{opacity:1}
-.btn:active{transform:scale(0.99)}
-
-.btn-ghost{
-  background:transparent;border-color:#2A2010;
-  color:#6A5A30;font-size:11px;letter-spacing:3px;
-  margin-top:12px;padding:10px;
-}
-.btn-ghost:hover{border-color:#4A3A1A;color:#8A7A40}
-
-.error-msg{
-  background:rgba(139,0,0,0.2);border:1px solid rgba(139,0,0,0.4);
-  color:#C84A4A;padding:10px 14px;
-  font-size:12px;letter-spacing:1px;
-  margin-bottom:16px;display:none;
-  font-family:'Cinzel',serif;
+/* canto superior direito */
+.corner-rt {
+  top: -10px;
+  right: -10px;
+  width: 250px;
+  animation: floatRT 15s ease-in-out infinite;
 }
 
-.footer-text{
-  text-align:center;margin-top:24px;
-  font-size:10px;color:#3A2A10;
-  font-family:'Cinzel',serif;letter-spacing:2px;
-  font-style:italic;
+/* canto inferior esquerdo */
+.corner-lb {
+  bottom: -10px;
+  left: -10px;
+  width: 260px;
+  animation: floatLB 16s ease-in-out infinite;
 }
 
-/* Loading overlay */
-.loading{
-  position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:999;
-  display:none;align-items:center;justify-content:center;
-  flex-direction:column;gap:16px;
+/* canto inferior direito */
+.corner-rb {
+  bottom: -10px;
+  right: -10px;
+  width: 260px;
+  animation: floatRB 15.5s ease-in-out infinite;
 }
-.loading.active{display:flex}
-.loading-text{
-  font-family:'Cinzel',serif;color:#8A6A30;
-  letter-spacing:4px;font-size:12px;
-  animation:loadPulse 1.5s ease-in-out infinite;
+
+@keyframes floatLT {
+  0%,100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(4px, -4px) scale(1.015);
+  }
 }
-@keyframes loadPulse{0%,100%{opacity:0.4}50%{opacity:1}}
-.loading-eye{
-  width:50px;height:50px;
-  border:2px solid #4A3A1A;border-top-color:#C8A84A;
-  border-radius:50%;animation:spin 1.5s linear infinite;
+
+@keyframes floatRT {
+  0%,100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-4px, -3px) scale(1.015);
+  }
 }
-@keyframes spin{to{transform:rotate(360deg)}}
+
+@keyframes floatLB {
+  0%,100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(4px, 3px) scale(1.018);
+  }
+}
+
+@keyframes floatRB {
+  0%,100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-4px, 3px) scale(1.018);
+  }
+}
+
+/* palco do login */
+.login-stage {
+  position: relative;
+  z-index: 10;
+  width: 420px;
+  min-height: 580px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* aura atrás do card */
+.card-aura {
+  position: absolute;
+  width: 500px;
+  height: 620px;
+  z-index: 8;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, rgba(40,95,58,0.12) 0%, rgba(5,12,8,0.30) 48%, transparent 72%);
+  filter: blur(10px);
+  animation: auraBreath 9.5s ease-in-out infinite;
+}
+
+@keyframes auraBreath {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.58;
+    transform: scale(1.012);
+  }
+}
+
+/* moldura central do card */
+.tentacle-frame {
+  position: absolute;
+  z-index: 13;
+  width: 668px;
+  max-width: none;
+  height: auto;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0.82;
+  filter:
+    drop-shadow(0 0 8px rgba(120,220,145,0.18))
+    drop-shadow(0 0 18px rgba(50,130,75,0.12));
+  animation: tentacleBreath 9.5s ease-in-out infinite;
+}
+
+@keyframes tentacleBreath {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 0.80;
+    filter:
+      drop-shadow(0 0 8px rgba(120,220,145,0.15))
+      drop-shadow(0 0 16px rgba(50,130,75,0.10));
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.008) rotate(0.08deg);
+    opacity: 0.86;
+    filter:
+      drop-shadow(0 0 10px rgba(145,255,165,0.18))
+      drop-shadow(0 0 20px rgba(70,170,95,0.13));
+  }
+}
+
+/* card principal */
+.container {
+  position: relative;
+  z-index: 14;
+  width: 420px;
+  background:
+    linear-gradient(160deg, rgba(4,14,9,0.88) 0%, rgba(3,10,7,0.91) 55%, rgba(5,13,10,0.93) 100%);
+  border: 1px solid rgba(92,130,96,0.45);
+  box-shadow:
+    0 0 70px rgba(0,0,0,0.92),
+    inset 0 0 35px rgba(0,0,0,0.55),
+    0 0 18px rgba(72,110,82,0.18);
+  padding: 48px 44px 40px;
+  overflow: hidden;
+  animation:
+    containerReveal 1.2s ease-out,
+    containerBreath 9.5s ease-in-out infinite;
+  backdrop-filter: blur(2px);
+}
+
+@keyframes containerReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes containerBreath {
+  0%, 100% {
+    border-color: rgba(92,130,96,0.42);
+    box-shadow:
+      0 0 70px rgba(0,0,0,0.92),
+      inset 0 0 35px rgba(0,0,0,0.55),
+      0 0 18px rgba(72,110,82,0.18);
+  }
+  50% {
+    border-color: rgba(135,185,135,0.55);
+    box-shadow:
+      0 0 76px rgba(0,0,0,0.93),
+      inset 0 0 38px rgba(0,0,0,0.56),
+      0 0 24px rgba(92,160,105,0.20);
+  }
+}
+
+.container::before,
+.container::after {
+  content: '';
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  border-color: rgba(118,160,118,0.50);
+  border-style: solid;
+  filter: drop-shadow(0 0 6px rgba(90,140,95,0.18));
+  z-index: 5;
+}
+
+.container::before {
+  top: 12px;
+  left: 12px;
+  border-width: 2px 0 0 2px;
+}
+
+.container::after {
+  bottom: 12px;
+  right: 12px;
+  border-width: 0 2px 2px 0;
+}
+
+.inner-border {
+  position: absolute;
+  inset: 22px;
+  border: 1px solid rgba(95,135,98,0.25);
+  pointer-events: none;
+  z-index: 4;
+}
+
+.header,
+.form-group,
+.btn,
+.footer-text,
+.error-msg {
+  position: relative;
+  z-index: 6;
+}
+
+/* cabeçalho */
+.header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.glyph {
+  font-size: 28px;
+  color: #91b98c;
+  display: block;
+  margin-bottom: 8px;
+  letter-spacing: 8px;
+  animation: glyphPulse 4s ease-in-out infinite;
+}
+
+@keyframes glyphPulse {
+  0%, 100% {
+    opacity: 0.48;
+    text-shadow: none;
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 14px rgba(130,210,135,0.55);
+  }
+}
+
+.title {
+  font-family: 'UnifrakturMaguntia', cursive;
+  font-size: 32px;
+  color: #b4d5a7;
+  text-shadow:
+    0 0 14px rgba(130,210,135,0.28),
+    0 2px 4px rgba(0,0,0,0.85);
+  letter-spacing: 2px;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  color: #789a75;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #5d875c, transparent);
+}
+
+.divider-sym {
+  color: #91b98c;
+  font-size: 14px;
+}
+
+/* formulário */
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #8aa484;
+  margin-bottom: 8px;
+}
+
+input {
+  width: 100%;
+  background: rgba(240,245,250,0.92);
+  border: 1px solid rgba(125,165,130,0.55);
+  color: #111;
+  font-family: 'IM Fell English', serif;
+  font-size: 17px;
+  padding: 13px 14px;
+  outline: none;
+  transition: all 0.3s;
+  box-shadow:
+    inset 0 2px 8px rgba(0,0,0,0.28),
+    0 0 12px rgba(60,120,75,0.10);
+}
+
+input::placeholder {
+  color: #4f6653;
+  font-style: italic;
+}
+
+input:focus {
+  border-color: #b7dbad;
+  box-shadow:
+    inset 0 2px 8px rgba(0,0,0,0.28),
+    0 0 18px rgba(145,220,150,0.26);
+}
+
+/* botões */
+.btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+  background: linear-gradient(180deg, rgba(25,55,35,0.76) 0%, rgba(8,25,15,0.90) 100%);
+  border: 1px solid #5d875c;
+  color: #d2e5c9;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(190,255,190,0.12), transparent);
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: all 0.45s;
+}
+
+.btn:hover {
+  border-color: #b7dbad;
+  color: #f0f8e8;
+  box-shadow: 0 0 22px rgba(110,190,120,0.25);
+  transform: translateY(-1px);
+}
+
+.btn:hover::before {
+  opacity: 1;
+  transform: translateX(100%);
+}
+
+.btn:active {
+  transform: scale(0.99);
+}
+
+.btn-ghost {
+  background: rgba(0,0,0,0.10);
+  border-color: #314333;
+  color: #789a75;
+  font-size: 11px;
+  letter-spacing: 3px;
+  margin-top: 12px;
+  padding: 10px;
+}
+
+.btn-ghost:hover {
+  border-color: #5d875c;
+  color: #b4d5a7;
+}
+
+/* erro */
+.error-msg {
+  background: rgba(90,0,0,0.25);
+  border: 1px solid rgba(150,25,25,0.45);
+  color: #d06a6a;
+  padding: 10px 14px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  display: none;
+  font-family: 'Cinzel', serif;
+}
+
+.footer-text {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 10px;
+  color: #5e785d;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 2px;
+  font-style: italic;
+}
+
+/* loading */
+.loading {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loading.active {
+  display: flex;
+}
+
+.loading-text {
+  font-family: 'Cinzel', serif;
+  color: #91b98c;
+  letter-spacing: 4px;
+  font-size: 12px;
+  animation: loadPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadPulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.loading-eye {
+  width: 50px;
+  height: 50px;
+  border: 2px solid #314333;
+  border-top-color: #b4d5a7;
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* responsivo */
+@media (max-width: 900px) {
+  .corner-lt,
+  .corner-rt,
+  .corner-lb,
+  .corner-rb {
+    width: 180px;
+    opacity: 0.65;
+  }
+}
+
+@media (max-width: 720px) {
+  .login-stage {
+    width: 92vw;
+  }
+
+  .container {
+    width: 92vw;
+    padding: 42px 32px 36px;
+  }
+
+  .tentacle-frame {
+    width: 142vw;
+  }
+
+  .corner-lt,
+  .corner-rt,
+  .corner-lb,
+  .corner-rb {
+    width: 140px;
+    opacity: 0.55;
+  }
+}
+
+/* Transição em vídeo entre login e game */
+.video-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.2s ease;
+}
+
+.video-transition.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.video-transition video {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.035);
+  transition:
+    opacity 1.2s ease,
+    transform 3s ease;
+}
+
+.video-transition.active video {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Faz o menu sumir suavemente antes do vídeo */
+.login-stage.transition-out {
+  opacity: 0;
+  transform: scale(0.96);
+  filter: blur(10px);
+  transition:
+    opacity 1s ease,
+    transform 1s ease,
+    filter 1s ease;
+}
+
+/* Some com textura e tentáculos dos cantos durante a transição */
+body.transitioning .corner-tentacle,
+body.transitioning .paper-overlay {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+/* Entrada inicial do site */
+.site-enter-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background:
+    radial-gradient(ellipse at center, rgba(20,45,28,0.35) 0%, rgba(0,0,0,0.96) 58%, #000 100%);
+  opacity: 1;
+  pointer-events: all;
+  transition:
+    opacity 1.4s ease,
+    filter 1.4s ease;
+}
+
+body.site-entering .login-stage {
+  opacity: 0;
+  transform: scale(0.96);
+  filter: blur(10px);
+}
+
+.login-stage {
+  transition:
+    opacity 1.2s ease,
+    transform 1.2s ease,
+    filter 1.2s ease;
+}
+
+body.site-entering .corner-tentacle,
+body.site-entering .paper-overlay {
+  opacity: 0;
+}
+
+.corner-tentacle,
+.paper-overlay {
+  transition: opacity 1.2s ease;
+}
+
+body.site-ready .site-enter-overlay {
+  opacity: 0;
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+body.site-ready .login-stage {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+body.site-ready .corner-tentacle {
+  opacity: 0.78;
+}
+
+body.site-ready .paper-overlay {
+  opacity: 0.35;
+}
+
 </style>
 </head>
-<body>
-<div class="fog-layer"></div>
+
+<body class="site-entering">
+
+<div class="site-enter-overlay" id="siteEnterOverlay"></div>
+
 <div class="paper-overlay"></div>
 
-<!-- Velas -->
-<div class="candle candle-left">
-  <div class="candle-glow"></div>
-  <div class="flame"></div>
-  <svg viewBox="0 0 30 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="10" y="20" width="10" height="55" fill="#D4C090" rx="2"/>
-    <rect x="10" y="20" width="10" height="55" fill="url(#wax)" rx="2"/>
-    <line x1="15" y1="20" x2="15" y2="14" stroke="#6A5020" stroke-width="1.5"/>
-    <defs><linearGradient id="wax" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(0,0,0,0.2)"/><stop offset="50%" stop-color="transparent"/><stop offset="100%" stop-color="rgba(0,0,0,0.15)"/></linearGradient></defs>
-  </svg>
-</div>
-<div class="candle candle-right">
-  <div class="candle-glow"></div>
-  <div class="flame"></div>
-  <svg viewBox="0 0 30 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="10" y="20" width="10" height="55" fill="#D4C090" rx="2"/>
-    <line x1="15" y1="20" x2="15" y2="14" stroke="#6A5020" stroke-width="1.5"/>
-  </svg>
-</div>
+<!-- tentáculos nos cantos -->
+<img src="/static/images/tentacle_LeftTop.png" class="corner-tentacle corner-lt" alt="" aria-hidden="true">
+<img src="/static/images/tentacle_RightTop.png" class="corner-tentacle corner-rt" alt="" aria-hidden="true">
+<img src="/static/images/tentacle_LeftBottom.png" class="corner-tentacle corner-lb" alt="" aria-hidden="true">
+<img src="/static/images/tentacle_RightBottom.png" class="corner-tentacle corner-rb" alt="" aria-hidden="true">
 
-<div class="container">
-  <div class="inner-border"></div>
-  <div class="header">
-    <span class="glyph">☽ ✦ ☾</span>
-    <div class="title">Trieste</div>
-    <div class="subtitle">Novembro · 1919 · Call of Cthulhu</div>
-    <div class="divider">
-      <div class="divider-line"></div>
-      <span class="divider-sym">✦</span>
-      <div class="divider-line"></div>
+<div class="login-stage">
+  <div class="card-aura"></div>
+
+  <img
+    src="/static/images/tentacle.png"
+    class="tentacle-frame"
+    alt=""
+    aria-hidden="true"
+  >
+
+  <div class="container">
+    <div class="inner-border"></div>
+
+    <div class="header">
+      <span class="glyph">☽ ✦ ☾</span>
+      <div class="title">Trieste</div>
+      <div class="subtitle">Novembro · 1919 · Call of Cthulhu</div>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-sym">✦</span>
+        <div class="divider-line"></div>
+      </div>
     </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="form-group">
+      <label>Identificação</label>
+      <input type="text" id="username" placeholder="seu nome de usuário" autocomplete="off"/>
+    </div>
+
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="password" placeholder="••••••••"/>
+    </div>
+
+    <button class="btn" onclick="doLogin()">Entrar na Névoa</button>
+    <button class="btn btn-ghost" onclick="location.href='/register'">Criar Novo Investigador</button>
+
+    <div class="footer-text">Ninguém que vai para Trieste volta normal.</div>
   </div>
+</div>
 
-  <div class="error-msg" id="errorMsg"></div>
-
-  <div class="form-group">
-    <label>Identificação</label>
-    <input type="text" id="username" placeholder="seu nome de usuário" autocomplete="off"/>
-  </div>
-  <div class="form-group">
-    <label>Senha</label>
-    <input type="password" id="password" placeholder="••••••••"/>
-  </div>
-
-  <button class="btn" onclick="doLogin()">Entrar na Névoa</button>
-  <button class="btn btn-ghost" onclick="location.href='/register'">Criar Novo Investigador</button>
-
-  <div class="footer-text">Ninguém que vai para Trieste volta normal.</div>
+<div class="video-transition" id="videoTransition">
+  <video id="transitionVideo" preload="auto" playsinline>
+    <source src="/static/video.mp4" type="video/mp4">
+  </video>
 </div>
 
 <div class="loading" id="loading">
@@ -284,25 +747,114 @@ input:focus{
 </div>
 
 <script>
-async function doLogin(){
-  const u=document.getElementById('username').value.trim();
-  const p=document.getElementById('password').value;
-  const err=document.getElementById('errorMsg');
-  err.style.display='none';
-  if(!u||!p){showError('Preencha todos os campos');return}
+async function doLogin() {
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value;
+  const err = document.getElementById('errorMsg');
+
+  err.style.display = 'none';
+
+  if (!u || !p) {
+    showError('Preencha todos os campos');
+    return;
+  }
+
   document.getElementById('loading').classList.add('active');
-  try{
-    const r=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p}),credentials:'include'});
-    const d=await r.json();
-    if(d.success){window.location.href='/game'}
-    else{document.getElementById('loading').classList.remove('active');showError(d.error||'Credenciais inválidas')}
-  }catch(e){document.getElementById('loading').classList.remove('active');showError('Erro de conexão')}
+
+  try {
+    const r = await fetch('/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: u,
+        password: p
+      }),
+      credentials: 'include'
+    });
+
+    const d = await r.json();
+
+    if (d.success) {
+      document.getElementById('loading').classList.remove('active');
+      playLoginTransition('/game');
+    } else {
+      document.getElementById('loading').classList.remove('active');
+      showError(d.error || 'Credenciais inválidas');
+    }
+
+  } catch (e) {
+    document.getElementById('loading').classList.remove('active');
+    showError('Erro de conexão');
+  }
 }
-function showError(msg){
-  const e=document.getElementById('errorMsg');
-  e.textContent=msg;e.style.display='block';
+
+function showError(msg) {
+  const e = document.getElementById('errorMsg');
+  e.textContent = msg;
+  e.style.display = 'block';
 }
-document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+
+function playLoginTransition(destination) {
+  const stage = document.querySelector('.login-stage');
+  const overlay = document.getElementById('videoTransition');
+  const video = document.getElementById('transitionVideo');
+
+  document.body.classList.add('transitioning');
+
+  if (stage) {
+    stage.classList.add('transition-out');
+  }
+
+  setTimeout(() => {
+    overlay.classList.add('active');
+
+    video.currentTime = 0;
+
+    const goGame = () => {
+      window.location.href = destination;
+    };
+
+    video.onended = goGame;
+
+    video.onerror = goGame;
+
+    const playPromise = video.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        video.muted = true;
+        video.play().catch(goGame);
+      });
+    }
+
+    // Segurança: se o vídeo travar, entra no game depois de 12 segundos
+    setTimeout(() => {
+      if (!video.ended) {
+        goGame();
+      }
+    }, 12000);
+
+  }, 900);
+}
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.body.classList.remove('site-entering');
+    document.body.classList.add('site-ready');
+
+    const overlay = document.getElementById('siteEnterOverlay');
+
+    setTimeout(() => {
+      if (overlay) overlay.remove();
+    }, 1600);
+  }, 400);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
 </script>
 </body>
 </html>

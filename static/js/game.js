@@ -181,6 +181,253 @@ localStage.onclick = async (e) => {
 };
 
 // ─────────────────────────────────────────
+// EDITAR PERSONAGEM COMPLETO — PLAYER
+// ─────────────────────────────────────────
+
+function openEditCharacterModal() {
+  if (IS_MASTER || !character) return;
+
+  document.getElementById("editCharName").value = character.name || "";
+
+  const preview = document.getElementById("editCharPreview");
+  if (preview) {
+    preview.src = character.image_url || "/static/images/default_character.png";
+  }
+
+  document.getElementById("editSanity").value     = character.sanity ?? 0;
+  document.getElementById("editSanityMax").value  = character.sanity_max ?? 99;
+  document.getElementById("editHp").value         = character.hp ?? 0;
+  document.getElementById("editHpMax").value      = character.hp_max ?? 0;
+  document.getElementById("editMp").value         = character.mp ?? 0;
+  document.getElementById("editMpMax").value      = character.mp_max ?? 0;
+  document.getElementById("editCredit").value     = character.credit_rating ?? 0;
+  document.getElementById("editMov").value        = character.movement ?? 0;
+
+  document.getElementById("editStrength").value     = character.strength ?? 0;
+  document.getElementById("editConstitution").value = character.constitution ?? 0;
+  document.getElementById("editSize").value         = character.size ?? 0;
+  document.getElementById("editDexterity").value    = character.dexterity ?? 0;
+  document.getElementById("editAppearance").value   = character.appearance ?? 0;
+  document.getElementById("editIntelligence").value = character.intelligence ?? 0;
+  document.getElementById("editPower").value        = character.power ?? 0;
+  document.getElementById("editEducation").value    = character.education ?? 0;
+  document.getElementById("editLuck").value         = character.luck ?? 0;
+
+  renderEditSkills();
+
+  openModal("editCharacterModal");
+}
+
+function renderEditSkills() {
+  const list = document.getElementById("editSkillsList");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  skills.forEach((skill, index) => {
+    const row = document.createElement("div");
+    row.className = "edit-skill-row";
+
+    row.innerHTML = `
+      <input 
+        class="edit-skill-name" 
+        value="${escapeHtml(skill.name || "")}" 
+        placeholder="Nome da perícia"
+        data-index="${index}"
+      >
+
+      <input 
+        class="edit-skill-value" 
+        type="number" 
+        value="${skill.current_value ?? 0}" 
+        placeholder="%"
+        data-index="${index}"
+      >
+
+      <button type="button" onclick="removeEditSkill(${index})">×</button>
+    `;
+
+    list.appendChild(row);
+  });
+}
+
+function addEditSkill() {
+  skills.push({
+    id: null,
+    name: "",
+    current_value: 0
+  });
+
+  renderEditSkills();
+}
+
+function removeEditSkill(index) {
+  skills.splice(index, 1);
+  renderEditSkills();
+}
+
+function collectEditSkills() {
+  const rows = document.querySelectorAll(".edit-skill-row");
+  const editedSkills = [];
+
+  rows.forEach(row => {
+    const nameInput = row.querySelector(".edit-skill-name");
+    const valueInput = row.querySelector(".edit-skill-value");
+
+    const index = Number(nameInput.dataset.index);
+    const oldSkill = skills[index] || {};
+
+    const name = nameInput.value.trim();
+    const value = Number(valueInput.value);
+
+    if (!name) return;
+
+    editedSkills.push({
+      id: oldSkill.id || null,
+      name,
+      base_value: oldSkill.base_value || 0,
+      current_value: Number.isFinite(value) ? value : 0,
+      category: oldSkill.category || "general"
+    });
+  });
+
+  return editedSkills;
+}
+
+async function saveFullCharacter() {
+  if (IS_MASTER || !character) return;
+
+  let imageUrl = character.image_url || "/static/images/default_character.png";
+
+  const fileInput = document.getElementById("editCharImage");
+  const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+
+  if (file) {
+    const fd = new FormData();
+    fd.append("file", file);
+
+    const uploadRes = await fetch("/api/upload", {
+      method: "POST",
+      body: fd
+    });
+
+    const uploadData = await uploadRes.json();
+
+    if (uploadData.url) {
+      imageUrl = uploadData.url;
+    }
+  }
+
+  const payload = {
+    name: document.getElementById("editCharName").value.trim(),
+
+    image_url: imageUrl,
+
+    sanity: Number(document.getElementById("editSanity").value),
+    sanity_max: Number(document.getElementById("editSanityMax").value),
+
+    hp: Number(document.getElementById("editHp").value),
+    hp_max: Number(document.getElementById("editHpMax").value),
+
+    mp: Number(document.getElementById("editMp").value),
+    mp_max: Number(document.getElementById("editMpMax").value),
+
+    credit_rating: Number(document.getElementById("editCredit").value),
+    movement: Number(document.getElementById("editMov").value),
+
+    strength: Number(document.getElementById("editStrength").value),
+    constitution: Number(document.getElementById("editConstitution").value),
+    size: Number(document.getElementById("editSize").value),
+    dexterity: Number(document.getElementById("editDexterity").value),
+    appearance: Number(document.getElementById("editAppearance").value),
+    intelligence: Number(document.getElementById("editIntelligence").value),
+    power: Number(document.getElementById("editPower").value),
+    education: Number(document.getElementById("editEducation").value),
+    luck: Number(document.getElementById("editLuck").value),
+
+    skills: collectEditSkills()
+  };
+
+  if (!payload.name) {
+    alert("O personagem precisa ter um nome.");
+    return;
+  }
+
+  const res = await fetch("/api/character/full_update", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || data.error) {
+    alert(data.error || "Erro ao salvar personagem.");
+    return;
+  }
+
+  character = data.character;
+  skills = data.skills || [];
+
+  updateHUD();
+  fillSheetModal();
+  renderPlayerSidebar();
+
+  if (currentMap !== "city") {
+  renderToken(
+    character.id,
+    character.name,
+    character.image_url,
+    character.pos_x || 50,
+    character.pos_y || 70
+  );
+}
+
+  closeModal("editCharacterModal");
+
+  showToast("Personagem atualizado.");
+}
+
+function renderPlayerSidebar() {
+  if (IS_MASTER || !character) return;
+
+  const nameEl = document.getElementById("charName");
+  if (nameEl) nameEl.innerText = character.name;
+
+  const img = document.getElementById("charImage");
+  if (img) {
+    img.src = character.image_url || "/static/images/default_character.png";
+    img.onerror = () => {
+      img.src = "/static/images/default_character.png";
+    };
+  }
+
+  const skillsList = document.getElementById("skillsList");
+  if (!skillsList) return;
+
+  skillsList.innerHTML = "";
+
+  skills.forEach(skill => {
+    const div = document.createElement("div");
+    div.className = "skill";
+    div.innerHTML = `<span>${skill.name}</span><strong>${skill.current_value}%</strong>`;
+    div.onclick = () => rollDice("d100", skill.name, skill.current_value);
+    skillsList.appendChild(div);
+  });
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+
+// ─────────────────────────────────────────
 // PAINEL DO MESTRE — PLAYERS ONLINE
 // ─────────────────────────────────────────
 
@@ -279,40 +526,36 @@ function masterChangeVolume() {
 // ─────────────────────────────────────────
 
 async function loadCharacter() {
+  if (IS_MASTER) return;
+
   const res  = await fetch("/api/character");
   const data = await res.json();
 
   character = data.character;
   skills    = data.skills || [];
 
-  // HUD
-  document.getElementById("charName").innerText  = character.name;
+  const charNameEl = document.getElementById("charName");
+  if (charNameEl) charNameEl.innerText = character.name;
+
   const img = document.getElementById("charImage");
-  img.src = character.image_url || "/static/images/default_character.png";
-  img.onerror = () => { img.src = "/static/images/default_character.png"; };
+  if (img) {
+    img.src = character.image_url || "/static/images/default_character.png";
+    img.onerror = () => { img.src = "/static/images/default_character.png"; };
+  }
 
   updateHUD();
+  renderPlayerSidebar();
 
-  // Perícias na sidebar
-  const skillsList = document.getElementById("skillsList");
-  skillsList.innerHTML = "";
-  skills.forEach(skill => {
-    const div = document.createElement("div");
-    div.className = "skill";
-    div.innerHTML = `<span>${skill.name}</span><strong>${skill.current_value}%</strong>`;
-    div.onclick = () => rollDice("d100", skill.name, skill.current_value);
-    skillsList.appendChild(div);
-  });
-
-  // Inventário
   const invEl = document.getElementById("inventory");
-  invEl.innerHTML = "";
-  for (let i = 0; i < 10; i++) {
-    const slot = document.createElement("div");
-    slot.className    = "inv-slot";
-    slot.dataset.slot = i;
-    slot.innerHTML    = `<button class="inv-add" onclick="openItemModal(${i})">+</button>`;
-    invEl.appendChild(slot);
+  if (invEl) {
+    invEl.innerHTML = "";
+    for (let i = 0; i < 10; i++) {
+      const slot = document.createElement("div");
+      slot.className    = "inv-slot";
+      slot.dataset.slot = i;
+      slot.innerHTML    = `<button class="inv-add" onclick="openItemModal(${i})">+</button>`;
+      invEl.appendChild(slot);
+    }
   }
 
   fillSheetModal();
@@ -322,17 +565,32 @@ async function loadCharacter() {
 }
 
 function updateHUD() {
-  if (!character) return;
-  document.getElementById("sanity").innerText = character.sanity;
-  document.getElementById("hp").innerText     = `${character.hp}/${character.hp_max}`;
-  document.getElementById("credit").innerText = character.credit_rating;
-  document.getElementById("mp").innerText     = `${character.mp}/${character.mp_max}`;
-  document.getElementById("mov").innerText    = character.movement;
+  if (!character || IS_MASTER) return;
+
+  const sanityEl = document.getElementById("sanity");
+  const hpEl     = document.getElementById("hp");
+  const creditEl = document.getElementById("credit");
+  const mpEl     = document.getElementById("mp");
+  const movEl    = document.getElementById("mov");
+
+  if (sanityEl) sanityEl.innerText = character.sanity;
+  if (hpEl)     hpEl.innerText     = `${character.hp}/${character.hp_max}`;
+  if (creditEl) creditEl.innerText = character.credit_rating;
+  if (mpEl)     mpEl.innerText     = `${character.mp}/${character.mp_max}`;
+  if (movEl)    movEl.innerText    = character.movement;
 }
 
 function fillSheetModal() {
-  document.getElementById("modalCharName").innerText = character.name;
-  document.getElementById("modalSheet").innerHTML = `
+  if (IS_MASTER || !character) return;
+
+  const nameEl = document.getElementById("modalCharName");
+  const sheetEl = document.getElementById("modalSheet");
+
+  if (!nameEl || !sheetEl) return;
+
+  nameEl.innerText = character.name;
+
+  sheetEl.innerHTML = `
     <p><b>Sanidade:</b> ${character.sanity}/${character.sanity_max}</p>
     <p><b>Vida:</b>     ${character.hp}/${character.hp_max}</p>
     <p><b>Magia:</b>    ${character.mp}/${character.mp_max}</p>
@@ -464,10 +722,11 @@ function renderToken(id, name, image, x, y) {
 
   if (!token) {
     token = document.createElement("div");
-    token.className   = "token player-token";
+    token.className     = "token player-token";
     token.dataset.token = id;
-    token.title       = name;
-    token.innerHTML   = `
+    token.title         = name;
+
+    token.innerHTML = `
       <img src="${image || "/static/images/default_character.png"}"
            onerror="this.src='/static/images/default_character.png'">
       <span class="token-label">${name}</span>`;
@@ -476,7 +735,6 @@ function renderToken(id, name, image, x, y) {
       e.stopPropagation();
       if (!IS_MASTER) return;
 
-      // Mestre pode remover token de player com ferramenta "danger"
       if (currentTool === "danger") {
         if (confirm(`Remover token de ${name}?`)) {
           await fetch(`/api/character/hide/${id}`, { method: "POST" });
@@ -485,6 +743,22 @@ function renderToken(id, name, image, x, y) {
     };
 
     layer.appendChild(token);
+  }
+
+  // Atualiza dados mesmo se o token já existir
+  token.title = name;
+
+  const imgEl = token.querySelector("img");
+  if (imgEl) {
+    imgEl.src = image || "/static/images/default_character.png";
+    imgEl.onerror = () => {
+      imgEl.src = "/static/images/default_character.png";
+    };
+  }
+
+  const labelEl = token.querySelector(".token-label");
+  if (labelEl) {
+    labelEl.innerText = name;
   }
 
   token.style.left   = `${x}%`;
@@ -1062,6 +1336,27 @@ if (chatInputEl) {
     if (e.key === "Enter") { e.preventDefault(); sendChat(); }
   });
 }
+
+
+// ─────────────────────────────────────────
+// EDITAR IMAGEM
+// ─────────────────────────────────────────
+
+
+const editCharImageInput = document.getElementById("editCharImage");
+
+if (editCharImageInput) {
+  editCharImageInput.addEventListener("change", () => {
+    const file = editCharImageInput.files[0];
+    if (!file) return;
+
+    const preview = document.getElementById("editCharPreview");
+    if (!preview) return;
+
+    preview.src = URL.createObjectURL(file);
+  });
+}
+
 
 // ─────────────────────────────────────────
 // INIT
