@@ -5,7 +5,11 @@
 <title>Trieste 1919 — Chamado de Cthulhu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
 <style>
+
+
 /* ══════════════════════════════════════════
    TRIESTE 1919 — REDESIGN
    ══════════════════════════════════════════ */
@@ -56,9 +60,8 @@ body::before {
 #app {
   position: fixed; inset: 0; z-index: 1;
   display: grid;
-  grid-template-rows: 58px 1fr 52px;
-  grid-template-columns: 280px 1fr 200px;
-  gap: 0;
+  grid-template-rows: 58px 1fr 64px;
+  grid-template-columns: 280px 1fr 260px;
   overflow: hidden;
 }
 
@@ -162,21 +165,33 @@ body::before {
 #char-panel {
   grid-column: 1;
   grid-row: 2;
+
   background: linear-gradient(160deg, rgba(10,26,14,0.97) 0%, rgba(4,12,6,0.99) 100%);
   border-right: 1px solid var(--border-green);
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 14px 10px 80px;
+
+  padding: 14px 10px 10px;
+
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 0;
 }
 
 /* Character photo + name */
 #char-photo-block {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-green);
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 16px;
+    padding: 0 0 14px;
+    position: relative;
+    left: 22px;
+    top: 13px;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.18);
+    background: transparent;
 }
 
 #charImage {
@@ -279,7 +294,8 @@ body::before {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  padding: 8px;
+  padding: 8px 8px 178px 8px;
+
   overflow: hidden;
 }
 
@@ -322,15 +338,58 @@ body::before {
 
 .map-stage {
   position: relative;
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
-.city-map, .local-map {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-  filter: saturate(0.78) contrast(1.05) brightness(0.82);
+/* Mapa da cidade continua normal */
+.city-stage,
+#localStage {
+  overflow: hidden;
+  cursor: grab;
 }
+
+.city-stage.dragging,
+#localStage.dragging {
+  cursor: grabbing;
+}
+
+.city-map,
+.local-map {
+  position: absolute;
+  left: 0;
+  top: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+  object-position: center center;
+
+  display: block;
+  user-select: none;
+  pointer-events: none;
+
+  transform-origin: 0 0;
+
+  filter: saturate(0.78) contrast(1.05) brightness(0.82);
+  background: #020605;
+}
+
+/* Área do mapa local: agora pode arrastar */
+#localStage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #020605;
+  cursor: grab;
+}
+
+#localStage.dragging {
+  cursor: grabbing;
+}
+
 
 .map-location-bar {
   position: absolute;
@@ -366,12 +425,17 @@ body::before {
 
 .map-part-nav {
   position: absolute;
-  top: 8px; right: 8px;
-  z-index: 20;
-  display: flex; gap: 4px;
+  top: 8px;
+  right: 8px;
+  z-index: 80;
+  display: flex;
+  gap: 4px;
+  pointer-events: auto;
 }
 
 .map-part-nav button {
+  position: relative;
+  z-index: 81;
   background: rgba(4,12,6,0.92);
   border: 1px solid var(--border-gold);
   color: var(--gold-dim);
@@ -379,7 +443,6 @@ body::before {
   font-size: 10px;
   padding: 3px 7px;
   cursor: pointer;
-  transition: all 0.18s;
 }
 
 .map-part-nav button:hover {
@@ -415,14 +478,18 @@ body::before {
 .token {
   position: absolute;
   z-index: 35;
-  width: 80px; height: 112px;
+  width: 80px;
+  height: 112px;
   transform: translate(-50%, -100%);
   cursor: grab;
   pointer-events: all;
   user-select: none;
+
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  overflow: visible;
 }
 
 .token img {
@@ -434,24 +501,42 @@ body::before {
 
 .token-label {
   font-family: 'Special Elite', serif;
-  font-size: 9px;
+  font-size: 10px;
   color: var(--gold-bright);
-  background: rgba(4,12,6,.88);
+  background: rgba(4,12,6,.92);
   border: 1px solid var(--gold-dim);
-  padding: 1px 4px;
+  padding: 2px 6px;
+
   white-space: nowrap;
   pointer-events: none;
-  max-width: 110px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
+  min-width: max-content;
+  max-width: none;
+  width: auto;
+
+  overflow: visible;
+  text-overflow: unset;
+
+  margin-top: 3px;
+  text-align: center;
+
+  box-shadow: 0 0 8px rgba(0,0,0,0.75);
 }
 
-#tokensLayer, #cityMarkersLayer {
-  position: absolute; inset: 0;
-  z-index: 30; pointer-events: none;
+#cityMarkersLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
 }
 
-#tokensLayer { pointer-events: all; }
+#tokensLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: all;
+  transform-origin: 0 0;
+}
 
 /* ─── RIGHT PANEL ───────────────────────────────── */
 #right-panel {
@@ -745,31 +830,44 @@ body::before {
   grid-column: 1 / -1;
   grid-row: 3;
   position: relative;
-  background: linear-gradient(180deg, rgba(5,12,7,0.98) 0%, rgba(2,6,3,0.99) 100%);
-  border-top: 1px solid var(--border-gold);
+
+  background-image: url("/static/images/Barra_Inf.png");
+  background-size: cover;
+  background-position: unset;
+  background-repeat: no-repeat;
+
+  border-top: none;
+  padding: 0 20px;
+  height: 64px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+
   overflow: hidden;
 }
 
-#bottom-bar::before {
-  content: "";
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
-}
-
 .bottom-info-group {
-  display: flex; gap: 16px; align-items: center;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
 .bottom-item {
-  display: flex; align-items: center; gap: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
   font-family: 'Special Elite', serif;
-  font-size: 10px;
-  color: var(--text-dim);
-  letter-spacing: 1px;
+  font-size: 11px;
+  color:#f2ead6 !important;
+  letter-spacing: 1.1px;
+  text-shadow:
+    0 1px 2px #000,
+    0 0 7px rgba(255,255,255,0.18);
+  white-space: nowrap;
 }
 
 .bottom-item strong {
@@ -777,24 +875,51 @@ body::before {
   font-weight: normal;
 }
 
-.bottom-divider {
-  width: 1px; height: 20px;
-  background: var(--border-green);
+.bottom-item strong,
+#campaignName,
+#sessionNum,
+#guardianName,
+#clockDisplay,
+#dateDisplay {
+  color: #ffffff !important;
+  font-weight: normal;
+
+  text-shadow:
+    0 1px 2px #000,
+    0 0 8px rgba(255,255,255,0.20);
 }
 
-.bottom-center {
-  position: absolute; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 18px; align-items: center;
+
+.bottom-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(120, 100, 45, 0.45);
 }
 
 .bottom-badge {
+  border: none;
+  background: rgba(0,0,0,0.16);
+
+  padding: 4px 8px;
+  border-radius: 2px;
+
   font-family: 'Cinzel', serif;
   font-size: 8px;
   letter-spacing: 2px;
-  color: var(--gold-dim);
+
+  color: #f3ead4 !important;
   text-transform: uppercase;
-  border: 1px solid var(--border-gold);
-  padding: 3px 10px;
+}
+
+.bottom-center {
+  position: absolute;
+
+  left: 80%;
+  transform: translateX(-50%);
+
+  display: flex;
+  gap: 18px;
+  align-items: center;
 }
 
 /* Bottom bar master controls */
@@ -832,24 +957,11 @@ body::before {
 /* ─── CENTER BOTTOM OVERLAY ─── inventory / chat ─ */
 #center-overlay {
   position: fixed;
-  left: 280px; right: 200px;
+  left: 280px;
+  right: 240px;
   bottom: 52px;
   z-index: 40;
-  display: grid;
-  grid-template-rows: auto auto;
   pointer-events: none;
-}
-
-/* ── Inventory ── */
-#inventory-panel {
-  pointer-events: all;
-  background: linear-gradient(90deg, rgba(8,20,10,0.97) 0%, rgba(12,28,14,0.97) 50%, rgba(8,20,10,0.97) 100%);
-  border: 1px solid var(--border-gold);
-  border-bottom: none;
-  padding: 8px 14px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
 
 .inv-label {
@@ -1367,13 +1479,14 @@ body::before {
 
 /* ─── TOKEN SIZE CTRL ─────────────────────────── */
 #token-size-ctrl {
-  position: fixed;
-  left: 288px; bottom: 310px;
-  z-index: 40;
-  background: rgba(8,20,10,0.96);
-  border: 1px solid var(--border-gold);
-  padding: 7px 10px;
-  box-shadow: var(--shadow);
+    position: fixed;
+    left: 821px;
+    bottom: 789px;
+    z-index: 40;
+    background: rgba(8, 20, 10, 0.96);
+    border: 1px solid var(--border-gold);
+    padding: 7px 10px;
+    box-shadow: var(--shadow);
 }
 
 #token-size-ctrl label {
@@ -1403,6 +1516,778 @@ body::before {
 
 .music-row { display: flex; gap: 4px; margin-bottom: 5px; }
 .music-row button { flex: 1; text-align: center; }
+
+/* ══════════════════════════════════════════
+   DADOS — ORGANIZAÇÃO NO MOCKUP
+   ══════════════════════════════════════════ */
+
+#dice-card {
+  position: relative;
+  height: 185px;
+  padding: 0;
+  border: none;
+  background: url("/static/images/Dados.png?v=2") center center / 100% 100% no-repeat;
+  overflow: hidden;
+}
+
+/* título */
+#dice-card .rp-section-title {
+    position: absolute;
+    top: 9px;
+    left: 97px;
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    z-index: 4;
+}
+
+/* valor do resultado - retângulo da esquerda */
+#dice-value-box {
+    position: absolute;
+    left: 15px;
+    top: 33px;
+    width: 74px;
+    height: 107px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+}
+
+#dice-result-num {
+    display: block;
+    position: relative;
+    left: -5px;
+    font-family: 'Cinzel', serif;
+    font-size: 34px;
+    line-height: 1;
+    color: var(--gold-bright);
+    text-shadow: 0 0 14px rgba(201, 168, 76, 0.22);
+}
+
+#dice-result-type {
+  display: none; /* mantido só para não quebrar o JS */
+}
+
+/* modificador - quadradinho superior */
+#dice-mod-box {
+  position: absolute;
+  left: 92px;
+  top: 30px;
+  width: 72px;
+  height: 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 4;
+}
+
+.dice-box-label {
+    font-family: 'Cinzel', serif;
+    font-size: 5px;
+    position: relative;
+    top: 6px;
+    left: -5px;
+    letter-spacing: 1.5px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+#dice-mod-controls {
+    display: flex;
+    width: 52px;
+    top: 22px;
+    left: -6px;
+    align-items: center;
+    position: relative;
+    justify-content: center;
+    gap: 1px;
+}
+
+#dice-mod-controls button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: rgba(3, 10, 6, 0.92);
+  border: 1px solid rgba(201,168,76,0.30);
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+#dice-mod-controls button:hover {
+  border-color: var(--gold);
+  color: var(--gold-bright);
+}
+
+#modVal {
+  min-width: 20px;
+  text-align: center;
+  font-family: 'Special Elite', serif;
+  font-size: 12px;
+  color: var(--green-bright);
+}
+
+/* seletor do tipo de dado - retângulo inferior */
+#dice-type-box {
+    position: absolute;
+    left: 92px;
+    top: 102px;
+    width: 60px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+}
+
+#diceTypeSelect {
+    width: 100%;
+    position: relative;
+    left: -58px;
+    top: 42px;
+    height: 24px;
+    background: rgba(3, 10, 6, 0.92);
+    border: 1px solid rgba(201, 168, 76, 0.30);
+    color: var(--green-bright);
+    font-family: 'Special Elite', serif;
+    font-size: 11px;
+    text-align: center;
+    outline: none;
+    cursor: pointer;
+}
+
+#diceTypeSelect:focus,
+#diceTypeSelect:hover {
+  border-color: var(--gold);
+}
+
+/* dado dentro do círculo da direita */
+#dice-img-btn {
+    position: absolute;
+    right: -18px;
+    top: 25px;
+    width: 129px;
+    height: 116px;
+    object-fit: contain;
+    cursor: pointer;
+    z-index: 4;
+    filter: sepia(0.20) brightness(0.95) drop-shadow(0 0 10px rgba(201, 168, 76, 0.25));
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+
+#dice-img-btn:hover {
+  transform: scale(1.06) rotate(-2deg);
+  filter:
+    sepia(0.10)
+    brightness(1.08)
+    drop-shadow(0 0 16px rgba(201,168,76,0.48));
+}
+
+#dice-img-btn.rolling {
+  animation: diceRoll 0.5s ease-in-out;
+}
+
+@keyframes diceRoll {
+  0%   { transform: rotate(0deg) scale(1); }
+  25%  { transform: rotate(15deg) scale(1.08); }
+  50%  { transform: rotate(-12deg) scale(0.96); }
+  75%  { transform: rotate(10deg) scale(1.04); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+
+/* ─── CHAT NO PAINEL ESQUERDO ───────────────────────── */
+
+#left-chat-box {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-green);
+}
+
+#left-chat-box .chat-label {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    position: relative;
+    top: -19px;
+    letter-spacing: 2px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding-left: 4px;
+}
+
+#left-chat-box .chat-label span {
+  color: var(--green-text);
+  font-size: 8px;
+}
+
+#left-chat-box #chatMessages {
+  height: 125px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 6px;
+  background: rgba(2, 8, 4, 0.45);
+  border: 1px solid rgba(42,74,46,0.45);
+  margin-bottom: 6px;
+}
+
+#left-chat-box #chatMessages b {
+  color: var(--gold-bright);
+}
+
+#left-chat-box #chatMessages small {
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+#left-chat-box .chat-input-row {
+  display: flex;
+  gap: 4px;
+}
+
+#left-chat-box .chat-input-row input {
+  flex: 1;
+  background: rgba(4,10,6,0.86);
+  border: 1px solid var(--border-green);
+  color: var(--text);
+  padding: 5px 8px;
+  font-family: 'Crimson Text', serif;
+  font-size: 12px;
+  outline: none;
+}
+
+#left-chat-box .chat-input-row input:focus {
+  border-color: var(--border-gold);
+}
+
+#left-chat-box .chat-input-row button {
+  background: rgba(20,40,22,0.9);
+  border: 1px solid var(--border-green);
+  color: var(--text-dim);
+  padding: 5px 10px;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+#left-chat-box .chat-input-row button:hover {
+  border-color: var(--border-gold);
+  color: var(--gold-bright);
+}
+
+#left-actions-box {
+    margin-top: 14px;
+    padding-top: 11px;
+    border-top: 1px solid var(--border-green);
+    position: relative;
+    top: 8px;
+}
+
+#left-actions-box .quick-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+#left-actions-box .quick-btn {
+  text-align: center;
+}
+
+
+
+/* ─── CHAT COM FUNDO MOCKUP ───────────────────────── */
+
+#left-chat-box {
+    flex: 0 0 185px;
+    margin-top: 16px;
+    margin-top: 12px;
+    width: 103%;
+    min-height: 180px;
+    padding: 28px 16px 14px;
+    background-image: url(/static/images/Chat.png);
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: none;
+    box-shadow: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* título do chat */
+#left-chat-box .chat-label {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+#left-chat-box .chat-label span {
+  color: var(--green-text);
+  font-size: 8px;
+}
+
+/* área das mensagens */
+#left-chat-box #chatMessages {
+    height: 94px;
+    overflow-y: auto;
+    font-size: 12px;
+    line-height: 1.45;
+    padding: 0px 3px;
+    background: transparent;
+    border: none;
+    margin-bottom: 8px;
+}
+
+#left-chat-box #chatMessages div {
+  color: var(--text-soft);
+  margin-bottom: 2px;
+}
+
+#left-chat-box #chatMessages b {
+  color: var(--gold-bright);
+}
+
+#left-chat-box #chatMessages small {
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+/* linha do input */
+#left-chat-box .chat-input-row {
+    display: flex;
+    gap: 6px;
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 14px;
+}
+
+/* input encaixado no retângulo do mockup */
+#left-chat-box .chat-input-row input {
+    flex: 1;
+    height: 19px;
+    position: relative;
+    top: -5px;
+    background: rgba(2, 8, 4, 0.45);
+    border: 1px solid rgba(90, 120, 70, 0.35);
+    color: var(--text);
+    padding: 3px 31px;
+    font-family: 'Crimson Text', serif;
+    font-size: 11px;
+    outline: none;
+}
+
+#left-chat-box .chat-input-row input:focus {
+  border-color: var(--border-gold);
+  box-shadow: 0 0 8px rgba(201,168,76,0.14);
+}
+
+/* botão enviar */
+#left-chat-box .chat-input-row button {
+    width: 50px;
+    left: 1px;
+    top: -5px;
+    position: relative;
+    height: 19px;
+    background: rgba(20, 40, 22, 0.75);
+    border: 1px solid rgba(90, 120, 70, 0.45);
+    color: var(--gold-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    cursor: pointer;
+    padding: 0;
+}
+
+#left-chat-box .chat-input-row button:hover {
+  border-color: var(--border-gold);
+  color: var(--gold-bright);
+}
+
+#skills-box {
+  margin-top: 10px;
+
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+}
+
+#skills-box h3 {
+  flex: 0 0 auto;
+}
+
+#skillsList {
+  flex: 1;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding-right: 4px;
+  margin-top: 4px;
+}
+/* ─────────────────────────────────────────
+   INVENTÁRIO — AJUSTADO AO MOCKUP 1380x178
+   ───────────────────────────────────────── */
+
+#center-overlay {
+  position: fixed;
+  left: 280px;
+  right: 260px;
+  bottom: 52px;
+  z-index: 40;
+  pointer-events: none;
+}
+
+/* painel principal */
+#inventory-panel {
+    position: relative;
+    pointer-events: all;
+    top: -11px;
+    left: 13px;
+    width: 98%;
+    aspect-ratio: 1380 / 178;
+    background-image: url(/static/images/Inventario.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    border: none;
+    box-shadow: none;
+    overflow: hidden;
+}
+
+/* título centralizado */
+#inventory-panel .inv-label {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  margin: 0;
+  padding: 0;
+
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* área dos slots normais */
+#inventory {
+    position: absolute;
+    left: 100px;
+    right: 245px;
+    top: 43px;
+    bottom: 18px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 104px;
+    align-items: end;
+}
+
+/* cada slot fica transparente porque o mockup já desenha as molduras */
+.inv-slot {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  overflow: hidden;
+
+  color: rgba(220, 200, 120, 0.85);
+  font-family: 'Special Elite', serif;
+  font-size: 12px;
+  text-shadow: 0 0 6px rgba(0,0,0,0.85);
+
+  cursor: pointer;
+}
+
+/* hover suave */
+.inv-slot:hover {
+  filter: brightness(1.12);
+}
+
+/* imagem do item dentro do slot */
+.inv-slot img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  filter: sepia(0.25) contrast(0.95);
+}
+
+/* quantidade do item */
+.inv-slot .item-qty {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+
+  font-family: 'Special Elite', serif;
+  font-size: 10px;
+  color: var(--gold-dim);
+}
+
+/* botão + separado no canto superior direito */
+.inv-add-slot {
+    position: absolute;
+    top: 74px;
+    right: 91px;
+    width: 56px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: rgba(220, 200, 120, 0.9);
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform 0.18s, filter 0.18s;
+}
+
+.inv-add-slot:hover {
+  transform: scale(1.05);
+  filter: brightness(1.15);
+}
+
+/* ══════════════════════════════════════════
+   PERFIL COMPLETO — FOTO + ATRIBUTOS + PERÍCIAS
+   Usa /static/images/Perfil.png
+   ══════════════════════════════════════════ */
+
+#profile-card {
+    flex: 1;
+    min-height: 0px;
+    width: 106%;
+    margin-bottom: -30px;
+    padding: 11px 9px 14px;
+    background-image: url(/static/images/Perfil.png);
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    left: -8px;
+    top: -7px;
+}
+
+/* bloco superior: foto + nome */
+#char-photo-block {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin: 0 0 16px;
+  padding: 0 0 14px;
+
+  border-bottom: 1px solid rgba(201,168,76,0.18);
+  background: transparent;
+}
+
+/* foto */
+#charImage {
+    width: 69px;
+    height: 82px;
+    object-fit: unset;
+    border: none;
+    background: transparent;
+    flex-shrink: 0;
+    filter: sepia(0.12) contrast(1.05) brightness(0.92) drop-shadow(0 0 8px rgba(120, 190, 120, 0.18));
+}
+
+/* nome e ocupação */
+#char-name-block {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    padding-left: 41px;
+}
+
+#charName {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  line-height: 1.15;
+
+  color: #f3e5b2;
+
+  letter-spacing: 1px;
+
+  text-shadow:
+    0 1px 2px #000,
+    0 0 8px rgba(230,200,110,0.22);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  margin-bottom: 4px;
+}
+
+#charOccupation {
+  font-family: 'Special Elite', serif;
+  font-size: 9px;
+
+  color: #b8d9b0;
+
+  letter-spacing: 1px;
+
+  text-shadow:
+    0 1px 2px #000,
+    0 0 6px rgba(120,190,120,0.18);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* atributos dentro do perfil */
+#attr-grid {
+    position: relative;
+    top: 57px;
+    flex: 0 0 auto;
+    display: flex;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 74px;
+    left: 6px;
+}
+
+.attr-card {
+  background: rgba(4,10,6,0.45);
+  border: 1px solid rgba(201,168,76,0.18);
+
+  padding: 6px 3px;
+  text-align: center;
+
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.35);
+}
+
+.attr-card .attr-label {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 1px;
+
+  color: rgba(220,210,170,0.55);
+
+  display: block;
+  margin-bottom: 2px;
+}
+
+.attr-card .attr-val {
+  font-family: 'Special Elite', serif;
+  font-size: 15px;
+
+  color: #dce8cf;
+
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(120,190,120,0.16);
+}
+
+/* caixa de perícias com rolagem própria */
+#skills-box {
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+}
+
+#skills-box h3 {
+  flex: 0 0 auto;
+
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+
+  color: var(--gold-dim);
+
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+
+  border-bottom: 1px solid rgba(201,168,76,0.16);
+}
+
+/* só a lista de perícias rola */
+#skillsList {
+  flex: 1;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding-right: 5px;
+}
+
+/* linha da perícia */
+.skill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 4px 3px;
+
+  border-bottom: 1px solid rgba(42,74,46,0.22);
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s,
+    padding-left 0.15s;
+}
+
+.skill-row:hover {
+  background: rgba(40,66,45,0.22);
+  padding-left: 7px;
+}
+
+.skill-row .skill-name {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.skill-row .skill-pct {
+  font-family: 'Special Elite', serif;
+  font-size: 13px;
+  color: var(--green-bright);
+
+  min-width: 36px;
+  text-align: right;
+}
 
 </style>
 </head>
@@ -1460,27 +2345,54 @@ body::before {
         <input id="musicVolume" type="range" min="0" max="1" step="0.05" value="0.5" onchange="masterChangeVolume()" style="width:100%;accent-color:var(--green-hi);">
       </div>
     {% else %}
-      <div id="char-photo-block">
-        <img id="charImage" src="/static/images/default_character.png" alt="Personagem">
-        <div id="char-name-block">
-          <div id="charName">Carregando...</div>
-          <div id="charOccupation">Investigador</div>
+<div id="profile-card">
+
+  <div id="char-photo-block">
+    <img id="charImage" src="/static/images/default_character.png" alt="Personagem">
+    <div id="char-name-block">
+      <div id="charName">Carregando...</div>
+      <div id="charOccupation">Investigador</div>
+    </div>
+  </div>
+
+  <div id="attr-grid">
+    <div class="attr-card"><span class="attr-label">FOR</span><span class="attr-val" id="attr-str">--</span></div>
+    <div class="attr-card"><span class="attr-label">CON</span><span class="attr-val" id="attr-con">--</span></div>
+    <div class="attr-card"><span class="attr-label">DES</span><span class="attr-val" id="attr-dex">--</span></div>
+    <div class="attr-card"><span class="attr-label">INT</span><span class="attr-val" id="attr-int">--</span></div>
+    <div class="attr-card"><span class="attr-label">APP</span><span class="attr-val" id="attr-app">--</span></div>
+    <div class="attr-card"><span class="attr-label">SAB</span><span class="attr-val" id="attr-sab">--</span></div>
+  </div>
+
+  <div id="skills-box">
+    <h3>Perícias</h3>
+    <div id="skillsList"></div>
+  </div>
+
+</div>
+    {% endif %}
+
+      <div id="left-actions-box">
+        <h3>Ações Rápidas</h3>
+
+        <div class="quick-btns">
+          <button class="quick-btn" onclick="openModal('sheetModal')">Ficha</button>
+          <button class="quick-btn" onclick="openEditCharacterModal()">Editar</button>
+          <button class="quick-btn" onclick="openModal('notesModal')">📖 Pistas</button>
         </div>
       </div>
+      <div id="left-chat-box">
+        <div class="chat-label">Chat <span>— Sala: Investigadores</span></div>
 
-      <div id="attr-grid">
-        <div class="attr-card"><span class="attr-label">FOR</span><span class="attr-val" id="attr-str">--</span></div>
-        <div class="attr-card"><span class="attr-label">CON</span><span class="attr-val" id="attr-con">--</span></div>
-        <div class="attr-card"><span class="attr-label">DES</span><span class="attr-val" id="attr-dex">--</span></div>
-        <div class="attr-card"><span class="attr-label">INT</span><span class="attr-val" id="attr-int">--</span></div>
-        <div class="attr-card"><span class="attr-label">APP</span><span class="attr-val" id="attr-app">--</span></div>
-        <div class="attr-card"><span class="attr-label">SAB</span><span class="attr-val" id="attr-sab">--</span></div>
+        <div id="chatMessages"></div>
+
+        <div class="chat-input-row">
+          <input id="chatInput" placeholder="Digite sua mensagem...">
+          <button onclick="sendChat()">▶</button>
+        </div>
       </div>
-
-      <h3>Perícias</h3>
-      <div id="skillsList"></div>
-    {% endif %}
   </aside>
+
 
   <!-- ═══════════════ CENTER — MAPS ════════════════ -->
   <main id="maps-area">
@@ -1595,34 +2507,41 @@ body::before {
 
     <!-- Dice Section -->
     <div id="dice-card">
-      <div class="rp-section-title" style="margin-bottom:8px;">Rolagem</div>
-      <div id="dice-display-area">
-        <img id="dice-img-btn"
-             src="/static/dice.png"
-             alt="Dados"
-             onclick="rollActiveDice()"
-             title="Rolar dados">
-        <div id="dice-result">
-          <span id="dice-result-num">—</span>
-          <span id="dice-result-type">d100</span>
-        </div>
-        <div class="dice-modifier">
-          <label>Dado</label>
-          <select id="diceTypeSelect">
-            <option value="d4">1d4</option>
-            <option value="d6">1d6</option>
-            <option value="d10">1d10</option>
-            <option value="d20">1d20</option>
-            <option value="d100" selected>1d100</option>
-          </select>
-          <label style="margin-top:4px;">Modificador</label>
-          <div style="display:flex;gap:3px;align-items:center;margin-top:2px;">
-            <button style="background:rgba(8,20,10,.9);border:1px solid var(--border-green);color:var(--text-dim);width:20px;height:20px;cursor:pointer;font-size:13px;" onclick="adjMod(-1)">−</button>
-            <span id="modVal" style="font-family:'Special Elite',serif;font-size:12px;color:var(--text);min-width:24px;text-align:center;">0</span>
-            <button style="background:rgba(8,20,10,.9);border:1px solid var(--border-green);color:var(--text-dim);width:20px;height:20px;cursor:pointer;font-size:13px;" onclick="adjMod(1)">+</button>
-          </div>
+      <div class="rp-section-title">Rolagem</div>
+
+      <!-- VALOR DO RESULTADO -->
+      <div id="dice-value-box">
+        <span id="dice-result-num">—</span>
+        <span id="dice-result-type">d100</span>
+      </div>
+
+      <!-- MODIFICADOR -->
+      <div id="dice-mod-box">
+        <span class="dice-box-label">MODIFICADOR</span>
+        <div id="dice-mod-controls">
+          <button onclick="adjMod(-1)">−</button>
+          <span id="modVal">0</span>
+          <button onclick="adjMod(1)">+</button>
         </div>
       </div>
+
+      <!-- SELETOR DE DADO -->
+      <div id="dice-type-box">
+        <select id="diceTypeSelect">
+          <option value="d4">1d4</option>
+          <option value="d6">1d6</option>
+          <option value="d10">1d10</option>
+          <option value="d20">1d20</option>
+          <option value="d100" selected>1d100</option>
+        </select>
+      </div>
+
+      <!-- DADO NO CÍRCULO -->
+      <img id="dice-img-btn"
+          src="/static/dice.png"
+          alt="Dados"
+          onclick="rollActiveDice()"
+          title="Rolar dados">
     </div>
 
     <!-- Roll Log -->
@@ -1638,17 +2557,17 @@ body::before {
   <!-- ═══════════════ BOTTOM BAR ═════════════════ -->
   <footer id="bottom-bar">
     <div class="bottom-info-group">
-      <div class="bottom-item">Campanha: <strong id="campaignName">Ecos Emergentes</strong></div>
+      <div class="bottom-item">Campanha: <strong id="campaignName">Ecos da Nevoa</strong></div>
       <div class="bottom-divider"></div>
-      <div class="bottom-item">Sessão: <strong id="sessionNum">1</strong></div>
+      <div class="bottom-item">Sessão: <strong id="sessionNum">2</strong></div>
       <div class="bottom-divider"></div>
-      <div class="bottom-item">Guardião: <strong id="guardianName">—</strong></div>
+      <div class="bottom-item">Guardião: <strong id="guardianName">João</strong></div>
     </div>
 
     <div class="bottom-center">
-      <div class="bottom-badge" id="bottomClimate">⛅ Clima: Névoa Densa</div>
-      <div class="bottom-badge" id="bottomTime">🕐 <span id="clockDisplay">21:47</span></div>
-      <div class="bottom-badge" id="bottomDate">📅 <span id="dateDisplay">24 de Novembro de 1919</span></div>
+      <div class="bottom-badge" id="bottomClimate">Clima: Névoa Densa</div>
+      <div class="bottom-badge" id="bottomTime"><span id="clockDisplay">22:15</span></div>
+      <div class="bottom-badge" id="bottomDate"><span id="dateDisplay">24 de Novembro de 1919</span></div>
     </div>
 
     <div id="bottom-right-info" class="bottom-info-group">
@@ -1674,35 +2593,6 @@ body::before {
     <div class="inv-add-slot" onclick="openItemModal(10)" title="Adicionar item">+</div>
   </div>
   {% endif %}
-
-  <div id="chat-panel">
-    <div id="chat-panel-inner">
-      <div>
-        <div class="chat-label">Chat <span>— Sala: Investigadores</span></div>
-        <div id="chatMessages"></div>
-        <div class="chat-input-row">
-          <input id="chatInput" placeholder="Digite sua mensagem...">
-          <button onclick="sendChat()">▶</button>
-        </div>
-      </div>
-      <div class="quick-action-group">
-        <label>Ações Rápidas</label>
-        <div class="quick-btns">
-          {% if not is_master %}
-          <button class="quick-btn" onclick="openModal('sheetModal')">Ficha</button>
-          <button class="quick-btn" onclick="openEditCharacterModal()">Editar</button>
-          {% endif %}
-          <button class="quick-btn" onclick="openModal('notesModal')">📖 Pistas</button>
-          {% if is_master %}
-          <button class="quick-btn" onclick="openNpcModal()">Criar NPC</button>
-          <button class="quick-btn" onclick="setVttTool('ping')">Ping</button>
-          <button class="quick-btn" onclick="masterEvent('fog')">Névoa</button>
-          <button class="quick-btn" onclick="masterEvent('shake')">Terror</button>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 {% if is_master %}
@@ -1854,6 +2744,22 @@ const socket = io();
 
 let currentTool   = "move";
 let character     = null;
+
+let localMapPanX = 0;
+let localMapPanY = 0;
+let localMapScale = 0.98;
+
+let cityMapPanX = 0;
+let cityMapPanY = 0;
+let cityMapScale = 0.98;
+
+let isDraggingMap = false;
+let mapDragStartX = 0;
+let mapDragStartY = 0;
+let mapStartPanX = 0;
+let mapStartPanY = 0;
+let mapWasDragged = false;
+
 let currentPartIndex = 0;
 let skills        = [];
 let selectedNpcId = null;
@@ -1876,6 +2782,58 @@ function startGameClock() {
     updateClockDisplay();
   }, 60000);
   updateClockDisplay();
+}
+
+function applyCityMapTransform() {
+  const cityMap = document.querySelector(".city-map");
+  const cityMarkers = document.getElementById("cityMarkersLayer");
+
+  const transform = `translate(${cityMapPanX}px, ${cityMapPanY}px) scale(${cityMapScale})`;
+
+  if (cityMap) {
+    cityMap.style.transform = transform;
+    cityMap.style.transformOrigin = "0 0";
+  }
+
+  if (cityMarkers) {
+    cityMarkers.style.transform = transform;
+    cityMarkers.style.transformOrigin = "0 0";
+  }
+}
+
+function centerCityMap() {
+  const stage = document.getElementById("cityStage");
+  if (!stage) return;
+
+  const rect = stage.getBoundingClientRect();
+
+  cityMapPanX = (rect.width - rect.width * cityMapScale) / 2;
+  cityMapPanY = (rect.height - rect.height * cityMapScale) / 2;
+
+  applyCityMapTransform();
+}
+
+function zoomAtPoint({ stage, clientX, clientY, scale, panX, panY, minScale, maxScale, delta }) {
+  const rect = stage.getBoundingClientRect();
+
+  const mouseX = clientX - rect.left;
+  const mouseY = clientY - rect.top;
+
+  const oldScale = scale;
+  const zoomFactor = delta < 0 ? 1.1 : 0.9;
+  const newScale = Math.max(minScale, Math.min(maxScale, oldScale * zoomFactor));
+
+  const worldX = (mouseX - panX) / oldScale;
+  const worldY = (mouseY - panY) / oldScale;
+
+  const newPanX = mouseX - worldX * newScale;
+  const newPanY = mouseY - worldY * newScale;
+
+  return {
+    scale: newScale,
+    panX: newPanX,
+    panY: newPanY
+  };
 }
 
 function updateClockDisplay() {
@@ -1939,12 +2897,21 @@ function clearNpcSelection() {
 
 const localStage = document.getElementById("localStage");
 localStage.onclick = async (e) => {
+  if (mapWasDragged) {
+    mapWasDragged = false;
+    return;
+  }
+
   if (currentMap === "city") return;
+
   const rect = localStage.getBoundingClientRect();
-  let x = ((e.clientX - rect.left) / rect.width) * 100;
-  let y = ((e.clientY - rect.top) / rect.height) * 100;
+
+  let x = ((e.clientX - rect.left - localMapPanX) / localMapScale / rect.width) * 100;
+  let y = ((e.clientY - rect.top - localMapPanY) / localMapScale / rect.height) * 100;
+
   x = Math.max(0, Math.min(100, x));
   y = Math.max(0, Math.min(100, y));
+
 
   if (IS_MASTER && currentTool === "move" && selectedNpcId) {
     await fetch(`/api/monsters/move/${selectedNpcId}`, {
@@ -1975,29 +2942,67 @@ async function openLocalMap(mapName) {
   await loadAllCharacters(); await loadMonsters(); await refreshCityMarkers();
 }
 
+
+
 function openCurrentPart() {
   const parts = LOCAL_PARTS[currentMap] || [];
   const part = parts[currentPartIndex];
-  if (!part) return;
+
+  if (!part) {
+    console.warn("Nenhuma parte encontrada para o mapa:", currentMap);
+    return;
+  }
+
   currentRoom = `${currentMap}_${part.name}`;
+
   const localMap = document.getElementById("localMap");
-  localMap.src = part.img; localMap.classList.remove("hidden");
+
+  if (localMap) {
+    localMap.src = part.img;
+    localMap.classList.remove("hidden");
+
+    localMap.onload = () => {
+      localMapScale = 0.98;
+      centerLocalMap();
+    };
+  }
+
   const titleEl = document.getElementById("localTitle");
-  const subEl   = document.getElementById("localSubtitle");
-  if (titleEl) titleEl.childNodes[0].nodeValue = currentMap.toUpperCase();
-  if (subEl)   subEl.textContent = part.name;
+  if (titleEl) {
+    titleEl.innerHTML = `
+      ${currentMap.toUpperCase()}
+      <span class="map-subtitle" id="localSubtitle">${part.name}</span>
+    `;
+  }
+
   const locLabel = document.getElementById("localLocationLabel");
-  if (locLabel) locLabel.textContent = part.name;
+  if (locLabel) {
+    locLabel.textContent = part.name;
+  }
 }
 
 async function changeMapPart(direction) {
   const parts = LOCAL_PARTS[currentMap] || [];
   if (!parts.length) return;
+
   currentPartIndex = (currentPartIndex + direction + parts.length) % parts.length;
+
   openCurrentPart();
-  document.getElementById("tokensLayer").innerHTML = "";
-  await loadAllCharacters(); await loadMonsters();
-  socket.emit("map_part_changed", { currentMap, currentPartIndex });
+
+  const layer = document.getElementById("tokensLayer");
+  if (layer) {
+    layer.innerHTML = "";
+  }
+
+  setTimeout(centerLocalMap, 80);
+
+  await loadAllCharacters();
+  await loadMonsters();
+
+  socket.emit("map_part_changed", {
+    currentMap,
+    currentPartIndex
+  });
 }
 
 // ─── CHAR MOVEMENT ────────────────────────
@@ -2271,10 +3276,10 @@ function formatRoll(data) {
 function initInventory() {
   const inv = document.getElementById("inventory"); if (!inv) return;
   inv.innerHTML = "";
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < 8; i++) {
     const slot = document.createElement("div");
     slot.className = "inv-slot"; slot.dataset.slot = i;
-    slot.innerHTML = `<span style="font-size:10px;color:var(--text-dim);">${i+1}</span>`;
+    slot.innerHTML = `<span style="font-size:14px;color:var(--text-dim);">${i+1}</span>`;
     slot.onclick = () => openItemModal(i);
     inv.appendChild(slot);
   }
@@ -2545,10 +3550,141 @@ socket.on("game_time_set", data => {
   updateClockDisplay(); startGameClock();
 });
 
+
+
+
+function applyLocalMapTransform() {
+  const localMap = document.getElementById("localMap");
+  const tokensLayer = document.getElementById("tokensLayer");
+
+  const transform = `translate(${localMapPanX}px, ${localMapPanY}px) scale(${localMapScale})`;
+
+  if (localMap) {
+    localMap.style.transform = transform;
+    localMap.style.transformOrigin = "0 0";
+  }
+
+  if (tokensLayer) {
+    tokensLayer.style.transform = transform;
+    tokensLayer.style.transformOrigin = "0 0";
+  }
+}
+
+function centerLocalMap() {
+  const stage = document.getElementById("localStage");
+  if (!stage) return;
+
+  const rect = stage.getBoundingClientRect();
+
+  localMapPanX = (rect.width - rect.width * localMapScale) / 2;
+  localMapPanY = (rect.height - rect.height * localMapScale) / 2;
+
+  applyLocalMapTransform();
+}
+
+function setupLocalMapPan() {
+  const stage = document.getElementById("localStage");
+  if (!stage) return;
+
+  stage.addEventListener("mousedown", (e) => {
+    if (currentMap === "city") return;
+    if (e.target.closest(".token")) return;
+    if (e.target.closest(".map-part-nav")) return;
+
+    isDraggingMap = true;
+    mapWasDragged = false;
+
+    mapDragStartX = e.clientX;
+    mapDragStartY = e.clientY;
+
+    mapStartPanX = localMapPanX;
+    mapStartPanY = localMapPanY;
+
+    stage.classList.add("dragging");
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!isDraggingMap) return;
+
+    const dx = e.clientX - mapDragStartX;
+    const dy = e.clientY - mapDragStartY;
+
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      mapWasDragged = true;
+    }
+
+    localMapPanX = mapStartPanX + dx;
+    localMapPanY = mapStartPanY + dy;
+
+    applyLocalMapTransform();
+  });
+
+  stage.addEventListener("wheel", (e) => {
+  if (currentMap === "city") return;
+
+  e.preventDefault();
+
+  const result = zoomAtPoint({
+    stage,
+    clientX: e.clientX,
+    clientY: e.clientY,
+    scale: localMapScale,
+    panX: localMapPanX,
+    panY: localMapPanY,
+    minScale: 0.8,
+    maxScale: 2.8,
+    delta: e.deltaY
+  });
+
+  localMapScale = result.scale;
+  localMapPanX = result.panX;
+  localMapPanY = result.panY;
+
+  applyLocalMapTransform();
+}, { passive: false });
+
+  window.addEventListener("mouseup", () => {
+    if (!stage) return;
+    isDraggingMap = false;
+    stage.classList.remove("dragging");
+  });
+}
+
+
+function setupCityMapZoom() {
+  const stage = document.getElementById("cityStage");
+  if (!stage) return;
+
+  stage.addEventListener("wheel", (e) => {
+    e.preventDefault();
+
+    const result = zoomAtPoint({
+      stage,
+      clientX: e.clientX,
+      clientY: e.clientY,
+      scale: cityMapScale,
+      panX: cityMapPanX,
+      panY: cityMapPanY,
+      minScale: 1,
+      maxScale: 2.5,
+      delta: e.deltaY
+    });
+
+    cityMapScale = result.scale;
+    cityMapPanX = result.panX;
+    cityMapPanY = result.panY;
+
+    applyCityMapTransform();
+  }, { passive: false });
+}
+
+
 // ─── INIT ─────────────────────────────────
 
 async function initGame() {
   setupTokenSizeControl();
+  setupLocalMapPan();
+  setupCityMapZoom();
   startGameClock();
   await refreshCityMarkers();
   if (IS_MASTER) { await loadMasterPlayers(); setInterval(loadMasterPlayers, 3000); }
