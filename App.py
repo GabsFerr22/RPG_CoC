@@ -462,6 +462,7 @@ def move_character():
 
     socketio.emit('character_moved', {
         'user_id': session['user_id'],
+        'char_id': data.get('char_id'),
         'char_name': data.get('char_name', session.get('username')),
         'pos_x': data['pos_x'],
         'pos_y': data['pos_y'],
